@@ -19,7 +19,9 @@ services:
       ne_desem_db:
         condition: service_healthy
     networks:
-      - ne_desem_prod_network
+      ne_desem_prod_network:
+        aliases:
+          - app
 
   ne_desem_db:
     image: postgres:16-alpine
@@ -42,8 +44,6 @@ services:
 
 networks:
   ne_desem_prod_network:
-    name: ne_desem_prod_network
 
 volumes:
   ne_desem_postgres_prod_data:
-    name: ne_desem_postgres_prod_data
