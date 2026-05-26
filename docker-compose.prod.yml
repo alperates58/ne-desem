@@ -16,14 +16,10 @@ services:
     expose:
       - "3000"
     depends_on:
-      ne_desem_db:
+      db:
         condition: service_healthy
-    networks:
-      ne_desem_prod_network:
-        aliases:
-          - app
 
-  ne_desem_db:
+  db:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
@@ -37,13 +33,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      ne_desem_prod_network:
-        aliases:
-          - db
-
-networks:
-  ne_desem_prod_network:
 
 volumes:
   ne_desem_postgres_prod_data:
