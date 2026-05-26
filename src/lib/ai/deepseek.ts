@@ -12,6 +12,13 @@ type ChatMessage = {
   content: string;
 };
 
+export class AiServiceError extends Error {
+  constructor(message = "AI servisi şu an cevap veremedi. Lütfen tekrar dene.") {
+    super(message);
+    this.name = "AiServiceError";
+  }
+}
+
 const scoresSchema = z.object({
   clarity: z.number().min(0).max(100),
   confidence: z.number().min(0).max(100),
@@ -88,18 +95,21 @@ function parseJson(content: string) {
 async function requestJson<T>(
   messages: ChatMessage[],
   schema: z.ZodType<T>,
-  fallback: T,
 ): Promise<T> {
   const apiKey = process.env.DEEPSEEK_API_KEY;
+  const model = getModel();
 
   if (!apiKey) {
-    return fallback;
+    console.error("AI provider: deepseek", "model:", model, "error:", "missing_api_key");
+    throw new AiServiceError();
   }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000);
 
   try {
+    console.info("AI provider: deepseek", "model:", model);
+
     const response = await fetch(getEndpoint(), {
       method: "POST",
       signal: controller.signal,
@@ -108,18 +118,16 @@ async function requestJson<T>(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: getModel(),
+        model,
         messages,
-        thinking: { type: "enabled" },
-        reasoning_effort: "high",
         response_format: { type: "json_object" },
-        stream: false,
-        max_tokens: 1600,
+        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
-      return fallback;
+      console.error("AI provider: deepseek", "model:", model, "status:", response.status);
+      throw new AiServiceError();
     }
 
     const data = (await response.json()) as {
@@ -128,13 +136,42 @@ async function requestJson<T>(
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
-      return fallback;
+      console.error("AI provider: deepseek", "model:", model, "error:", "empty_content");
+      throw new AiServiceError();
     }
 
-    const result = schema.safeParse(parseJson(content));
-    return result.success ? result.data : fallback;
-  } catch {
-    return fallback;
+    let parsed: unknown;
+
+    try {
+      parsed = parseJson(content);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "unknown_parse_error";
+      console.error("AI provider: deepseek", "model:", model, "json_parse_error:", message.slice(0, 160));
+      throw new AiServiceError();
+    }
+
+    const result = schema.safeParse(parsed);
+
+    if (!result.success) {
+      console.error(
+        "AI provider: deepseek",
+        "model:",
+        model,
+        "json_parse_error:",
+        result.error.issues[0]?.message || "schema_validation_failed",
+      );
+      throw new AiServiceError();
+    }
+
+    return result.data;
+  } catch (error) {
+    if (error instanceof AiServiceError) {
+      throw error;
+    }
+
+    const message = error instanceof Error ? error.message : "request_failed";
+    console.error("AI provider: deepseek", "model:", model, "error:", message.slice(0, 160));
+    throw new AiServiceError();
   } finally {
     clearTimeout(timeout);
   }
@@ -230,23 +267,20 @@ export async function getDeepSeekTurnResponse(
   context: MessageContext,
   userMessage: string,
   turnNumber: number,
-  fallback: TurnAiResponse,
 ) {
-  return requestJson(createTurnMessages(context, userMessage, turnNumber), turnSchema, fallback);
+  return requestJson<TurnAiResponse>(createTurnMessages(context, userMessage, turnNumber), turnSchema);
 }
 
 export async function getDeepSeekFinalReport(
   context: MessageContext,
   turns: Array<{ turnNumber: number; userMessage: string; aiMessage: string }>,
-  fallback: FinalReport,
 ) {
-  return requestJson(createFinalReportMessages(context, turns), finalReportSchema, fallback);
+  return requestJson<FinalReport>(createFinalReportMessages(context, turns), finalReportSchema);
 }
 
 export async function getDeepSeekOutcomeAdvice(
   context: MessageContext,
   outcome: OutcomeInput,
-  fallback: OutcomeAdvice,
 ) {
-  return requestJson(createOutcomeAdviceMessages(context, outcome), outcomeAdviceSchema, fallback);
+  return requestJson<OutcomeAdvice>(createOutcomeAdviceMessages(context, outcome), outcomeAdviceSchema);
 }

@@ -23,21 +23,21 @@ export async function getTurnResponse(
   userMessage: string,
   turnNumber: number,
 ) {
-  const fallback = generateTurnResponse(context, userMessage, turnNumber);
-
   if (aiMode === "deepseek" && isDeepSeekConfigured()) {
-    return getDeepSeekTurnResponse(context, userMessage, turnNumber, fallback);
+    return getDeepSeekTurnResponse(context, userMessage, turnNumber);
   }
 
-  return fallback;
+  if (aiMode === "deepseek") {
+    return getDeepSeekTurnResponse(context, userMessage, turnNumber);
+  }
+
+  return generateTurnResponse(context, userMessage, turnNumber);
 }
 
 export async function getFinalReport(
   context: MessageContext,
   turns: Parameters<typeof generateFinalReport>[1],
 ) {
-  const fallback = generateFinalReport(context, turns);
-
   if (aiMode === "deepseek" && isDeepSeekConfigured()) {
     return getDeepSeekFinalReport(
       context,
@@ -46,19 +46,31 @@ export async function getFinalReport(
         userMessage: turn.userMessage,
         aiMessage: turn.aiMessage,
       })),
-      fallback,
     );
   }
 
-  return fallback;
+  if (aiMode === "deepseek") {
+    return getDeepSeekFinalReport(
+      context,
+      turns.map((turn) => ({
+        turnNumber: turn.turnNumber,
+        userMessage: turn.userMessage,
+        aiMessage: turn.aiMessage,
+      })),
+    );
+  }
+
+  return generateFinalReport(context, turns);
 }
 
 export async function getOutcomeAdvice(context: MessageContext, outcome: OutcomeInput) {
-  const fallback = generateOutcomeAdvice(context, outcome);
-
   if (aiMode === "deepseek" && isDeepSeekConfigured()) {
-    return getDeepSeekOutcomeAdvice(context, outcome, fallback);
+    return getDeepSeekOutcomeAdvice(context, outcome);
   }
 
-  return fallback;
+  if (aiMode === "deepseek") {
+    return getDeepSeekOutcomeAdvice(context, outcome);
+  }
+
+  return generateOutcomeAdvice(context, outcome);
 }

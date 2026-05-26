@@ -7,6 +7,15 @@ export function jsonError(message: string, status = 400) {
 }
 
 export function parseError(error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "AiServiceError"
+  ) {
+    return "AI servisi şu an cevap veremedi. Lütfen tekrar dene.";
+  }
+
   if (error instanceof ZodError) {
     return error.issues[0]?.message || "Form bilgilerini kontrol et.";
   }
