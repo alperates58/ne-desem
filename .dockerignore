@@ -1,0 +1,8 @@
+node_modules
+.next
+.env
+.tmp-next
+npm-debug.log
+Dockerfile
+docker-compose.yml
+docker-compose.prod.yml

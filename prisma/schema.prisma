@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SimulationStatus {
+  in_progress
+  completed
+  outcome_added
+}
+
+model User {
+  id           String       @id @default(cuid())
+  name         String
+  email        String       @unique
+  passwordHash String       @map("password_hash")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  simulations  Simulation[]
+
+  @@map("users")
+}
+
+model Simulation {
+  id              String              @id @default(cuid())
+  userId          String              @map("user_id")
+  category        String
+  scenario        String
+  title           String
+  contextJson     Json                @map("context_json")
+  status          SimulationStatus    @default(in_progress)
+  totalScore      Int?                @map("total_score")
+  finalReportJson Json?               @map("final_report_json")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  completedAt     DateTime?           @map("completed_at")
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  turns           SimulationTurn[]
+  outcome         SimulationOutcome?
+
+  @@index([userId, createdAt])
+  @@map("simulations")
+}
+
+model SimulationTurn {
+  id                String     @id @default(cuid())
+  simulationId      String     @map("simulation_id")
+  turnNumber        Int        @map("turn_number")
+  aiMessage         String     @map("ai_message")
+  userMessage       String     @map("user_message")
+  scoresJson        Json       @map("scores_json")
+  feedback          String
+  betterAlternative String     @map("better_alternative")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  simulation        Simulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+
+  @@unique([simulationId, turnNumber])
+  @@index([simulationId])
+  @@map("simulation_turns")
+}
+
+model SimulationOutcome {
+  id                     String     @id @default(cuid())
+  simulationId           String     @unique @map("simulation_id")
+  whatHappened           String     @map("what_happened")
+  otherPersonReaction    String     @map("other_person_reaction")
+  goalResult             String     @map("goal_result")
+  satisfactionScore      Int        @map("satisfaction_score")
+  nextGoal               String     @map("next_goal")
+  aiFollowupAdviceJson   Json?      @map("ai_followup_advice_json")
+  createdAt              DateTime   @default(now()) @map("created_at")
+  updatedAt              DateTime   @updatedAt @map("updated_at")
+  simulation             Simulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+
+  @@map("simulation_outcomes")
+}

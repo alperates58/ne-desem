@@ -1,0 +1,49 @@
+services:
+  ne_desem_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in Coolify}
+      AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET in Coolify}
+      AI_MODE: ${AI_MODE:-mock}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-v4-pro}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:?Set NEXT_PUBLIC_APP_URL in Coolify}
+    expose:
+      - "3000"
+    depends_on:
+      ne_desem_db:
+        condition: service_healthy
+    networks:
+      - ne_desem_prod_network
+
+  ne_desem_db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ne_desem}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Coolify}
+      POSTGRES_DB: ${POSTGRES_DB:-ne_desem}
+    volumes:
+      - ne_desem_postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      ne_desem_prod_network:
+        aliases:
+          - db
+
+networks:
+  ne_desem_prod_network:
+    name: ne_desem_prod_network
+
+volumes:
+  ne_desem_postgres_prod_data:
+    name: ne_desem_postgres_prod_data
