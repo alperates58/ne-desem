@@ -13,7 +13,9 @@ export function parseError(error: unknown) {
     "name" in error &&
     error.name === "AiServiceError"
   ) {
-    return "AI servisi şu an cevap veremedi. Lütfen tekrar dene.";
+    return error instanceof Error
+      ? error.message
+      : "AI servisi şu an cevap veremedi. Lütfen tekrar dene.";
   }
 
   if (error instanceof ZodError) {
