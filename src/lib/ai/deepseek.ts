@@ -78,8 +78,21 @@ const outcomeAdviceSchema = z.object({
   next_conversation_opener: z.string().min(1),
 });
 
-const baseSystemPrompt =
-  "Sen Türkçe konuşan bir konuşma prova simülatörüsün. Karşı tarafı gerçekçi ama kısa canlandır. Sadece geçerli JSON döndür. JSON dışında metin yazma.";
+const baseSystemPrompt = [
+  "Sen Türkçe konuşan doğal, zeki ve biraz esprili bir konuşma prova simülatörüsün.",
+  "Kullanıcıya gerçek hayatta gönderebileceği daha iyi cümleler buldurursun.",
+  "Cevaplar fazla resmi, robotik veya tekdüze olmasın.",
+  "Gerektiğinde yaratıcı ama inandırıcı bahaneler üret.",
+  "Espri kullanacaksan dozunda ve karşı tarafı küçümsemeden kullan.",
+  "Karşı tarafı 1-3 cümleyle gerçekçi şekilde konuştur.",
+  "suggested_replies.soft sıcak, yumuşak ve samimi olsun.",
+  "suggested_replies.clear net ama kırmadan olsun.",
+  "suggested_replies.short kısa, doğal, gerekirse hafif esprili olsun.",
+  "feedback 1-2 cümle olsun.",
+  "better_alternative kullanıcının gerçekten gönderebileceği daha iyi bir mesaj olsun, 1-3 cümle.",
+  "Sadece geçerli JSON döndür. JSON dışında açıklama yazma.",
+  "JSON'u tamamlamadan cevabı bitirme. Tüm stringleri çift tırnak içinde kapat. Sonda trailing comma kullanma.",
+].join(" ");
 
 export function isDeepSeekConfigured() {
   return Boolean(process.env.DEEPSEEK_API_KEY);
@@ -162,7 +175,7 @@ async function requestJson<T>(
         model,
         messages,
         response_format: { type: "json_object" },
-        temperature: 0.35,
+        temperature: 0.55,
         max_tokens: maxTokens,
       }),
     });
@@ -195,7 +208,7 @@ async function requestJson<T>(
         timeoutMs,
         jsonParseError: message.slice(0, 160),
       });
-      throw new AiServiceError();
+      throw new AiServiceError("AI cevabı formatlanamadı. Lütfen tekrar dene.");
     }
 
     const result = schema.safeParse(parsed);
@@ -207,7 +220,7 @@ async function requestJson<T>(
         timeoutMs,
         jsonParseError: result.error.issues[0]?.message || "schema_validation_failed",
       });
-      throw new AiServiceError();
+      throw new AiServiceError("AI cevabı formatlanamadı. Lütfen tekrar dene.");
     }
 
     return result.data;
@@ -256,11 +269,12 @@ export function createTurnMessages(
       content: JSON.stringify({
         task: "Zor Mesajlar simülasyonu için karşı taraf tepkisi ve kısa değerlendirme üret.",
         rules: [
-          "Karşı tarafı 1-2 cümleyle konuştur.",
-          "Feedback 1 cümle olsun.",
-          "better_alternative 1 kısa cümle olsun.",
-          "suggested_replies soft/clear/short kısa olsun.",
+          "Karşı tarafı 1-3 cümleyle konuştur.",
+          "Feedback 1-2 cümle olsun.",
+          "better_alternative 1-3 cümle olsun.",
+          "suggested_replies soft/clear/short 1-3 cümle olsun.",
           "Skorlar 0-100 integer olsun.",
+          "JSON'u tamamlamadan cevabı bitirme.",
         ],
         json: {
           ai_message: "...",
@@ -298,9 +312,10 @@ export function createInitialMessages(context: MessageContext): ChatMessage[] {
       content: JSON.stringify({
         task: "Kullanıcının bağlamına göre karşı tarafın ilk tepkisini üret.",
         rules: [
-          "ai_message 1-2 cümle olsun.",
+          "ai_message 1-3 cümle olsun.",
           "Karşı taraf gerçekçi ve bağlama uygun konuşsun.",
           "JSON dışında hiçbir şey yazma.",
+          "JSON'u tamamlamadan cevabı bitirme.",
         ],
         json: { ai_message: "..." },
         context: compactContext(context),
@@ -373,7 +388,7 @@ export async function getDeepSeekTurnResponse(
     "turn",
     createTurnMessages(context, userMessage, turnNumber, conversation),
     turnSchema,
-    500,
+    1900,
     TURN_TIMEOUT_MS,
   );
 }
@@ -383,7 +398,7 @@ export async function getDeepSeekInitialResponse(context: MessageContext) {
     "initial",
     createInitialMessages(context),
     initialSchema,
-    250,
+    1500,
     TURN_TIMEOUT_MS,
   );
 }
