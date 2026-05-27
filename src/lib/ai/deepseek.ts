@@ -18,10 +18,6 @@ type ConversationMessage = {
   content: string;
 };
 
-type InitialAiResponse = {
-  ai_message: string;
-};
-
 export class AiServiceError extends Error {
   constructor(message = "AI servisi şu an cevap veremedi. Lütfen tekrar dene.") {
     super(message);
@@ -54,10 +50,6 @@ const turnSchema = z.object({
   better_alternative: z.string().min(1),
 });
 
-const initialSchema = z.object({
-  ai_message: z.string().min(1),
-});
-
 const finalReportSchema = z.object({
   total_score: z.number().int().min(0).max(100),
   summary: z.string().min(1),
@@ -85,6 +77,8 @@ const baseSystemPrompt = [
   "Gerektiğinde yaratıcı ama inandırıcı bahaneler üret.",
   "Espri kullanacaksan dozunda ve karşı tarafı küçümsemeden kullan.",
   "Karşı tarafı 1-3 cümleyle gerçekçi şekilde konuştur.",
+  "Karşı taraf bazen makul itiraz, kırgınlık, şaşkınlık veya takip sorusu sorarak kullanıcıyı biraz zorlasın.",
+  "Her turda hemen kabullenme; bağlama göre nazik ama zorlayıcı bir tepki de verebilirsin.",
   "suggested_replies.soft sıcak, yumuşak ve samimi olsun.",
   "suggested_replies.clear net ama kırmadan olsun.",
   "suggested_replies.short kısa, doğal, gerekirse hafif esprili olsun.",
@@ -119,7 +113,7 @@ function parseJson(content: string) {
 
 function logDeepSeek(parts: {
   model: string;
-  phase: "initial" | "turn" | "final" | "outcome";
+  phase: "turn" | "final" | "outcome";
   status?: number;
   timeoutMs: number;
 }) {
@@ -131,7 +125,7 @@ function logDeepSeek(parts: {
 
 function logDeepSeekError(parts: {
   model: string;
-  phase: "initial" | "turn" | "final" | "outcome";
+  phase: "turn" | "final" | "outcome";
   timeoutMs: number;
   status?: number;
   error?: string;
@@ -147,7 +141,7 @@ function logDeepSeekError(parts: {
 
 function logEmptyContentDebug(params: {
   model: string;
-  phase: "initial" | "turn" | "final" | "outcome";
+  phase: "turn" | "final" | "outcome";
   data: {
     choices?: Array<{
       finish_reason?: string;
@@ -175,7 +169,7 @@ function logEmptyContentDebug(params: {
 }
 
 async function requestJson<T>(
-  phase: "initial" | "turn" | "final" | "outcome",
+  phase: "turn" | "final" | "outcome",
   messages: ChatMessage[],
   schema: z.ZodType<T>,
   maxTokens: number,
@@ -311,6 +305,7 @@ export function createTurnMessages(
         task: "Zor Mesajlar simülasyonu için karşı taraf tepkisi ve kısa değerlendirme üret.",
         rules: [
           "Karşı tarafı 1-3 cümleyle konuştur.",
+          "Kullanıcının cevabı zayıfsa karşı taraf nazikçe zorlayabilir veya takip sorusu sorabilir.",
           "Feedback 1-2 cümle olsun.",
           "better_alternative 1-3 cümle olsun.",
           "suggested_replies soft/clear/short 1-3 cümle olsun.",
@@ -340,26 +335,6 @@ export function createTurnMessages(
         turnNumber,
         conversation: conversation.slice(-6),
         userMessage,
-      }),
-    },
-  ];
-}
-
-export function createInitialMessages(context: MessageContext): ChatMessage[] {
-  return [
-    { role: "system", content: baseSystemPrompt },
-    {
-      role: "user",
-      content: JSON.stringify({
-        task: "Kullanıcının bağlamına göre karşı tarafın ilk tepkisini üret.",
-        rules: [
-          "ai_message 1-3 cümle olsun.",
-          "Karşı taraf gerçekçi ve bağlama uygun konuşsun.",
-          "JSON dışında hiçbir şey yazma.",
-          "JSON'u tamamlamadan cevabı bitirme.",
-        ],
-        json: { ai_message: "..." },
-        context: compactContext(context),
       }),
     },
   ];
@@ -430,16 +405,6 @@ export async function getDeepSeekTurnResponse(
     createTurnMessages(context, userMessage, turnNumber, conversation),
     turnSchema,
     1900,
-    TURN_TIMEOUT_MS,
-  );
-}
-
-export async function getDeepSeekInitialResponse(context: MessageContext) {
-  return requestJson<InitialAiResponse>(
-    "initial",
-    createInitialMessages(context),
-    initialSchema,
-    1500,
     TURN_TIMEOUT_MS,
   );
 }

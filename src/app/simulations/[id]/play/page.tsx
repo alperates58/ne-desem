@@ -32,14 +32,16 @@ export default async function PlayPage({ params }: PlayPageProps) {
       <ChatSimulation
         simulationId={simulation.id}
         context={context}
-        initialTurns={simulation.turns.map((turn) => ({
-          turnNumber: turn.turnNumber,
-          userMessage: turn.userMessage,
-          aiMessage: turn.aiMessage,
-          feedback: turn.feedback,
-          betterAlternative: turn.betterAlternative,
-          scores: turn.scoresJson as Scores,
-        }))}
+        initialTurns={simulation.turns
+          .filter((turn) => turn.userMessage.trim().length > 0)
+          .map((turn) => ({
+            turnNumber: turn.turnNumber,
+            userMessage: turn.userMessage,
+            aiMessage: turn.aiMessage,
+            feedback: turn.feedback,
+            betterAlternative: turn.betterAlternative,
+            scores: turn.scoresJson as Scores,
+          }))}
       />
     </AppShell>
   );

@@ -1,6 +1,5 @@
 import type { MessageContext, OutcomeInput } from "@/lib/types";
 import {
-  getDeepSeekInitialResponse,
   getDeepSeekFinalReport,
   getDeepSeekOutcomeAdvice,
   getDeepSeekTurnResponse,
@@ -16,14 +15,6 @@ export const aiMode = process.env.AI_MODE === "deepseek" ? "deepseek" : "mock";
 
 export function getOpeningMessage(context: MessageContext) {
   return createOpeningMessage(context);
-}
-
-export async function getInitialResponse(context: MessageContext) {
-  if (aiMode === "deepseek") {
-    return getDeepSeekInitialResponse(context);
-  }
-
-  return { ai_message: createOpeningMessage(context) };
 }
 
 type ConversationMessage = {
