@@ -47,7 +47,7 @@ export default async function Home() {
             <div className="mb-5 flex items-center justify-between">
               <span className="text-sm font-semibold text-violet-200">Mini prova</span>
               <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-100">
-                Mock AI hazır
+                AI prova motoru hazır
               </span>
             </div>
             <div className="space-y-4">

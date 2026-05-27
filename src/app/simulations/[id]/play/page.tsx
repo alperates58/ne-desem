@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { ChatSimulation } from "@/components/chat-simulation";
-import { getOpeningMessage } from "@/lib/ai";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { MessageContext, Scores } from "@/lib/types";
@@ -33,7 +32,6 @@ export default async function PlayPage({ params }: PlayPageProps) {
       <ChatSimulation
         simulationId={simulation.id}
         context={context}
-        openingMessage={getOpeningMessage(context)}
         initialTurns={simulation.turns.map((turn) => ({
           turnNumber: turn.turnNumber,
           userMessage: turn.userMessage,

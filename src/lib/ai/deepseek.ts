@@ -4,12 +4,22 @@ import type {
   MessageContext,
   OutcomeAdvice,
   OutcomeInput,
+  Scores,
   TurnAiResponse,
 } from "@/lib/types";
 
 type ChatMessage = {
   role: "system" | "user";
   content: string;
+};
+
+type ConversationMessage = {
+  role: "ai" | "user";
+  content: string;
+};
+
+type InitialAiResponse = {
+  ai_message: string;
 };
 
 export class AiServiceError extends Error {
@@ -19,7 +29,8 @@ export class AiServiceError extends Error {
   }
 }
 
-const REQUEST_TIMEOUT_MS = 20000;
+const TURN_TIMEOUT_MS = 18000;
+const LONG_TIMEOUT_MS = 25000;
 
 const scoresSchema = z.object({
   clarity: z.number().int().min(0).max(100),
@@ -43,6 +54,10 @@ const turnSchema = z.object({
   better_alternative: z.string().min(1),
 });
 
+const initialSchema = z.object({
+  ai_message: z.string().min(1),
+});
+
 const finalReportSchema = z.object({
   total_score: z.number().int().min(0).max(100),
   summary: z.string().min(1),
@@ -63,13 +78,8 @@ const outcomeAdviceSchema = z.object({
   next_conversation_opener: z.string().min(1),
 });
 
-const baseSystemPrompt = [
-  "Türkçe cevap ver.",
-  "Sadece geçerli JSON döndür.",
-  "JSON dışında açıklama, markdown veya kod bloğu yazma.",
-  "Manipülasyon, tehdit, taciz, şantaj veya baskı amaçlı cevap üretme.",
-  "Karşı tarafı kısa ve gerçekçi konuştur.",
-].join(" ");
+const baseSystemPrompt =
+  "Sen Türkçe konuşan bir konuşma prova simülatörüsün. Karşı tarafı gerçekçi ama kısa canlandır. Sadece geçerli JSON döndür. JSON dışında metin yazma.";
 
 export function isDeepSeekConfigured() {
   return Boolean(process.env.DEEPSEEK_API_KEY);
@@ -94,37 +104,51 @@ function parseJson(content: string) {
   return JSON.parse(withoutFence);
 }
 
-function logDeepSeek(parts: Record<string, string | number>) {
+function logDeepSeek(parts: {
+  model: string;
+  phase: "initial" | "turn" | "final" | "outcome";
+  status?: number;
+  timeoutMs: number;
+}) {
+  const status = parts.status ? ` status: ${parts.status}` : "";
   console.info(
-    Object.entries({ provider: "deepseek", ...parts })
-      .map(([key, value]) => `${key}: ${value}`)
-      .join(" "),
+    `AI provider: deepseek model: ${parts.model} phase: ${parts.phase}${status} timeoutMs: ${parts.timeoutMs}`,
   );
 }
 
-function logDeepSeekError(parts: Record<string, string | number>) {
+function logDeepSeekError(parts: {
+  model: string;
+  phase: "initial" | "turn" | "final" | "outcome";
+  timeoutMs: number;
+  status?: number;
+  error?: string;
+  jsonParseError?: string;
+}) {
+  const status = parts.status ? ` status: ${parts.status}` : "";
+  const error = parts.error ? ` error: ${parts.error}` : "";
+  const jsonParseError = parts.jsonParseError ? ` jsonParseError: ${parts.jsonParseError}` : "";
   console.error(
-    Object.entries({ provider: "deepseek", ...parts })
-      .map(([key, value]) => `${key}: ${value}`)
-      .join(" "),
+    `AI provider: deepseek model: ${parts.model} phase: ${parts.phase}${status}${error}${jsonParseError} timeoutMs: ${parts.timeoutMs}`,
   );
 }
 
 async function requestJson<T>(
+  phase: "initial" | "turn" | "final" | "outcome",
   messages: ChatMessage[],
   schema: z.ZodType<T>,
   maxTokens: number,
+  timeoutMs: number,
 ): Promise<T> {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   const model = getModel();
 
   if (!apiKey) {
-    logDeepSeekError({ model, timeoutMs: REQUEST_TIMEOUT_MS, error: "missing_api_key" });
+    logDeepSeekError({ model, phase, timeoutMs, error: "missing_api_key" });
     throw new AiServiceError();
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(getEndpoint(), {
@@ -138,12 +162,12 @@ async function requestJson<T>(
         model,
         messages,
         response_format: { type: "json_object" },
-        temperature: 0.4,
+        temperature: 0.35,
         max_tokens: maxTokens,
       }),
     });
 
-    logDeepSeek({ model, status: response.status, timeoutMs: REQUEST_TIMEOUT_MS });
+    logDeepSeek({ model, phase, status: response.status, timeoutMs });
 
     if (!response.ok) {
       throw new AiServiceError();
@@ -155,7 +179,7 @@ async function requestJson<T>(
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
-      logDeepSeekError({ model, timeoutMs: REQUEST_TIMEOUT_MS, error: "empty_content" });
+      logDeepSeekError({ model, phase, timeoutMs, error: "empty_content" });
       throw new AiServiceError();
     }
 
@@ -167,7 +191,8 @@ async function requestJson<T>(
       const message = error instanceof Error ? error.message : "unknown_parse_error";
       logDeepSeekError({
         model,
-        timeoutMs: REQUEST_TIMEOUT_MS,
+        phase,
+        timeoutMs,
         jsonParseError: message.slice(0, 160),
       });
       throw new AiServiceError();
@@ -178,7 +203,8 @@ async function requestJson<T>(
     if (!result.success) {
       logDeepSeekError({
         model,
-        timeoutMs: REQUEST_TIMEOUT_MS,
+        phase,
+        timeoutMs,
         jsonParseError: result.error.issues[0]?.message || "schema_validation_failed",
       });
       throw new AiServiceError();
@@ -190,23 +216,38 @@ async function requestJson<T>(
       throw error;
     }
 
-    if (error instanceof Error && error.name === "AbortError") {
-      logDeepSeekError({ model, timeoutMs: REQUEST_TIMEOUT_MS, error: "timeout" });
+    if (
+      error instanceof Error &&
+      (error.name === "AbortError" || error.message.toLocaleLowerCase("en-US").includes("aborted"))
+    ) {
+      logDeepSeekError({ model, phase, timeoutMs, error: "timeout" });
       throw new AiServiceError("AI cevabı zaman aşımına uğradı. Lütfen tekrar dene.");
     }
 
     const message = error instanceof Error ? error.message : "request_failed";
-    logDeepSeekError({ model, timeoutMs: REQUEST_TIMEOUT_MS, error: message.slice(0, 160) });
+    logDeepSeekError({ model, phase, timeoutMs, error: message.slice(0, 160) });
     throw new AiServiceError();
   } finally {
     clearTimeout(timeout);
   }
 }
 
+function compactContext(context: MessageContext) {
+  return {
+    kategori: "Zor Mesajlar",
+    karsi_taraf: context.otherPerson,
+    gelen_mesaj: context.incomingMessage,
+    amac: context.goal,
+    ton: context.tone,
+    cekince: context.fear,
+  };
+}
+
 export function createTurnMessages(
   context: MessageContext,
   userMessage: string,
   turnNumber: number,
+  conversation: ConversationMessage[] = [],
 ): ChatMessage[] {
   return [
     { role: "system", content: baseSystemPrompt },
@@ -240,9 +281,29 @@ export function createTurnMessages(
           feedback: "...",
           better_alternative: "...",
         },
-        context,
+        context: compactContext(context),
         turnNumber,
+        conversation: conversation.slice(-6),
         userMessage,
+      }),
+    },
+  ];
+}
+
+export function createInitialMessages(context: MessageContext): ChatMessage[] {
+  return [
+    { role: "system", content: baseSystemPrompt },
+    {
+      role: "user",
+      content: JSON.stringify({
+        task: "Kullanıcının bağlamına göre karşı tarafın ilk tepkisini üret.",
+        rules: [
+          "ai_message 1-2 cümle olsun.",
+          "Karşı taraf gerçekçi ve bağlama uygun konuşsun.",
+          "JSON dışında hiçbir şey yazma.",
+        ],
+        json: { ai_message: "..." },
+        context: compactContext(context),
       }),
     },
   ];
@@ -269,7 +330,7 @@ export function createFinalReportMessages(
           real_life_tips: ["...", "...", "..."],
           risks: ["...", "..."],
         },
-        context,
+        context: compactContext(context),
         turns,
       }),
     },
@@ -295,7 +356,7 @@ export function createOutcomeAdviceMessages(
           followup_message: "...",
           next_conversation_opener: "...",
         },
-        context,
+        context: compactContext(context),
         outcome,
       }),
     },
@@ -306,11 +367,24 @@ export async function getDeepSeekTurnResponse(
   context: MessageContext,
   userMessage: string,
   turnNumber: number,
+  conversation: ConversationMessage[] = [],
 ) {
   return requestJson<TurnAiResponse>(
-    createTurnMessages(context, userMessage, turnNumber),
+    "turn",
+    createTurnMessages(context, userMessage, turnNumber, conversation),
     turnSchema,
-    700,
+    500,
+    TURN_TIMEOUT_MS,
+  );
+}
+
+export async function getDeepSeekInitialResponse(context: MessageContext) {
+  return requestJson<InitialAiResponse>(
+    "initial",
+    createInitialMessages(context),
+    initialSchema,
+    250,
+    TURN_TIMEOUT_MS,
   );
 }
 
@@ -319,16 +393,32 @@ export async function getDeepSeekFinalReport(
   turns: Array<{ turnNumber: number; userMessage: string; aiMessage: string }>,
 ) {
   return requestJson<FinalReport>(
+    "final",
     createFinalReportMessages(context, turns),
     finalReportSchema,
-    900,
+    800,
+    LONG_TIMEOUT_MS,
   );
 }
 
 export async function getDeepSeekOutcomeAdvice(context: MessageContext, outcome: OutcomeInput) {
   return requestJson<OutcomeAdvice>(
+    "outcome",
     createOutcomeAdviceMessages(context, outcome),
     outcomeAdviceSchema,
-    800,
+    700,
+    LONG_TIMEOUT_MS,
   );
+}
+
+export function createEmptyScores(): Scores {
+  return {
+    clarity: 0,
+    confidence: 0,
+    empathy: 0,
+    boundaries: 0,
+    naturalness: 0,
+    risk: 0,
+    persuasion: 0,
+  };
 }
