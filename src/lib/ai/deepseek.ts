@@ -145,6 +145,35 @@ function logDeepSeekError(parts: {
   );
 }
 
+function logEmptyContentDebug(params: {
+  model: string;
+  phase: "initial" | "turn" | "final" | "outcome";
+  data: {
+    choices?: Array<{
+      finish_reason?: string;
+      message?: Record<string, unknown>;
+    }>;
+    usage?: {
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      total_tokens?: number;
+    };
+  };
+}) {
+  const firstChoice = params.data.choices?.[0];
+  const choicesLength = params.data.choices?.length ?? 0;
+  const choiceKeys = firstChoice ? Object.keys(firstChoice).join(",") : "none";
+  const messageKeys = firstChoice?.message ? Object.keys(firstChoice.message).join(",") : "none";
+  const finishReason = firstChoice?.finish_reason ?? "none";
+  const usage = params.data.usage
+    ? `prompt_tokens=${params.data.usage.prompt_tokens ?? "unknown"},completion_tokens=${params.data.usage.completion_tokens ?? "unknown"},total_tokens=${params.data.usage.total_tokens ?? "unknown"}`
+    : "none";
+
+  console.error(
+    `AI provider: deepseek model: ${params.model} phase: ${params.phase} empty_content_debug choices: ${choicesLength} choiceKeys: ${choiceKeys} messageKeys: ${messageKeys} finishReason: ${finishReason} usage: ${usage}`,
+  );
+}
+
 async function requestJson<T>(
   phase: "initial" | "turn" | "final" | "outcome",
   messages: ChatMessage[],
@@ -187,11 +216,23 @@ async function requestJson<T>(
     }
 
     const data = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
+      choices?: Array<{
+        finish_reason?: string;
+        message?: {
+          content?: string;
+          reasoning_content?: string;
+        };
+      }>;
+      usage?: {
+        prompt_tokens?: number;
+        completion_tokens?: number;
+        total_tokens?: number;
+      };
     };
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
+      logEmptyContentDebug({ model, phase, data });
       logDeepSeekError({ model, phase, timeoutMs, error: "empty_content" });
       throw new AiServiceError();
     }
