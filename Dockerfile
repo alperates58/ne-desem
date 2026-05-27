@@ -16,7 +16,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN if [ -d prisma ]; then npx prisma generate; fi
+RUN if [ -d prisma ]; then DATABASE_URL="postgresql://user:pass@localhost:5432/db" npx prisma generate; fi
 RUN npm run build
 
 FROM node:22-alpine AS runner
