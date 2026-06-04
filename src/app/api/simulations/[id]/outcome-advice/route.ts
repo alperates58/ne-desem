@@ -37,6 +37,7 @@ export async function POST(_request: Request, context: RouteContext) {
       nextGoal: simulation.outcome.nextGoal,
     };
     const advice = await getOutcomeAdvice(
+      simulation.category,
       simulation.contextJson as unknown as MessageContext,
       outcomeInput,
     );

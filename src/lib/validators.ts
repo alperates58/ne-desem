@@ -23,7 +23,7 @@ export const messageContextSchema = z.object({
 });
 
 export const createSimulationSchema = z.object({
-  category: z.literal("zor_mesajlar"),
+  category: z.enum(["is_kariyer", "flort_iliski", "aile_arkadas", "para_pazarlik", "zor_mesajlar"]),
   context: messageContextSchema,
 });
 

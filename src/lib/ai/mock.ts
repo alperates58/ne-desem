@@ -37,57 +37,100 @@ function sentenceStarter(context: MessageContext) {
 }
 
 export function createOpeningMessage(context: MessageContext) {
-  return `${sentenceStarter(context)} Bana bunu biraz daha net söyler misin?`;
+  return `${sentenceStarter(context)} Bana bunu biraz daha net söyleyebilir misin?`;
+}
+
+function mockTurnReply(
+  category: string,
+  context: MessageContext,
+  turnNumber: number,
+  scores: Scores,
+  userMessage: string,
+): string {
+  const other = context.otherPerson || "Karsi Taraf";
+  const goal = context.goal || "cozum bulmak";
+  
+  if (category === "is_kariyer") {
+    if (turnNumber === 1) return `Anliyorum, ${goal} konusunda bir talebin var. Ancak su anki is planimiz ve butce durumumuz nedeniyle bunu hemen onaylamam zor.`;
+    if (turnNumber === 2) return `Yani bu konuda esnek olamayacagini mi soyluyorsun? ${other} olarak senden daha yapici bir yaklasim beklerdim.`;
+    if (turnNumber === 3) return `Isin bu boyutunu dusunmemistim. Pekala, ${goal} hedefine ulasmak icin is yukunu veya takvimi nasil revize edebiliriz?`;
+    return `Tamam, detaylari anladim. Bunu ust yonetimle/ekiple konusup netlestirelim.`;
+  }
+  
+  if (category === "flort_iliski") {
+    if (turnNumber === 1) return `Bilmem, bir suredir aramizdaki iletisim bana da biraz tuhaf geliyordu. Niyetinin ${goal} oldugunu bilmek iyi oldu ama emin degilim.`;
+    if (turnNumber === 2) return `Neden her konusmada konuyu buraya getirmek zorundayiz? Iliskimizi/iletisimimizi bu kadar germen beni yoruyor.`;
+    if (turnNumber === 3) return `Soylediklerinde hakli oldugun kisimlar var, kabul ediyorum. Aramizdaki bagi hemen kaybetmek istemiyorum.`;
+    return `Pekala, ikimiz icin de hayirlisi olsun. Biraz zamana ve mesafeye ihtiyacim var, bunu dusunecegim.`;
+  }
+  
+  if (category === "aile_arkadas") {
+    if (turnNumber === 1) return `Ask olsun, aramizda bunun lafi mi olurdu? ${other} olarak senden boyle mesafeli bir yaklasim gormek beni biraz uzdu.`;
+    if (turnNumber === 2) return `Ben senin icin her zaman elimden geleni yaparken, simdi bana boyle net sinirlar cizmen bencilce degil mi?`;
+    if (turnNumber === 3) return `Peki, niyetinin beni kirmak olmadigini biliyorum. Yine de bu durumu aramizda tatliya baglayabiliriz umarım.`;
+    return `Tamam canim, seni cok iyi anliyorum. Konustugumuz iyi oldu, aramiz bozulmasin yeter ki.`;
+  }
+  
+  if (category === "para_pazarlik") {
+    if (turnNumber === 1) return `Fiyat/talep konusunda teklifiniz yuksek geldi. Piyasada ${goal} icin daha uygun secenekler varken bunu kabul etmem zor.`;
+    if (turnNumber === 2) return `Son fiyatiniz veya teklifiniz gercekten bu mu? Masadan kalkmadan once son kez revize etme sansiniz var mi?`;
+    if (turnNumber === 3) return `Sartlari biraz esnetirseniz hemen el sikisabiliriz. Bize ozel bir seyler yapabilir misiniz?`;
+    return `Pekala, bu kosullar altinda anlasmayi onayliyorum. Sozlesme veya detaylari hazirlayalim.`;
+  }
+  
+  // Default: zor_mesajlar
+  if (turnNumber === 1) return `Gonderdigin mesaji okudum. Aslinda amacinin ${goal} oldugunu hissediyorum ama yine de sasirdim.`;
+  if (turnNumber === 2) return `Bunu bu sekilde soylemen aramizda bir gerilim yaratti. Konuyu daha sakin konusamaz miydik?`;
+  if (turnNumber === 3) return `Haklisin, belki de ben de asiri tepki verdim. Iletisimi koparmadan ortak bir noktada bulusalim.`;
+  return `Tamamdir, ne demek istedigini ve sinirlarini net olarak anladim. Bundan sonra buna dikkat ederim.`;
 }
 
 export function generateTurnResponse(
+  category: string,
   context: MessageContext,
   userMessage: string,
   turnNumber: number,
 ): TurnAiResponse {
   const length = userMessage.trim().length;
-  const hasEmpathy = includesAny(userMessage, ["anlıyorum", "haklı", "üzgün", "teşekkür", "farkındayım"]);
-  const hasBoundary = includesAny(userMessage, ["istemiyorum", "benim için", "uygun değil", "sınır", "net"]);
-  const hasCalm = includesAny(userMessage, ["sakin", "tartışmadan", "kırmadan", "saygı", "netleştirmek"]);
-  const hasAggression = includesAny(userMessage, ["mecbursun", "saçma", "asla", "hep böylesin", "umurumda değil"]);
+  const hasEmpathy = includesAny(userMessage, ["anlıyorum", "haklı", "üzgün", "teşekkür", "farkındayım", "anliyorum", "hakli", "uzgun", "tesekkur", "farkindayim"]);
+  const hasBoundary = includesAny(userMessage, ["istemiyorum", "benim için", "uygun değil", "sınır", "net", "istemiyorum", "benim icin", "uygun degil", "sinir", "net"]);
+  const hasCalm = includesAny(userMessage, ["sakin", "tartışmadan", "kırmadan", "saygı", "netleştirmek", "sakin", "tartismadan", "kirmadan", "saygi", "netlestirmek"]);
+  const hasAggression = includesAny(userMessage, ["mecbursun", "saçma", "asla", "hep böylesin", "umurumda değil", "sacma", "hep boylesin", "umurumda degil"]);
 
   const scores: Scores = {
     clarity: clamp(52 + Math.min(length / 8, 24) + (hasBoundary ? 14 : 0)),
     confidence: clamp(48 + (hasBoundary ? 18 : 0) + (length > 35 ? 10 : 0) - (length > 450 ? 12 : 0)),
     empathy: clamp(42 + (hasEmpathy ? 28 : 0) + (hasCalm ? 10 : 0)),
-    boundaries: clamp(44 + (hasBoundary ? 30 : 0) + (context.goal.includes("Sınır") ? 8 : 0)),
+    boundaries: clamp(44 + (hasBoundary ? 30 : 0) + (context.goal.includes("Sınır") || context.goal.includes("Sinir") ? 8 : 0)),
     naturalness: clamp(58 + (length < 280 ? 16 : -8) + (hasAggression ? -14 : 0)),
     risk: clamp(38 + (hasAggression ? 28 : 0) + (length > 500 ? 10 : 0) - (hasCalm ? 12 : 0)),
     persuasion: clamp(50 + (hasBoundary ? 12 : 0) + (hasEmpathy ? 10 : 0) + (hasCalm ? 8 : 0)),
   };
 
-  const aiMessage =
-    turnNumber >= 4
-      ? "Tamam, söylediğini daha iyi anladım. Yine de bunu nasıl uygulayacağımızı netleştirmem gerekiyor."
-      : scores.risk > 60
-        ? "Bu biraz sert geldi. Ben bunu saldırı gibi algılamaya başladım."
-        : hasEmpathy
-          ? "Böyle söyleyince daha anlaşılır oldu. Yine de benim açımdan zor olan kısmı var."
-          : "Anladım, ama neden böyle düşündüğünü biraz daha açmanı beklerdim.";
+  const aiMessage = mockTurnReply(category, context, turnNumber, scores, userMessage);
 
   return {
     ai_message: aiMessage,
     suggested_replies: {
-      soft: `Seni anlıyorum. ${context.goal.toLocaleLowerCase("tr-TR")} istiyorum ama bunu kırmadan konuşmak istiyorum.`,
-      clear: `Benim için önemli olan şu: ${context.goal.toLocaleLowerCase("tr-TR")}. Bunu net ama saygılı söylemek istiyorum.`,
-      short: "Sadece netleştirmek istedim; tartışmaya çevirmek istemiyorum.",
+      soft: `Seni anliyorum. ${context.goal.toLocaleLowerCase("tr-TR")} istiyorum ama bunu kirmadan konusmak istiyorum.`,
+      clear: `Benim icin onemli olan su: ${context.goal.toLocaleLowerCase("tr-TR")}. Bunu net ama saygili soylemek istiyorum.`,
+      short: "Sadece netlestirmek istedim; tartismaya cevirmek istemiyorum.",
     },
     scores,
     feedback:
       scores.risk > 60
-        ? "Mesajın anlaşılır ama karşı tarafı savunmaya itebilir. Daha sakin bir giriş riski azaltır."
-        : "Cevabın iyi bir zeminde duruyor. Biraz daha somut ve kısa söylersen etkisi artar.",
+        ? "Mesajin anlasilir ama karsi tarafi savunmaya itebilir. Daha sakin bir giris riski azaltir."
+        : "Cevabin iyi bir zeminde duruyor. Biraz daha somut ve kisa soylersen etkisi artar.",
     better_alternative:
-      "Anlıyorum. Ben de bunu büyütmeden, sadece kendi sınırımı ve niyetimi netleştirmek için söylüyorum.",
+      "Anliyorum. Ben de bunu buyutmeden, sadece kendi sinirimi ve niyetimi netlestirmek icin soylüyorum.",
   };
 }
 
-export function generateFinalReport(context: MessageContext, turns: StoredTurn[]): FinalReport {
+export function generateFinalReport(
+  category: string,
+  context: MessageContext,
+  turns: StoredTurn[],
+): FinalReport {
   const scoredTurns = turns.map((turn) => ({
     ...turn,
     total: averageScore(turn.scores),
@@ -98,34 +141,38 @@ export function generateFinalReport(context: MessageContext, turns: StoredTurn[]
     ? Math.round(scoredTurns.reduce((sum, turn) => sum + turn.total, 0) / scoredTurns.length)
     : 72;
 
+  const other = context.otherPerson || "Karsi Taraf";
+  const goal = context.goal || "hedefiniz";
+
   return {
     total_score: totalScore,
-    summary: `${context.otherPerson} ile olan mesajlaşmada ana hedefin "${context.goal}" idi. En iyi çalışan tarafın, konuyu büyütmeden niyetini açıklaman oldu.`,
-    best_sentence: best?.userMessage || "Bunu tartışmaya çevirmeden netleştirmek istiyorum.",
+    summary: `${other} ile gerceklesen simulasyonda ana hedefin "${goal}" idi. Konuyu uzatmadan ve yapici bir tonda sinir cizmen en basarili yonundu.`,
+    best_sentence: best?.userMessage || "Bunu tartismaya cevirmek istemiyorum.",
     weakest_sentence:
-      weakest?.userMessage || "Çok fazla açıklama yaptığın yerlerde mesajın ana fikri biraz dağılıyor.",
+      weakest?.userMessage || "Cok fazla aciklama yaptigin yerlerde mesajin ana fikri biraz dagiliyor.",
     perceived_by_other_person:
       totalScore >= 75
-        ? "Karşı taraf seni sakin, net ve ilişkiyi tamamen yakmayan biri olarak algılamış olabilir."
-        : "Karşı taraf niyetini anlamış olabilir ama bazı cümleleri savunma veya geri çekilme olarak okuyabilir.",
+        ? "Karşı taraf seni sakin, net ve ilişkiyi koruyan ama sınırlarına sadık biri olarak algılamış olabilir."
+        : "Karşı taraf niyetini anlamış olabilir ama bazı ifadeleri savunmacı veya agresif bulmuş olabilir.",
     better_alternatives: [
-      "Seni anlıyorum; ben sadece kendi tarafımı sakin şekilde netleştirmek istiyorum.",
-      "Bunu uzatmak istemem ama benim için uygun olan sınırı söylemem gerekiyor.",
-      "Yanlış anlaşılmak istemem; niyetim tartışmak değil, durumu netleştirmek.",
+      "Seni anliyorum; ben sadece kendi tarafimi sakin sekilde netlestirmek istiyorum.",
+      "Bunu uzatmak istemem ama benim icin uygun olan siniri soylemem gerekiyor.",
+      "Yanlis anlasilmak istemem; niyetim tartismak degil, durumu netlestirmek.",
     ],
     real_life_tips: [
-      "Mesajı göndermeden önce tek bir ana amaç seç.",
-      "Karşı tarafın tepkisine göre daha fazla açıklama yapmak yerine kısa kal.",
-      "Sınır koyarken suçlama değil, kendi ihtiyacını anlatan cümleler kullan.",
+      "Mesaji gondermeden once tek bir ana amac sec.",
+      "Karsi tarafin tepkisine gore daha fazla aciklama yapmak yerine kisa kal.",
+      "Sinir koyarken suclama degil, kendi ihtiyacini anlatan cumleler kullan.",
     ],
     risks: [
-      "Çok uzun açıklama karşı tarafın ana mesajı kaçırmasına yol açabilir.",
-      "Pasif-agresif bir ton konuşmayı gereksiz büyütebilir.",
+      "Cok uzun aciklama karsi tarafin ana mesaji kacirmasina yol acabilir.",
+      "Pasif-agresif bir ton konusmayi gereksiz buyutebilir.",
     ],
   };
 }
 
 export function generateOutcomeAdvice(
+  category: string,
   context: MessageContext,
   outcome: OutcomeInput,
 ): OutcomeAdvice {
@@ -134,27 +181,27 @@ export function generateOutcomeAdvice(
 
   return {
     situation_analysis: reachedGoal
-      ? "Konuşma genel olarak hedefinle uyumlu ilerlemiş. Şimdi önemli olan bu sonucu sakin şekilde sürdürmek."
+      ? "Konusma genel olarak hedefinle uyumlu ilerlemis. Simdi onemli olan bu sonucu sakin sekilde surdurmek."
       : partly
-        ? "Konuşmada bazı ilerleme işaretleri var ama konu tamamen kapanmamış görünüyor."
-        : "Beklediğin sonucu almamış olabilirsin; yine de sınırını daha sağlıklı kurmak için veri toplamış oldun.",
+        ? "Konusmada bazı ilerleme isaretleri var ama konu tamamen kapanmamis gorunuyor."
+        : "Bekledigin sonucu almamis olabilirsin; yine de sinirini daha saglikli kurmak icin veri toplamis oldun.",
     what_went_well: [
-      "Durumu ertelemek yerine konuşmayı denedin.",
-      `${context.tone.toLocaleLowerCase("tr-TR")} tona sadık kalmaya çalıştın.`,
+      "Durumu ertelemek yerine konusmayi denedin.",
+      `${context.tone.toLocaleLowerCase("tr-TR")} tona sadik kalmaya calistin.`,
     ],
     risks: [
-      "Konuyu hemen tekrar açmak karşı tarafı savunmaya itebilir.",
-      "Belirsizlik sürerse aynı mesajı farklı şekillerde tekrar etmek yorucu olabilir.",
+      "Konuyu hemen tekrar acmak karsi tarafi savunmaya itebilir.",
+      "Belirsizlik surerse ayni mesaji farkli sekillerde tekrar etmek yorucu olabilir.",
     ],
     next_steps: [
-      "Önce karşı tarafın verdiği tepkiyi olduğu gibi not et.",
-      "Bir sonraki mesajda tek hedef seç ve kısa kal.",
-      "Sınırın değişmediyse bunu sakin bir cümleyle tekrar et.",
+      "Once karsi tarafin verdigi tepkiyi oldugu gibi not et.",
+      "Bir sonraki mesajda tek hedef sec ve kisa kal.",
+      "Sinirin degismediyse bunu sakin bir cumleyle tekrar et.",
     ],
     followup_message: reachedGoal
-      ? "Konuştuğumuz için teşekkür ederim. Böyle netleşmesi benim için iyi oldu."
-      : "Bunu uzatmak istemem ama benim açımdan sınır hâlâ aynı. Sakin şekilde burada bırakmak istiyorum.",
+      ? "Konustugumuz icin tesekkur ederim. Boyle netlesmesi benim icin iyi oldu."
+      : "Bunu uzatmak istemem ama benim acimdan sinir hâlâ ayni. Sakin sekilde burada birakmak istiyorum.",
     next_conversation_opener:
-      "Geçen konuşmadan sonra biraz düşündüm. Bunu tartışma gibi değil, netleşme gibi konuşmak istiyorum.",
+      "Gecen konusmadan sonra biraz dusundum. Bunu tartisma gibi degil, netlesme gibi konusmak istiyorum.",
   };
 }

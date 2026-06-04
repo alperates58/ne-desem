@@ -30,6 +30,7 @@ export async function POST(_request: Request, context: RouteContext) {
     }
 
     const report = await getFinalReport(
+      simulation.category,
       simulation.contextJson as unknown as MessageContext,
       simulation.turns.map((turn) => ({
         turnNumber: turn.turnNumber,

@@ -4,7 +4,6 @@ import type {
   MessageContext,
   OutcomeAdvice,
   OutcomeInput,
-  Scores,
   TurnAiResponse,
 } from "@/lib/types";
 import {
@@ -31,20 +30,20 @@ type ConversationMessage = {
 const TURN_TIMEOUT_MS = 18000;
 const LONG_TIMEOUT_MS = 25000;
 
-export function isDeepSeekConfigured() {
-  return Boolean(process.env.DEEPSEEK_API_KEY);
+export function isOpenAiConfigured() {
+  return Boolean(process.env.OPENAI_API_KEY);
 }
 
 function getEndpoint() {
-  const baseUrl = process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com";
+  const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
   return `${baseUrl.replace(/\/$/, "")}/chat/completions`;
 }
 
 function getModel() {
-  return process.env.DEEPSEEK_MODEL || "deepseek-v4-pro";
+  return process.env.OPENAI_MODEL || "gpt-4o-mini";
 }
 
-function logDeepSeek(parts: {
+function logOpenAi(parts: {
   model: string;
   phase: "turn" | "final" | "outcome";
   status?: number;
@@ -52,11 +51,11 @@ function logDeepSeek(parts: {
 }) {
   const status = parts.status ? ` status: ${parts.status}` : "";
   console.info(
-    `AI provider: deepseek model: ${parts.model} phase: ${parts.phase}${status} timeoutMs: ${parts.timeoutMs}`,
+    `AI provider: openai model: ${parts.model} phase: ${parts.phase}${status} timeoutMs: ${parts.timeoutMs}`,
   );
 }
 
-function logDeepSeekError(parts: {
+function logOpenAiError(parts: {
   model: string;
   phase: "turn" | "final" | "outcome";
   timeoutMs: number;
@@ -68,51 +67,22 @@ function logDeepSeekError(parts: {
   const error = parts.error ? ` error: ${parts.error}` : "";
   const jsonParseError = parts.jsonParseError ? ` jsonParseError: ${parts.jsonParseError}` : "";
   console.error(
-    `AI provider: deepseek model: ${parts.model} phase: ${parts.phase}${status}${error}${jsonParseError} timeoutMs: ${parts.timeoutMs}`,
+    `AI provider: openai model: ${parts.model} phase: ${parts.phase}${status}${error}${jsonParseError} timeoutMs: ${parts.timeoutMs}`,
   );
 }
 
-function logEmptyContentDebug(params: {
-  model: string;
-  phase: "turn" | "final" | "outcome";
-  data: {
-    choices?: Array<{
-      finish_reason?: string;
-      message?: Record<string, unknown>;
-    }>;
-    usage?: {
-      prompt_tokens?: number;
-      completion_tokens?: number;
-      total_tokens?: number;
-    };
-  };
-}) {
-  const firstChoice = params.data.choices?.[0];
-  const choicesLength = params.data.choices?.length ?? 0;
-  const choiceKeys = firstChoice ? Object.keys(firstChoice).join(",") : "none";
-  const messageKeys = firstChoice?.message ? Object.keys(firstChoice.message).join(",") : "none";
-  const finishReason = firstChoice?.finish_reason ?? "none";
-  const usage = params.data.usage
-    ? `prompt_tokens=${params.data.usage.prompt_tokens ?? "unknown"},completion_tokens=${params.data.usage.completion_tokens ?? "unknown"},total_tokens=${params.data.usage.total_tokens ?? "unknown"}`
-    : "none";
-
-  console.error(
-    `AI provider: deepseek model: ${params.model} phase: ${params.phase} empty_content_debug choices: ${choicesLength} choiceKeys: ${choiceKeys} messageKeys: ${messageKeys} finishReason: ${finishReason} usage: ${usage}`,
-  );
-}
-
-async function requestJson<T>(
+async function requestOpenAiJson<T>(
   phase: "turn" | "final" | "outcome",
   messages: ChatMessage[],
   schema: z.ZodType<T>,
   maxTokens: number,
   timeoutMs: number,
 ): Promise<T> {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   const model = getModel();
 
   if (!apiKey) {
-    logDeepSeekError({ model, phase, timeoutMs, error: "missing_api_key" });
+    logOpenAiError({ model, phase, timeoutMs, error: "missing_api_key" });
     throw new AiServiceError();
   }
 
@@ -136,9 +106,11 @@ async function requestJson<T>(
       }),
     });
 
-    logDeepSeek({ model, phase, status: response.status, timeoutMs });
+    logOpenAi({ model, phase, status: response.status, timeoutMs });
 
     if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      logOpenAiError({ model, phase, timeoutMs, status: response.status, error: errorText });
       throw new AiServiceError();
     }
 
@@ -147,30 +119,23 @@ async function requestJson<T>(
         finish_reason?: string;
         message?: {
           content?: string;
-          reasoning_content?: string;
         };
       }>;
-      usage?: {
-        prompt_tokens?: number;
-        completion_tokens?: number;
-        total_tokens?: number;
-      };
     };
+
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
-      logEmptyContentDebug({ model, phase, data });
-      logDeepSeekError({ model, phase, timeoutMs, error: "empty_content" });
+      logOpenAiError({ model, phase, timeoutMs, error: "empty_content" });
       throw new AiServiceError();
     }
 
     let parsed: unknown;
-
     try {
       parsed = parseJson(content);
     } catch (error) {
       const message = error instanceof Error ? error.message : "unknown_parse_error";
-      logDeepSeekError({
+      logOpenAiError({
         model,
         phase,
         timeoutMs,
@@ -180,9 +145,8 @@ async function requestJson<T>(
     }
 
     const result = schema.safeParse(parsed);
-
     if (!result.success) {
-      logDeepSeekError({
+      logOpenAiError({
         model,
         phase,
         timeoutMs,
@@ -199,22 +163,21 @@ async function requestJson<T>(
 
     if (
       error instanceof Error &&
-      (error.name === "AbortError" || error.message.toLocaleLowerCase("en-US").includes("aborted"))
+      (error.name === "AbortError" || error.message.toLowerCase().includes("aborted"))
     ) {
-      logDeepSeekError({ model, phase, timeoutMs, error: "timeout" });
+      logOpenAiError({ model, phase, timeoutMs, error: "timeout" });
       throw new AiServiceError("AI cevabı zaman aşımına uğradı. Lütfen tekrar dene.");
     }
 
     const message = error instanceof Error ? error.message : "request_failed";
-    logDeepSeekError({ model, phase, timeoutMs, error: message.slice(0, 160) });
+    logOpenAiError({ model, phase, timeoutMs, error: message.slice(0, 160) });
     throw new AiServiceError();
   } finally {
     clearTimeout(timeout);
   }
 }
 
-
-export function createTurnMessages(
+export function createOpenAiTurnMessages(
   category: string,
   context: MessageContext,
   userMessage: string,
@@ -265,7 +228,7 @@ export function createTurnMessages(
   ];
 }
 
-export function createFinalReportMessages(
+export function createOpenAiFinalReportMessages(
   category: string,
   context: MessageContext,
   turns: Array<{ turnNumber: number; userMessage: string; aiMessage: string }>,
@@ -294,7 +257,7 @@ export function createFinalReportMessages(
   ];
 }
 
-export function createOutcomeAdviceMessages(
+export function createOpenAiOutcomeAdviceMessages(
   category: string,
   context: MessageContext,
   outcome: OutcomeInput,
@@ -321,7 +284,7 @@ export function createOutcomeAdviceMessages(
   ];
 }
 
-export async function getDeepSeekTurnResponse(
+export async function getOpenAiTurnResponse(
   category: string,
   context: MessageContext,
   userMessage: string,
@@ -330,70 +293,58 @@ export async function getDeepSeekTurnResponse(
 ) {
   return retry(
     () =>
-      requestJson<TurnAiResponse>(
+      requestOpenAiJson<TurnAiResponse>(
         "turn",
-        createTurnMessages(category, context, userMessage, turnNumber, conversation),
+        createOpenAiTurnMessages(category, context, userMessage, turnNumber, conversation),
         turnSchema,
         1900,
         10000,
       ),
     2,
     1000,
-    "deepseek",
+    "openai",
     "turn",
   );
 }
 
-export async function getDeepSeekFinalReport(
+export async function getOpenAiFinalReport(
   category: string,
   context: MessageContext,
   turns: Array<{ turnNumber: number; userMessage: string; aiMessage: string }>,
 ) {
   return retry(
     () =>
-      requestJson<FinalReport>(
+      requestOpenAiJson<FinalReport>(
         "final",
-        createFinalReportMessages(category, context, turns),
+        createOpenAiFinalReportMessages(category, context, turns),
         finalReportSchema,
         800,
         12000,
       ),
     2,
     1000,
-    "deepseek",
+    "openai",
     "final",
   );
 }
 
-export async function getDeepSeekOutcomeAdvice(
+export async function getOpenAiOutcomeAdvice(
   category: string,
   context: MessageContext,
   outcome: OutcomeInput,
 ) {
   return retry(
     () =>
-      requestJson<OutcomeAdvice>(
+      requestOpenAiJson<OutcomeAdvice>(
         "outcome",
-        createOutcomeAdviceMessages(category, context, outcome),
+        createOpenAiOutcomeAdviceMessages(category, context, outcome),
         outcomeAdviceSchema,
         700,
         12000,
       ),
     2,
     1000,
-    "deepseek",
+    "openai",
     "outcome",
   );
-}
-
-export function createEmptyScores(): Scores {
-  return {
-    clarity: 0,
-    confidence: 0,
-    empathy: 0,
-    boundaries: 0,
-    naturalness: 0,
-    risk: 0,
-    persuasion: 0,
-  };
 }

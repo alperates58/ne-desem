@@ -31,6 +31,7 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     const advice = await getOutcomeAdvice(
+      simulation.category,
       simulation.contextJson as unknown as MessageContext,
       input,
     );

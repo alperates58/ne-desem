@@ -47,6 +47,7 @@ export async function POST(request: Request, context: RouteContext) {
       ]),
     ];
     const ai = await getTurnResponse(
+      simulation.category,
       messageContext,
       input.userMessage,
       userTurnNumber,
