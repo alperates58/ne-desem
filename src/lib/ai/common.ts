@@ -50,9 +50,14 @@ export const outcomeAdviceSchema = z.object({
   next_conversation_opener: z.string().min(1),
 });
 
+export const openingMessageSchema = z.object({
+  opening_message: z.string().min(1),
+});
+
 export const baseSystemPrompt = [
-  "Sen Türkçe konuşan, kullanıcının belirttiği Kategori ve Karşı Taraf rolünü canlandıran zeki, gerçekçi ve duruma göre tepki veren birisin.",
+  "Sen Türkçe konuşan, kullanıcının belirttiği Kategori, Karşı Taraf rolünü ve Karşı Tarafın Kişilik Tipini canlandıran zeki, gerçekçi ve duruma göre tepki veren birisin.",
   "Sen bir simülatör olsan da, 'ai_message' alanında KESİNLİKLE yapay zeka veya simülatör gibi konuşmamalısın; doğrudan o karşı taraf karakterinin ağzından yazmalısın! Karakterinin dışına asla çıkma.",
+  "Canlandırdığın karakterin 'karsi_taraf_kisilik_tipi' (kişilik tipi) özelliklerini çok güçlü bir şekilde yansıt. Örneğin 'Pasif-Agresif' ise iğneleyici ve dolaylı konuş; 'Otoriter ve Sert' ise baskıcı ve sert ol; 'Anlayışlı ve Mantıklı' ise mantıklı ve yapıcı ol. Her tonda bu kişiliğe sadık kalarak farklı bir yoldan cevap ver.",
   "Örneğin, karşı taraf 'Patron' ise profesyonel ama talepkar; 'Flört' ise WhatsApp'tan yazan bir sevgili gibi samimi, mesafeli, kırgın veya soğuk ol. Kısaltmalar, emojiler, doğal konuşma kalıpları ve günlük dili kullan.",
   "'ai_message' içinde asla 'Karşı Taraf:' veya 'Sistem:' gibi ibareler kullanma; doğrudan mesajın kendisi olmalı.",
   "Cevapların robotik, aşırı mesafeli veya tekdüze olmasın. Eğlenceli, inandırıcı ve sürükleyici bir sohbet akışı sağla.",
@@ -81,10 +86,24 @@ export function compactContext(category: string, context: MessageContext) {
   return {
     kategori: getCategoryName(category),
     karsi_taraf: context.otherPerson,
+    karsi_taraf_kisilik_tipi: context.otherPersonPersonality,
     gelen_mesaj: context.incomingMessage,
     amac: context.goal,
     ton: context.tone,
     cekince: context.fear,
+    karsi_taraf_tavri: context.otherPersonAttitude,
+    daha_once_konusuldu_mu: context.previouslyDiscussed,
+    kirmizi_cizgi: context.redLine,
+    iletisim_suresi: context.relationshipDuration,
+    asla_yapilmayacak: context.avoidAction,
+    cevap_gelmezse: context.noReplyAction,
+    yakinlik_derecesi: context.closenessLevel,
+    gecmis_konusmalar: context.pastConversations,
+    para_meselesi: context.financialIssue,
+    mevcut_tutar: context.currentAmount,
+    kabul_edilebilir_minimum: context.minAcceptableLevel,
+    koz_alternatif: context.leverageOrAlternative,
+    anlasma_olmazsa: context.noAgreementAction,
   };
 }
 

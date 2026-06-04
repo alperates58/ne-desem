@@ -4,6 +4,7 @@ import { compactScenario, createSimulationTitle } from "@/lib/categories";
 import { jsonError, parseError } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { createSimulationSchema } from "@/lib/validators";
+import { getAiOpeningMessage } from "@/lib/ai";
 
 export const runtime = "nodejs";
 
@@ -48,13 +49,22 @@ export async function POST(request: Request) {
     }
 
     const input = createSimulationSchema.parse(await request.json());
+    
+    // Generate AI opening message based on context
+    const aiOpeningMessage = await getAiOpeningMessage(input.category, input.context);
+    
+    const enrichedContext = {
+      ...input.context,
+      aiOpeningMessage,
+    };
+
     const simulation = await prisma.simulation.create({
       data: {
         userId: user.id,
         category: input.category,
         scenario: compactScenario(input.context),
         title: createSimulationTitle(input.context),
-        contextJson: input.context,
+        contextJson: enrichedContext as any,
       },
     });
 

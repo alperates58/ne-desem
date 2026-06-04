@@ -12,6 +12,7 @@ import {
   compactContext,
   finalReportSchema,
   outcomeAdviceSchema,
+  openingMessageSchema,
   parseJson,
   retry,
   turnSchema,
@@ -346,5 +347,44 @@ export async function getOpenAiOutcomeAdvice(
     1000,
     "openai",
     "outcome",
+  );
+}
+
+export async function getOpenAiOpeningMessage(
+  category: string,
+  context: MessageContext,
+) {
+  const messages = [
+    { role: "system", content: baseSystemPrompt },
+    {
+      role: "user",
+      content: JSON.stringify({
+        task: "Sana verilen durum açıklaması ve konuşma detaylarına göre, canlandırdığın karakterin (örneğin Patron, Flört vb.) konuşmayı başlatacağı ilk doğal ve inandırıcı sohbet mesajını (opening_message) yaz.",
+        rules: [
+          "Eğer durum/mesaj alanı zaten doğrudan karşı tarafın söylediği bir söz ise (örneğin 'Hafta sonu işe gelebilir misin?' gibi), bu sözü aynen koru veya canlandırdığın karakterin ağzından çok küçük doğal bir tonlama/emoji ile söyle.",
+          "Eğer durum/mesaj alanı üçüncü şahıs gözünden anlatılan bir olay veya arka plan ise, canlandırdığın karakterin ağzından bu olayı/durumu tetikleyen veya başlatan doğal bir ilk mesaj yaz. Karşı taraf rolünden çıkma.",
+          "Bu ilk mesaj 1-3 cümle uzunluğunda olsun ve doğrudan karşı tarafın ağzından söylenmiş olmalı. Robotik olmasın.",
+        ],
+        json: {
+          opening_message: "...",
+        },
+        context: compactContext(category, context),
+      }),
+    },
+  ];
+
+  return retry(
+    () =>
+      requestOpenAiJson<{ opening_message: string }>(
+        "turn",
+        messages as any,
+        openingMessageSchema,
+        400,
+        10000,
+      ),
+    2,
+    1000,
+    "openai",
+    "opening",
   );
 }

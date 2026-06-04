@@ -73,7 +73,7 @@ export default async function SimulationDetailPage({ params }: DetailPageProps) 
           <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5">
             <h2 className="text-xl font-bold">Ön bilgiler</h2>
             <div className="mt-4 space-y-3">
-              {(Object.keys(contextFieldLabels) as Array<keyof MessageContext>).map((key) => (
+              {(Object.keys(contextFieldLabels) as Array<keyof Omit<MessageContext, "aiOpeningMessage">>).map((key) => (
                 <div key={key} className="rounded-2xl bg-slate-950/50 p-3">
                   <p className="text-xs font-semibold text-slate-500">{contextFieldLabels[key]}</p>
                   <p className="mt-1 text-sm leading-6 text-slate-200">{context[key]}</p>

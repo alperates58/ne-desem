@@ -14,12 +14,27 @@ export const loginSchema = z.object({
 export const messageContextSchema = z.object({
   incomingMessage: z.string().trim().min(3).max(2000),
   otherPerson: z.string().trim().min(2).max(80),
+  otherPersonPersonality: z.string().trim().min(2).max(120),
   difficultyReason: z.string().trim().min(2).max(200),
   goal: z.string().trim().min(2).max(160),
   tone: z.string().trim().min(2).max(80),
   replyLength: z.string().trim().min(2).max(80),
   preserveRelationship: z.string().trim().min(2).max(80),
   fear: z.string().trim().min(2).max(240),
+  aiOpeningMessage: z.string().trim().optional(),
+  otherPersonAttitude: z.string().trim().optional(),
+  previouslyDiscussed: z.string().trim().optional(),
+  redLine: z.string().trim().optional(),
+  relationshipDuration: z.string().trim().optional(),
+  avoidAction: z.string().trim().optional(),
+  noReplyAction: z.string().trim().optional(),
+  closenessLevel: z.string().trim().optional(),
+  pastConversations: z.string().trim().optional(),
+  financialIssue: z.string().trim().optional(),
+  currentAmount: z.string().trim().optional(),
+  minAcceptableLevel: z.string().trim().optional(),
+  leverageOrAlternative: z.string().trim().optional(),
+  noAgreementAction: z.string().trim().optional(),
 });
 
 export const createSimulationSchema = z.object({

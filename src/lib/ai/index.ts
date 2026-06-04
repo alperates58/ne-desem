@@ -3,16 +3,19 @@ import {
   getDeepSeekFinalReport,
   getDeepSeekOutcomeAdvice,
   getDeepSeekTurnResponse,
+  getDeepSeekOpeningMessage,
 } from "@/lib/ai/deepseek";
 import {
   getGeminiFinalReport,
   getGeminiOutcomeAdvice,
   getGeminiTurnResponse,
+  getGeminiOpeningMessage,
 } from "@/lib/ai/gemini";
 import {
   getOpenAiFinalReport,
   getOpenAiOutcomeAdvice,
   getOpenAiTurnResponse,
+  getOpenAiOpeningMessage,
 } from "@/lib/ai/openai";
 import {
   createOpeningMessage,
@@ -38,6 +41,48 @@ export function getAiMode(): "gemini" | "openai" | "deepseek" | "mock" {
 
 export function getOpeningMessage(context: MessageContext) {
   return createOpeningMessage(context);
+}
+
+export async function getAiOpeningMessage(category: string, context: MessageContext): Promise<string> {
+  const mode = getAiMode();
+
+  try {
+    if (mode === "gemini") {
+      const res = await getGeminiOpeningMessage(category, context);
+      return res.opening_message;
+    }
+    if (mode === "openai") {
+      const res = await getOpenAiOpeningMessage(category, context);
+      return res.opening_message;
+    }
+    if (mode === "deepseek") {
+      const res = await getDeepSeekOpeningMessage(category, context);
+      return res.opening_message;
+    }
+  } catch (error) {
+    console.error(
+      `[AI Fallback] Primary AI (${mode}) failed for getAiOpeningMessage. Falling back to raw incomingMessage. Error:`,
+      error,
+    );
+  }
+
+  // Mock / Catch-all Fallback
+  if (context.incomingMessage.length > 100 || context.incomingMessage.includes("geliştirdim ancak") || context.incomingMessage.includes("istiyorum")) {
+    const other = context.otherPerson || "Karşı taraf";
+    const goal = context.goal || "konuyu konuşmak";
+    if (other.toLowerCase().includes("patron") || other.toLowerCase().includes("yönetici") || other.toLowerCase().includes("müdür")) {
+      return `Merhaba, bu konuyu (özellikle ${goal.toLowerCase()}) benimle görüşmek istemişsin. Dinliyorum, ne söylemek istersin?`;
+    }
+    if (other.toLowerCase().includes("flört") || other.toLowerCase().includes("sevgili")) {
+      return `Selam, bir süredir aramızdaki durum (${goal.toLowerCase()}) hakkında konuşmak istiyordun sanırım. Seni dinliyorum.`;
+    }
+    if (other.toLowerCase().includes("ev sahibi")) {
+      return `Merhaba, kira/kira artış durumu hakkında konuşmak istemişsin. Seni dinliyorum, ne düşünüyorsun?`;
+    }
+    return `Selam, bu durum (${goal.toLowerCase()}) hakkında konuşmak istemişsin. Dinliyorum, ne söylemek istersin?`;
+  }
+
+  return context.incomingMessage;
 }
 
 type ConversationMessage = {

@@ -31,6 +31,7 @@ export default async function PlayPage({ params }: PlayPageProps) {
     <AppShell user={user}>
       <ChatSimulation
         simulationId={simulation.id}
+        category={simulation.category}
         context={context}
         initialTurns={simulation.turns
           .filter((turn) => turn.userMessage.trim().length > 0)

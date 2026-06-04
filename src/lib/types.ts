@@ -3,12 +3,27 @@ export type SimulationStatus = "in_progress" | "completed" | "outcome_added";
 export type MessageContext = {
   incomingMessage: string;
   otherPerson: string;
+  otherPersonPersonality: string;
   difficultyReason: string;
   goal: string;
   tone: string;
   replyLength: string;
   preserveRelationship: string;
   fear: string;
+  aiOpeningMessage?: string;
+  otherPersonAttitude?: string;
+  previouslyDiscussed?: string;
+  redLine?: string;
+  relationshipDuration?: string;
+  avoidAction?: string;
+  noReplyAction?: string;
+  closenessLevel?: string;
+  pastConversations?: string;
+  financialIssue?: string;
+  currentAmount?: string;
+  minAcceptableLevel?: string;
+  leverageOrAlternative?: string;
+  noAgreementAction?: string;
 };
 
 export type Scores = {

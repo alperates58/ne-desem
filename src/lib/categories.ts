@@ -46,15 +46,29 @@ export const categories: Category[] = [
   },
 ];
 
-export const contextFieldLabels: Record<keyof MessageContext, string> = {
-  incomingMessage: "Gelen mesaj",
+export const contextFieldLabels: Record<keyof Omit<MessageContext, "aiOpeningMessage">, string> = {
+  incomingMessage: "Durum / Gelen mesaj",
   otherPerson: "Karşı taraf",
+  otherPersonPersonality: "Karşı tarafın kişiliği",
   difficultyReason: "Neden zor?",
   goal: "Amacın",
   tone: "Ton",
   replyLength: "Cevap uzunluğu",
   preserveRelationship: "İlişkiyi koruma",
   fear: "Çekindiğin tepki",
+  otherPersonAttitude: "Karşı tarafın tavrı",
+  previouslyDiscussed: "Daha önce konuşuldu mu?",
+  redLine: "Kırmızı çizgin",
+  relationshipDuration: "İletişim süresi",
+  avoidAction: "Asla yapılmayacak",
+  noReplyAction: "Cevap gelmezse",
+  closenessLevel: "Yakınlık derecesi",
+  pastConversations: "Geçmiş konuşmalar",
+  financialIssue: "Para meselesi",
+  currentAmount: "Mevcut tutar",
+  minAcceptableLevel: "Kabul edilebilir minimum",
+  leverageOrAlternative: "Koz / Alternatif",
+  noAgreementAction: "Anlaşma olmazsa",
 };
 
 export function createSimulationTitle(context: MessageContext) {

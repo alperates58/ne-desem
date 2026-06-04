@@ -2,7 +2,7 @@
 
 import { Send, Sparkles, SquareCheckBig } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ScoreBar } from "@/components/score-bar";
 import type { MessageContext, Scores, SuggestedReplies } from "@/lib/types";
 
@@ -17,45 +17,116 @@ type Turn = {
 
 type ChatSimulationProps = {
   simulationId: string;
+  category: string;
   context: MessageContext;
   initialTurns: Turn[];
 };
 
-function createStarterSuggestions(context: MessageContext): SuggestedReplies {
+function createStarterSuggestions(category: string, context: MessageContext): SuggestedReplies {
   const goal = context.goal.toLocaleLowerCase("tr-TR");
-  const tone = context.tone.toLocaleLowerCase("tr-TR");
-  const wantsLightTone = tone.includes("espri") || tone.includes("rahat") || tone.includes("samimi");
-  const isDecline =
-    goal.includes("redd") ||
-    goal.includes("hayır") ||
-    goal.includes("istem") ||
-    context.difficultyReason.toLocaleLowerCase("tr-TR").includes("kır");
 
-  if (isDecline) {
+  // Let's create smart suggestions based on the category
+  if (category === "is_kariyer") {
+    if (goal.includes("zam")) {
+      return {
+        soft: "Son dönemdeki projelerim ve artan sorumluluklarım doğrultusunda maaşımı gözden geçirmemizi rica edecektim.",
+        clear: "Mevcut sorumluluklarım ve sektörel piyasa koşullarını değerlendirerek maaşımda bir artış yapılmasını talep ediyorum.",
+        short: "Maaş artışı ve performans değerlendirmemi görüşmek isterim.",
+      };
+    }
+    if (goal.includes("redd") || goal.includes("sınır")) {
+      return {
+        soft: "Bu konuda yardımcı olmak isterdim ancak şu anki iş yoğunluğum nedeniyle bu görevi ek olarak üstlenmem mümkün görünmüyor.",
+        clear: "Hafta sonu için önceden planlanmış kişisel bir programım var, bu yüzden mesaiye kalamayacağım.",
+        short: "Üzgünüm, bu seferlik yardımcı olamayacağım.",
+      };
+    }
+    if (goal.includes("istifa")) {
+      return {
+        soft: "Kariyerimde yeni bir fırsatı değerlendirmek üzere istifa kararımı ve ihbar süremi sizinle paylaşmak istiyorum.",
+        clear: "Başka bir şirketten aldığım teklifi kabul ettim. Bu doğrultuda görevimden ayrılma kararımı bildirmek isterim.",
+        short: "İstifa dilekçemi ve ayrılma sürecimi görüşmek için zaman rica ediyorum.",
+      };
+    }
     return {
-      soft:
-        "Çok isterdim ama bugün gerçekten dinlenmeye ihtiyacım var. Başka bir güne ayarlayalım mı?",
-      clear:
-        "Bugün gelemeyeceğim, bunu net söyleyeyim. Uygun olduğum bir zamanı ben sana yazayım.",
-      short: wantsLightTone
-        ? "Bugün pilim kırmızıda, kahveyi başka güne alalım mı?"
-        : "Bugün gelemeyeceğim, başka bir zamana bırakalım.",
+      soft: "İş süreçlerimiz ve sorumluluk paylaşımlarımız üzerine konuşmak istiyordum.",
+      clear: "Bu konuyu profesyonel bir çerçevede değerlendirip ortak bir yol bulabileceğimizi düşünüyorum.",
+      short: "Bu konuyu detaylıca görüşebilir miyiz?",
     };
   }
 
+  if (category === "para_pazarlik") {
+    if (goal.includes("kira") || context.incomingMessage.includes("kira")) {
+      return {
+        soft: "Piyasa şartlarını anlıyorum ancak yasal artış oranını aşmayacak ortak bir noktada buluşmamızı rica ediyorum.",
+        clear: "Yasal olarak belirlenen üst sınırın üzerinde bir kira artışını bütçem doğrultusunda kabul etmem mümkün değil.",
+        short: "Kira artışını yasal sınırda tutmak istiyorum.",
+      };
+    }
+    if (goal.includes("borç") || goal.includes("alacak") || goal.includes("ödem")) {
+      return {
+        soft: "Biliyorum senin de planların vardır ama verdiğim borcu ne zaman kapatabileceğini sormam gerekti.",
+        clear: "Sana verdiğim borç tutarını bu hafta sonuna kadar hesabıma gönderebilir misin? İhtiyacım oluştu.",
+        short: "Geciken ödememi gönderebilir misin?",
+      };
+    }
+    if (goal.includes("indirim") || goal.includes("satmak")) {
+      return {
+        soft: "Sunduğumuz hizmetin kalitesini korumak adına bu fiyatın altına inmemiz maalesef mümkün değil.",
+        clear: "Belirttiğimiz fiyat teklifi son fiyattır. Herhangi bir indirim uygulayamıyoruz.",
+        short: "Teklif ettiğimiz fiyat maalesef sondur.",
+      };
+    }
+  }
+
+  if (category === "flort_iliski") {
+    if (goal.includes("netlik") || goal.includes("anlamak")) {
+      return {
+        soft: "Son zamanlarda aramızda bir mesafe hissediyorum, bunun sebebini açıkça konuşabilir miyiz?",
+        clear: "İletişimimizdeki belirsizlik beni yoruyor. Aramızdakini netleştirmek istiyorum.",
+        short: "İlişkimizin gidişatı hakkında ne düşünüyorsun?",
+      };
+    }
+    if (goal.includes("mesafe") || goal.includes("bitirmek")) {
+      return {
+        soft: "İlişkimizin artık ikimiz için de sağlıklı yürümediğini düşünüyorum, bu yüzden mesafe koymak en doğrusu.",
+        clear: "Bu ilişkiyi burada sonlandırmanın ikimiz için de daha iyi olacağına karar verdim.",
+        short: "Daha fazla devam edemeyeceğimizi düşünüyorum.",
+      };
+    }
+    return {
+      soft: "Son mesajların veya tavrın konusunda hissettiklerimi paylaşmak istedim.",
+      clear: "Açık ve dürüst bir iletişim kurmamız ikimiz için de çok daha sağlıklı olacaktır.",
+      short: "Açıkça konuşalım mı?",
+    };
+  }
+
+  if (category === "aile_arkadas") {
+    if (goal.includes("hayır") || goal.includes("sınır")) {
+      return {
+        soft: "Seni kırmak istemem ama bu konuda sana yardımcı olamayacağım, umarım anlayışla karşılarsın.",
+        clear: "Bden istediğin şeyi yapmam şu anki şartlarımda maalesef mümkün değil, hayır demek durumundayım.",
+        short: "Üzgünüm ama buna evet diyemem.",
+      };
+    }
+    return {
+      soft: "Bu konudaki kararımı seninle paylaşmak ve anlayışını rica etmek istedim.",
+      clear: "Kendi sınırlarımı koruyarak bu konuyu tatlıya bağlamak istiyorum.",
+      short: "Kararıma saygı duyacağını umuyorum.",
+    };
+  }
+
+  // Fallback
   return {
-    soft:
-      "Bunu önemsediğim için hızlı cevap vermek istemedim. Sakin ve doğru ifade etmek istiyorum.",
-    clear:
-      "Konuyu uzatmadan net söyleyeyim: Benim için önemli olan şey yanlış anlaşılmadan anlaşılmak.",
-    short: wantsLightTone
-      ? "Bunu düzgün söylemek istiyorum, kelimeleri biraz özenle seçiyorum."
-      : "Net ama kırmadan anlatmak istiyorum.",
+    soft: "Bu konuyu kırmadan ve yapıcı bir şekilde çözebileceğimizi umuyorum.",
+    clear: "Konuyu uzatmadan net bir şekilde belirtmem gerekirse, bu durumun çözülmesini istiyorum.",
+    short: "Konuşup netleştirelim.",
   };
 }
 
 export function ChatSimulation({
   simulationId,
+  category,
   context,
   initialTurns,
 }: ChatSimulationProps) {
@@ -65,17 +136,22 @@ export function ChatSimulation({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [suggestions, setSuggestions] = useState<SuggestedReplies>(() =>
-    createStarterSuggestions(context),
+    createStarterSuggestions(category, context),
   );
+  const [optimisticUserMessage, setOptimisticUserMessage] = useState<string | null>(null);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const answeredTurns = useMemo(
     () => turns.filter((turn) => turn.userMessage.trim().length > 0),
     [turns],
   );
 
+  const openingMessage = context.aiOpeningMessage || context.incomingMessage;
+
   const messages = useMemo(() => {
     const list: Array<{ role: "ai" | "user"; content: string }> = [
-      { role: "ai", content: context.incomingMessage },
+      { role: "ai", content: openingMessage },
     ];
 
     for (const turn of answeredTurns) {
@@ -83,8 +159,18 @@ export function ChatSimulation({
       list.push({ role: "ai", content: turn.aiMessage });
     }
 
+    if (optimisticUserMessage) {
+      list.push({ role: "user", content: optimisticUserMessage });
+    }
+
     return list;
-  }, [answeredTurns, context.incomingMessage]);
+  }, [answeredTurns, openingMessage, optimisticUserMessage]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, pending]);
 
   const latestTurn = [...answeredTurns].reverse()[0];
   const currentTurn = Math.min(answeredTurns.length + 1, 5);
@@ -112,37 +198,48 @@ export function ChatSimulation({
     setError("");
 
     const message = input.trim();
-    const response = await fetch(`/api/simulations/${simulationId}/turn`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userMessage: message }),
-    });
-    const data = await response.json();
-    setPending(false);
-
-    if (!response.ok) {
-      setError(data.message || "Cevap kaydedilemedi.");
-      return;
-    }
-
-    setTurns((previous) => [
-      ...previous,
-      {
-        turnNumber: data.turn.turnNumber,
-        userMessage: data.turn.userMessage,
-        aiMessage: data.turn.aiMessage,
-        feedback: data.turn.feedback,
-        betterAlternative: data.turn.betterAlternative,
-        scores: data.turn.scoresJson,
-      },
-    ]);
-    setSuggestions(data.suggestedReplies);
     setInput("");
+    setOptimisticUserMessage(message);
 
-    if (data.shouldFinish) {
-      window.setTimeout(() => {
-        void finish();
-      }, 700);
+    try {
+      const response = await fetch(`/api/simulations/${simulationId}/turn`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userMessage: message }),
+      });
+      const data = await response.json();
+      setPending(false);
+      setOptimisticUserMessage(null);
+
+      if (!response.ok) {
+        setError(data.message || "Cevap kaydedilemedi.");
+        setInput(message);
+        return;
+      }
+
+      setTurns((previous) => [
+        ...previous,
+        {
+          turnNumber: data.turn.turnNumber,
+          userMessage: data.turn.userMessage,
+          aiMessage: data.turn.aiMessage,
+          feedback: data.turn.feedback,
+          betterAlternative: data.turn.betterAlternative,
+          scores: data.turn.scoresJson,
+        },
+      ]);
+      setSuggestions(data.suggestedReplies);
+
+      if (data.shouldFinish) {
+        window.setTimeout(() => {
+          void finish();
+        }, 700);
+      }
+    } catch (err) {
+      setPending(false);
+      setOptimisticUserMessage(null);
+      setError("Bağlantı hatası oluştu.");
+      setInput(message);
     }
   }
 
@@ -154,6 +251,11 @@ export function ChatSimulation({
         <div className="mt-5 space-y-4 text-sm leading-6 text-slate-300">
           <p>
             <span className="text-slate-500">Karşı taraf:</span> {context.otherPerson}
+            {context.otherPersonPersonality && (
+              <span className="inline-block rounded-full bg-violet-500/15 border border-violet-500/20 px-2.5 py-0.5 text-[11px] text-violet-300 ml-2 font-bold align-middle">
+                {context.otherPersonPersonality}
+              </span>
+            )}
           </p>
           <p>
             <span className="text-slate-500">Amaç:</span> {context.goal}
@@ -168,7 +270,7 @@ export function ChatSimulation({
 
         <div className="mt-6 rounded-3xl bg-slate-950/60 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Gelen mesaj
+            Durum / Gelen Mesaj
           </p>
           <p className="mt-3 text-sm leading-6 text-slate-200">{context.incomingMessage}</p>
         </div>
@@ -212,7 +314,7 @@ export function ChatSimulation({
         )}
       </aside>
 
-      <section className="flex min-h-[680px] flex-col rounded-[2rem] border border-white/10 bg-slate-950/75 shadow-2xl shadow-violet-950/30">
+      <section className="flex h-[680px] flex-col rounded-[2rem] border border-white/10 bg-slate-950/75 shadow-2xl shadow-violet-950/30">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div>
             <p className="text-sm text-slate-400">Tur {currentTurn} / 5</p>
@@ -228,7 +330,7 @@ export function ChatSimulation({
           </button>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-5">
+        <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-5">
           {messages.map((message, index) => (
             <div
               key={`${message.role}-${index}`}

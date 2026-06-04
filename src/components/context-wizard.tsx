@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { categories } from "@/lib/categories";
 import type { MessageContext } from "@/lib/types";
+import { templates } from "@/lib/templates";
 
 type WizardStep = {
   key: keyof MessageContext;
@@ -34,6 +35,27 @@ function getStepsForCategory(category: string): WizardStep[] {
           options: ["Patron", "Yönetici / Müdür", "İş arkadaşı", "IK (İnsan Kaynakları)", "Müşteri"]
         },
         {
+          key: "otherPersonPersonality",
+          label: "Karşı tarafın kişiliği nasıl?",
+          helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
+          type: "select",
+          options: ["Otoriter ve Sert", "Anlayışlı ve Mantıklı", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz"]
+        },
+        {
+          key: "otherPersonAttitude",
+          label: "Karşı tarafın muhtemel tavrı nasıl olur?",
+          helper: "Görüşme sırasındaki tutumu ne olacak?",
+          type: "select",
+          options: ["Anlayışlı", "Savunmacı", "Kaçamak", "Sert", "Umursamaz", "Pazarlıkçı"]
+        },
+        {
+          key: "previouslyDiscussed",
+          label: "Daha önce bu konu açıldı mı?",
+          helper: "Konuşmanın geçmiş geçmişi var mı?",
+          type: "select",
+          options: ["Hayır, ilk kez açılacak", "Evet, olumlu geçti", "Evet, kötü geçti"]
+        },
+        {
           key: "difficultyReason",
           label: "Bu konuda konuşmakta neden zorlanıyorsun?",
           helper: "Temel zorluğu veya çekinceni seç.",
@@ -60,6 +82,13 @@ function getStepsForCategory(category: string): WizardStep[] {
           helper: "Yapay zeka önerileri bu tona göre ayarlanır.",
           type: "select",
           options: ["Profesyonel ve kibar", "Net ve kararlı", "Yumuşak ama ciddi", "Kısa ve direkt"]
+        },
+        {
+          key: "redLine",
+          label: "Kırmızı çizgin ne?",
+          helper: "Asla taviz vermeyeceğin sınır.",
+          type: "input",
+          placeholder: "Örn: Fazla ücretsiz mesai yapmam, bu tutarın altına inmem"
         },
         {
           key: "replyLength",
@@ -100,6 +129,27 @@ function getStepsForCategory(category: string): WizardStep[] {
           options: ["Yeni tanışılan biri", "Flört", "Sevgili", "Eski sevgili", "Platonik aşk"]
         },
         {
+          key: "relationshipDuration",
+          label: "Ne kadar süredir iletişimdesiniz?",
+          helper: "Bu süre samimiyet derecesini belirler.",
+          type: "select",
+          options: ["Birkaç gün", "Birkaç hafta", "Birkaç ay", "Çok uzun süre"]
+        },
+        {
+          key: "otherPersonPersonality",
+          label: "Karşı tarafın kişiliği nasıl?",
+          helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
+          type: "select",
+          options: ["Soğuk ve Mesafeli", "Duygusal ve Hassas", "İlgisiz / Geç Yazan", "Kıskanç ve Koruyucu", "Anlayışlı ve Açık Sözlü"]
+        },
+        {
+          key: "otherPersonAttitude",
+          label: "Karşı tarafın son tavrı nasıldı?",
+          helper: "Sana nasıl yaklaşıyor?",
+          type: "select",
+          options: ["Sıcak", "Soğuk", "Kararsız", "Geç cevap veriyor", "İlgili ama belirsiz", "Savunmacı", "Suçlayıcı"]
+        },
+        {
           key: "difficultyReason",
           label: "Neden yazmakta veya konuşmakta zorlanıyorsun?",
           helper: "Kararsızlığının sebebini seç.",
@@ -128,6 +178,13 @@ function getStepsForCategory(category: string): WizardStep[] {
           options: ["Sakin", "Net ve mesafeli", "Duygusal ama kontrollü", "Samimi ve açık", "Hafif esprili"]
         },
         {
+          key: "avoidAction",
+          label: "Bu konuşmada asla yapmak istemediğin şey ne?",
+          helper: "Sınırını korumana yardımcı olur.",
+          type: "input",
+          placeholder: "Örn: yalvarmak, fazla sert olmak, gurursuz görünmek"
+        },
+        {
           key: "replyLength",
           label: "Cevap uzunluğu nasıl olsun?",
           helper: "Kısa kalmak genelde flörtte daha etkilidir.",
@@ -140,6 +197,13 @@ function getStepsForCategory(category: string): WizardStep[] {
           helper: "Gelecekteki iletişimi etkiler.",
           type: "select",
           options: ["Evet", "Hayır", "Emin değilim", "Sadece saygılı kapatmak istiyorum"]
+        },
+        {
+          key: "noReplyAction",
+          label: "Karşı taraf cevap vermezse ne yapmak istiyorsun?",
+          helper: "İletişim stratejisini belirler.",
+          type: "select",
+          options: ["Bir daha yazmayacağım", "Son bir mesaj göndereceğim", "Bekleyeceğim", "Emin değilim"]
         },
         {
           key: "fear",
@@ -164,6 +228,34 @@ function getStepsForCategory(category: string): WizardStep[] {
           helper: "Yakınlık derecesini seç.",
           type: "select",
           options: ["Anne", "Baba", "Kardeş", "Yakın arkadaş", "Akraba / Kuzen"]
+        },
+        {
+          key: "closenessLevel",
+          label: "Aranızdaki yakınlık derecesi nasıl?",
+          helper: "Konuşmanın hassasiyetini etkiler.",
+          type: "select",
+          options: ["Çok yakın", "Yakın ama hassas", "Aramız biraz bozuk", "Mesafeliyiz", "Aile olduğu için kopmak istemiyorum", "Arkadaşlığı bitirme noktasındayım"]
+        },
+        {
+          key: "otherPersonPersonality",
+          label: "Karşı tarafın kişiliği nasıl?",
+          helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
+          type: "select",
+          options: ["Alıngan ve Hassas", "Otoriter ve Baskıcı", "Pasif-Agresif", "Destekleyici ve Sevgi Dolu", "Geleneksel / Israrcı"]
+        },
+        {
+          key: "otherPersonAttitude",
+          label: "Karşı taraf nasıl tepki verebilir?",
+          helper: "Kaygı duyduğun muhtemel tavır.",
+          type: "select",
+          options: ["Alınabilir", "Kızabilir", "Konuyu değiştirebilir", "Suçluluk hissettirebilir", "Anlayışlı olabilir", "Dalga geçebilir"]
+        },
+        {
+          key: "pastConversations",
+          label: "Bu kişiyle geçmişte benzer konuşmalar nasıl geçti?",
+          helper: "Geçmiş iletişim örüntünüz.",
+          type: "select",
+          options: ["İlk kez konuşacağım", "Genelde iyi", "Genelde tartışmaya dönüyor", "Ben susuyorum", "Karşı taraf savunmaya geçiyor"]
         },
         {
           key: "difficultyReason",
@@ -224,11 +316,39 @@ function getStepsForCategory(category: string): WizardStep[] {
           placeholder: "Mevcut fiyat teklifini veya durumu yaz..."
         },
         {
+          key: "financialIssue",
+          label: "Konu hangi para meselesi?",
+          helper: "Konuşmanın finansal türünü seç.",
+          type: "select",
+          options: ["Maaş pazarlığı", "Kira artışı", "Borç / Alacak", "Freelance / Hizmet bedeli", "Ürün fiyatı", "Ortak masraf bölüşme"]
+        },
+        {
           key: "otherPerson",
           label: "Karşı taraf kim?",
           helper: "Finansal muhatabın.",
           type: "select",
           options: ["Müşteri", "Patron / Yönetici", "Ev sahibi", "Kiracı", "Satıcı", "Alıcı", "Arkadaş"]
+        },
+        {
+          key: "otherPersonPersonality",
+          label: "Karşı tarafın kişiliği nasıl?",
+          helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
+          type: "select",
+          options: ["Para Göz ve Katı", "Uzlaşmacı ve Esnek", "Profesyonel ve Mesafeli", "Israrcı ve Zorlayıcı"]
+        },
+        {
+          key: "otherPersonAttitude",
+          label: "Karşı tarafın şu anki pozisyonu/tavrı ne?",
+          helper: "Sana karşı aldığı finansal duruş.",
+          type: "select",
+          options: ["Henüz konuşulmadı", "Pahalı buluyor", "Ödemeyi geciktiriyor", "İndirim istiyor", "Artışı kabul etmiyor", "Daha düşük teklif verdi"]
+        },
+        {
+          key: "currentAmount",
+          label: "Mevcut veya teklif edilen tutar nedir?",
+          helper: "Sözleşme veya son teklif bedeli.",
+          type: "input",
+          placeholder: "Örn: 20.000 TL kira, 40.000 TL maaş teklifi"
         },
         {
           key: "difficultyReason",
@@ -251,11 +371,25 @@ function getStepsForCategory(category: string): WizardStep[] {
           options: ["Hedef tutarda anlaşmak", "İndirim yapmadan satmak", "Artışı kabul ettirmek / limit koymak", "Ödemeyi almak"]
         },
         {
+          key: "minAcceptableLevel",
+          label: "Kabul edeceğin minimum seviye / sınır nedir?",
+          helper: "Masadan kalkma noktanı belirler.",
+          type: "input",
+          placeholder: "Örn: 35.000 TL altını kabul etmem, taksit istemiyorum"
+        },
+        {
           key: "tone",
           label: "Pazarlık tonun nasıl olsun?",
           helper: "Pazarlık gücünü etkiler.",
           type: "select",
           options: ["Uzlaşmacı", "Net ve kararlı", "Sert ama saygılı", "Profesyonel"]
+        },
+        {
+          key: "leverageOrAlternative",
+          label: "Elinde koz veya alternatif var mı?",
+          helper: "Pazarlıktaki gücünü artıracak kanıt/seçenek.",
+          type: "input",
+          placeholder: "Örn: Emsal piyasa fiyatları, başka bir iş teklifi"
         },
         {
           key: "replyLength",
@@ -270,6 +404,13 @@ function getStepsForCategory(category: string): WizardStep[] {
           helper: "Masadan kalkma limitini belirler.",
           type: "select",
           options: ["Evet", "Hayır", "Emin değilim", "Sadece saygılı kapatmak istiyorum"]
+        },
+        {
+          key: "noAgreementAction",
+          label: "Anlaşma olmazsa ne yapacaksın?",
+          helper: "B Planın nedir?",
+          type: "select",
+          options: ["Emin değilim", "Masadan kalkarım", "Alternatif teklif sunarım", "Süre isterim", "İlişkiyi bozmak istemem"]
         },
         {
           key: "fear",
@@ -295,6 +436,13 @@ function getStepsForCategory(category: string): WizardStep[] {
           helper: "Bu rol simülasyondaki tepkiyi belirler.",
           type: "select",
           options: ["Flört", "Sevgili", "Eski sevgili", "Arkadaş", "Aile", "İş arkadaşı", "Patron", "Müşteri", "Tanımadığım biri"]
+        },
+        {
+          key: "otherPersonPersonality",
+          label: "Karşı tarafın kişiliği nasıl?",
+          helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
+          type: "select",
+          options: ["Otoriter ve Sert", "Anlayışlı ve Mantıklı", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz", "Soğuk ve Mesafeli", "Duygusal ve Hassas"]
         },
         {
           key: "difficultyReason",
@@ -372,12 +520,43 @@ function getInitialContextForCategory(category: string): MessageContext {
   return context as MessageContext;
 }
 
-export function ContextWizard() {
+export function ContextWizard({
+  templateId,
+  initialPersonality,
+}: {
+  templateId?: string;
+  initialPersonality?: string;
+}) {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState("zor_mesajlar");
-  const [context, setContext] = useState<MessageContext>(() =>
-    getInitialContextForCategory("zor_mesajlar"),
-  );
+  
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+    if (templateId) {
+      const found = templates.find((t) => t.id === templateId);
+      if (found) return found.category;
+    }
+    return "zor_mesajlar";
+  });
+
+  const [context, setContext] = useState<MessageContext>(() => {
+    const defaultContext = getInitialContextForCategory(
+      templateId
+        ? templates.find((t) => t.id === templateId)?.category || "zor_mesajlar"
+        : "zor_mesajlar"
+    );
+
+    if (templateId) {
+      const found = templates.find((t) => t.id === templateId);
+      if (found) {
+        return {
+          ...defaultContext,
+          ...found.context,
+          ...(initialPersonality ? { otherPersonPersonality: initialPersonality } : {}),
+        };
+      }
+    }
+    return defaultContext;
+  });
+
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);

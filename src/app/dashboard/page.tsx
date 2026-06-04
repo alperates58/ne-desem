@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Plus, Search } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { SimulationCard } from "@/components/simulation-card";
+import { QuickStartGrid } from "@/components/quick-start-grid";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import type { SimulationStatus } from "@/lib/types";
@@ -61,7 +62,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         </Link>
       </div>
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+      <div className="mb-10 grid gap-3 sm:grid-cols-3">
         {[
           ["Toplam prova", stats.total],
           ["Tamamlanan", stats.completed],
@@ -74,30 +75,38 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         ))}
       </div>
 
-      <form className="mb-6 grid gap-3 rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-3 sm:grid-cols-[1fr_auto_auto]">
-        <label className="flex items-center gap-3 rounded-2xl bg-slate-950/70 px-4 py-3">
-          <Search size={18} className="text-slate-500" />
-          <input
-            className="w-full bg-transparent outline-none"
-            name="search"
-            defaultValue={search}
-            placeholder="Senaryo veya kategori ara"
-          />
-        </label>
-        <select
-          className="rounded-2xl border border-white/10 bg-slate-900 px-4 py-3"
-          name="filter"
-          defaultValue={filter}
-        >
-          <option value="all">Tümü</option>
-          <option value="completed">Tamamlanan</option>
-          <option value="in_progress">Devam eden</option>
-          <option value="outcome_added">Sonuç yazılan</option>
-        </select>
-        <button className="rounded-2xl bg-white px-5 py-3 font-semibold text-slate-950" type="submit">
-          Uygula
-        </button>
-      </form>
+      <div className="mb-10">
+        <h2 className="mb-4 text-xl font-bold text-slate-200">Popüler Hazır Senaryolar</h2>
+        <QuickStartGrid />
+      </div>
+
+      <div className="mb-6">
+        <h2 className="mb-4 text-xl font-bold text-slate-200">Önceki Provaların</h2>
+        <form className="mb-6 grid gap-3 rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-3 sm:grid-cols-[1fr_auto_auto]">
+          <label className="flex items-center gap-3 rounded-2xl bg-slate-950/70 px-4 py-3">
+            <Search size={18} className="text-slate-500" />
+            <input
+              className="w-full bg-transparent outline-none"
+              name="search"
+              defaultValue={search}
+              placeholder="Senaryo veya kategori ara"
+            />
+          </label>
+          <select
+            className="rounded-2xl border border-white/10 bg-slate-900 px-4 py-3"
+            name="filter"
+            defaultValue={filter}
+          >
+            <option value="all">Tümü</option>
+            <option value="completed">Tamamlanan</option>
+            <option value="in_progress">Devam eden</option>
+            <option value="outcome_added">Sonuç yazılan</option>
+          </select>
+          <button className="rounded-2xl bg-white px-5 py-3 font-semibold text-slate-950" type="submit">
+            Uygula
+          </button>
+        </form>
+      </div>
 
       {simulations.length === 0 ? (
         <div className="rounded-[2rem] border border-dashed border-white/15 bg-white/[0.04] p-8 text-center">
