@@ -10,6 +10,7 @@ import type {
 import {
   AiServiceError,
   baseSystemPrompt,
+  buildConversationHistory,
   compactContext,
   finalReportSchema,
   outcomeAdviceSchema,
@@ -231,7 +232,7 @@ export async function getGeminiTurnResponse(
     },
     context: compactContext(category, context),
     turnNumber,
-    conversation: conversation.slice(-6),
+    conversation: buildConversationHistory(conversation),
     userMessage,
   });
 

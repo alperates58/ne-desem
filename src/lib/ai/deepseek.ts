@@ -11,6 +11,7 @@ import type {
 import {
   AiServiceError,
   baseSystemPrompt,
+  buildConversationHistory,
   compactContext,
   finalReportSchema,
   outcomeAdviceSchema,
@@ -261,7 +262,7 @@ export function createTurnMessages(
         },
         context: compactContext(category, context),
         turnNumber,
-        conversation: conversation.slice(-6),
+        conversation: buildConversationHistory(conversation),
         userMessage,
       }),
     },
@@ -364,8 +365,8 @@ export async function getDeepSeekFinalReport(
         "final",
         createFinalReportMessages(category, context, turns),
         finalReportSchema,
-        800,
-        12000,
+        1400,
+        18000,
       ),
     2,
     1000,
@@ -411,7 +412,7 @@ export async function getDeepSeekOpeningMessage(
   category: string,
   context: MessageContext,
 ) {
-  const messages = [
+  const messages: ChatMessage[] = [
     { role: "system", content: baseSystemPrompt },
     {
       role: "user",
@@ -434,7 +435,7 @@ export async function getDeepSeekOpeningMessage(
     () =>
       requestJson<{ opening_message: string }>(
         "turn",
-        messages as any,
+        messages,
         openingMessageSchema,
         400,
         10000,
@@ -450,7 +451,7 @@ export async function getDeepSeekSimulationBrief(
   category: string,
   context: MessageContext,
 ) {
-  const messages = [
+  const messages: ChatMessage[] = [
     { role: "system", content: baseSystemPrompt },
     {
       role: "user",
@@ -473,7 +474,7 @@ export async function getDeepSeekSimulationBrief(
     () =>
       requestJson<{ simulation_brief: string }>(
         "turn",
-        messages as any,
+        messages,
         simulationBriefSchema,
         400,
         10000,

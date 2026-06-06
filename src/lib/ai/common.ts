@@ -96,6 +96,7 @@ export function compactContext(category: string, context: MessageContext) {
     karsi_taraf: context.otherPerson,
     karsi_taraf_kisilik_tipi: context.otherPersonPersonality,
     gelen_mesaj: context.incomingMessage,
+    zorluk_nedeni: context.difficultyReason,
     amac: context.goal,
     ton: context.tone,
     cekince: context.fear,
@@ -114,6 +115,17 @@ export function compactContext(category: string, context: MessageContext) {
     anlasma_olmazsa: context.noAgreementAction,
     baslatan: context.initiatedBy === "user" ? "Kullanıcı (Ben)" : "Karşı Taraf",
   };
+}
+
+/**
+ * Konuşma geçmişi penceresini akıllıca kırpar.
+ * Kısa geçmişlerde tamamını döndürür.
+ * Uzun geçmişlerde ilk mesajı (açılış/bağlam) korur + son 9 mesajı alır.
+ * Bu sayede 8+ turlu simülasyonlarda AI bağlamı kaybetmez.
+ */
+export function buildConversationHistory<T>(conversation: T[]): T[] {
+  if (conversation.length <= 10) return conversation;
+  return [conversation[0], ...conversation.slice(-9)];
 }
 
 export function parseJson(content: string) {
