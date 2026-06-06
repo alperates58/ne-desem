@@ -361,7 +361,7 @@ export async function getOpenAiOpeningMessage(
   category: string,
   context: MessageContext,
 ) {
-  const messages = [
+  const messages: ChatMessage[] = [
     { role: "system", content: baseSystemPrompt },
     {
       role: "user",
@@ -384,7 +384,7 @@ export async function getOpenAiOpeningMessage(
     () =>
       requestOpenAiJson<{ opening_message: string }>(
         "turn",
-        messages as any,
+        messages,
         openingMessageSchema,
         400,
         10000,
@@ -400,7 +400,7 @@ export async function getOpenAiSimulationBrief(
   category: string,
   context: MessageContext,
 ) {
-  const messages = [
+  const messages: ChatMessage[] = [
     { role: "system", content: baseSystemPrompt },
     {
       role: "user",

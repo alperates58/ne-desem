@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Sparkles, Trophy, Award, MessageSquare, Twitter, Linkedin, MessageCircle, Play } from "lucide-react";
+import { Sparkles, Trophy, Award, MessageSquare, MessageCircle, Play } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCategoryLabel } from "@/lib/categories";
 
@@ -95,7 +95,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
               <p className="mt-3 text-sm text-slate-400 italic">"Zor diyalogları prova ederek sınırlarını çizmeyi öğreniyor."</p>
             )}
 
-            {/* Social media icons */}
+            {/* Social media icons using custom inline SVGs */}
             {(social.twitter || social.instagram || social.linkedin) && (
               <div className="mt-5 flex gap-3">
                 {social.twitter && (
@@ -104,8 +104,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                     target="_blank"
                     rel="noopener noreferrer"
                     className="grid h-10 w-10 place-items-center rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition"
+                    title="X (Twitter)"
                   >
-                    <Twitter size={18} />
+                    <svg className="h-4.5 w-4.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
                   </a>
                 )}
                 {social.instagram && (
@@ -114,8 +117,13 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                     target="_blank"
                     rel="noopener noreferrer"
                     className="grid h-10 w-10 place-items-center rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition"
+                    title="Instagram"
                   >
-                    <Twitter size={18} /> {/* Using Lucide Twitter/Instagram mapping */}
+                    <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
                   </a>
                 )}
                 {social.linkedin && (
@@ -124,8 +132,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                     target="_blank"
                     rel="noopener noreferrer"
                     className="grid h-10 w-10 place-items-center rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition"
+                    title="LinkedIn"
                   >
-                    <Linkedin size={18} />
+                    <svg className="h-4.5 w-4.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                    </svg>
                   </a>
                 )}
               </div>
@@ -202,23 +213,29 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             <a
               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
                 `${profileUser.name} sınırlarını çizmek için "Ne Desem?" ile provalar yapıyor! Ortalama skoru: %${averageScore}. Sen de durumunu prova et: `
-              )}&url=${encodeURIComponent(`http://localhost:3000/u/${id}`)}`}
+              )}&url=${encodeURIComponent(`https://nedesem.alperates.com.tr/u/${id}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-2xl bg-white/5 border border-white/10 px-5 py-3 text-sm font-semibold hover:bg-white/10 transition"
             >
-              <Twitter size={16} /> Twitter'da Paylaş
+              <svg className="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              Twitter'da Paylaş
             </a>
 
             <a
               href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-                `http://localhost:3000/u/${id}`
+                `https://nedesem.alperates.com.tr/u/${id}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-2xl bg-white/5 border border-white/10 px-5 py-3 text-sm font-semibold hover:bg-white/10 transition"
             >
-              <Linkedin size={16} /> LinkedIn'de Paylaş
+              <svg className="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+              </svg>
+              LinkedIn'de Paylaş
             </a>
           </div>
 

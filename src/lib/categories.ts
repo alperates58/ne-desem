@@ -46,7 +46,7 @@ export const categories: Category[] = [
   },
 ];
 
-export const contextFieldLabels: Record<keyof Omit<MessageContext, "aiOpeningMessage">, string> = {
+export const contextFieldLabels: Record<keyof Omit<MessageContext, "aiOpeningMessage" | "simulationBrief">, string> = {
   incomingMessage: "Durum / Gelen mesaj",
   otherPerson: "Karşı taraf",
   otherPersonPersonality: "Karşı tarafın kişiliği",
