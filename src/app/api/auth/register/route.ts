@@ -17,11 +17,26 @@ export async function POST(request: Request) {
       return jsonError("Bu e-posta zaten kayıtlı.", 409);
     }
 
+    let freeTier = await prisma.membershipTier.findFirst({
+      where: { name: { equals: "Free", mode: "insensitive" } },
+    });
+
+    if (!freeTier) {
+      freeTier = await prisma.membershipTier.create({
+        data: {
+          name: "Free",
+          price: 0,
+          monthlyLimit: 5,
+        },
+      });
+    }
+
     const user = await prisma.user.create({
       data: {
         name: input.name,
         email,
         passwordHash: await hash(input.password, 12),
+        membershipTierId: freeTier.id,
       },
       select: { id: true, name: true, email: true },
     });

@@ -132,6 +132,7 @@ export function ChatSimulation({
 }: ChatSimulationProps) {
   const router = useRouter();
   const [turns, setTurns] = useState<Turn[]>(initialTurns);
+  const [isStarted, setIsStarted] = useState(() => initialTurns.length > 0);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -173,7 +174,7 @@ export function ChatSimulation({
   }, [messages, pending]);
 
   const latestTurn = [...answeredTurns].reverse()[0];
-  const currentTurn = Math.min(answeredTurns.length + 1, 5);
+  const currentTurn = Math.min(answeredTurns.length + 1, 8);
 
   async function finish() {
     setPending(true);
@@ -239,8 +240,62 @@ export function ChatSimulation({
       setPending(false);
       setOptimisticUserMessage(null);
       setError("Bağlantı hatası oluştu.");
-      setInput(message);
     }
+  }
+  if (!isStarted) {
+    const briefText = context.simulationBrief || `${context.otherPerson} ile karşı karşıyasın. Kendisi bu konuşmada "${context.otherPersonPersonality || 'belirsiz'}" bir kişilik sergileyecek. Amacın "${context.goal}" hedefine ulaşmak; sakin kalıp sınırlarını koruyarak diyalogu sürdürmelisin.`;
+
+    return (
+      <div className="mx-auto max-w-2xl rounded-[2rem] border border-violet-500/20 bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-8 shadow-2xl shadow-violet-950/30">
+        <div className="flex flex-col items-center text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-violet-500/20 text-violet-300 shadow-inner">
+            <Sparkles size={32} className="animate-pulse" />
+          </div>
+          <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-white bg-gradient-to-r from-violet-200 via-white to-violet-300 bg-clip-text text-transparent">
+            Simülasyon Hazır!
+          </h1>
+          <p className="mt-2 text-sm text-slate-400">
+            Konuşma provanıza başlamak üzeresiniz.
+          </p>
+
+          <div className="mt-8 w-full rounded-2xl border border-white/10 bg-slate-950/50 p-6 text-left leading-relaxed">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-400">
+               Durum & Karakter Özeti
+            </h3>
+            <p className="mt-3 text-sm text-slate-200">
+              {briefText}
+            </p>
+          </div>
+
+          <div className="mt-6 w-full grid grid-cols-2 gap-4 text-left text-sm text-slate-300">
+            <div className="rounded-xl bg-white/[0.04] p-3">
+              <span className="block text-xs text-slate-500">Muhatap</span>
+              <span className="font-semibold text-slate-200">{context.otherPerson}</span>
+            </div>
+            <div className="rounded-xl bg-white/[0.04] p-3">
+              <span className="block text-xs text-slate-500">Kişilik Yapısı</span>
+              <span className="font-semibold text-slate-200">{context.otherPersonPersonality || "Belirtilmemiş"}</span>
+            </div>
+            <div className="rounded-xl bg-white/[0.04] p-3">
+              <span className="block text-xs text-slate-500">Hedefiniz</span>
+              <span className="font-semibold text-slate-200">{context.goal}</span>
+            </div>
+            <div className="rounded-xl bg-white/[0.04] p-3">
+              <span className="block text-xs text-slate-500">İletişim Tonu</span>
+              <span className="font-semibold text-slate-200">{context.tone}</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsStarted(true)}
+            className="mt-8 w-full rounded-3xl bg-violet-400 py-4 font-bold text-slate-950 shadow-lg shadow-violet-950/40 transition-all hover:bg-violet-300 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Simülasyonu Başlat
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -317,7 +372,7 @@ export function ChatSimulation({
       <section className="flex h-[680px] flex-col rounded-[2rem] border border-white/10 bg-slate-950/75 shadow-2xl shadow-violet-950/30">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div>
-            <p className="text-sm text-slate-400">Tur {currentTurn} / 5</p>
+            <p className="text-sm text-slate-400">Tur {currentTurn} / 8</p>
             <h2 className="font-semibold text-white">Karşı taraf simülasyonu</h2>
           </div>
           <button
@@ -331,6 +386,15 @@ export function ChatSimulation({
         </div>
 
         <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-5">
+          {answeredTurns.length === 0 && (
+            <div className="mb-4 rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4 text-sm leading-6 text-violet-100 shadow-lg shadow-violet-950/20">
+              <span className="font-bold flex items-center gap-2 mb-1">
+                <Sparkles size={16} className="text-violet-300 animate-pulse" /> 
+                İlk mesajını yaz ve simülasyona başlayalım!
+              </span>
+              Karşı tarafın durumuna veya canlandırmak istediğin diyaloğa göre ilk sözünü aşağıdaki yazma alanına girerek veya sol taraftaki hazır önerilerden birine tıklayarak simülasyonu başlatabilirsin.
+            </div>
+          )}
           {messages.map((message, index) => (
             <div
               key={`${message.role}-${index}`}

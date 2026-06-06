@@ -523,9 +523,11 @@ function getInitialContextForCategory(category: string): MessageContext {
 export function ContextWizard({
   templateId,
   initialPersonality,
+  remainingLimits = 5,
 }: {
   templateId?: string;
   initialPersonality?: string;
+  remainingLimits?: number;
 }) {
   const router = useRouter();
   
@@ -599,6 +601,10 @@ export function ContextWizard({
     }
 
     if (isLast) {
+      if (remainingLimits <= 0) {
+        setError("Aylık simülasyon limitinize ulaştınız. Yeni simülasyon başlatamazsınız.");
+        return;
+      }
       void submit();
       return;
     }
@@ -661,6 +667,14 @@ export function ContextWizard({
         onSubmit={onSubmit}
         className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-violet-950/30"
       >
+        {remainingLimits <= 0 && (
+          <div className="mb-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm leading-6 text-rose-200">
+            <span className="font-bold flex items-center gap-2 mb-1">
+              <Lock size={16} className="text-rose-300" /> Aylık Simülasyon Limitiniz Doldu!
+            </span>
+            Bu ay için tanımlanmış limitinize ulaştınız. Yeni bir simülasyon başlatmak için lütfen profil sayfanızdan planınızı yükseltin.
+          </div>
+        )}
         <div className="mb-6 flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold text-violet-200">
@@ -708,14 +722,24 @@ export function ContextWizard({
           >
             Geri
           </button>
-          <button
-            className="inline-flex items-center gap-2 rounded-2xl bg-violet-300 px-5 py-3 font-semibold text-slate-950 disabled:opacity-60"
-            disabled={pending}
-            type="submit"
-          >
-            {pending ? "Hazırlanıyor..." : isLast ? "Simülasyonu Başlat" : "Devam"}
-            <ArrowRight size={18} />
-          </button>
+          {isLast && remainingLimits <= 0 ? (
+            <button
+              className="inline-flex items-center gap-2 rounded-2xl bg-rose-500/20 border border-rose-500/30 px-5 py-3 font-semibold text-rose-300 cursor-not-allowed"
+              disabled
+              type="button"
+            >
+              Limit Aşıldı <Lock size={18} />
+            </button>
+          ) : (
+            <button
+              className="inline-flex items-center gap-2 rounded-2xl bg-violet-300 px-5 py-3 font-semibold text-slate-950 disabled:opacity-60"
+              disabled={pending}
+              type="submit"
+            >
+              {pending ? "Hazırlanıyor..." : isLast ? "Simülasyonu Başlat" : "Devam"}
+              <ArrowRight size={18} />
+            </button>
+          )}
         </div>
       </form>
     </div>

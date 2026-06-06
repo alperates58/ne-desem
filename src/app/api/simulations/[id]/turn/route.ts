@@ -69,7 +69,7 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({
       turn,
       suggestedReplies: ai.suggested_replies,
-      shouldFinish: userTurnNumber >= 5,
+      shouldFinish: userTurnNumber >= 8,
     });
   } catch (error) {
     return jsonError(parseError(error));

@@ -39,6 +39,7 @@ export const finalReportSchema = z.object({
   better_alternatives: z.array(z.string().min(1)).min(1).max(3),
   real_life_tips: z.array(z.string().min(1)).min(1).max(3),
   risks: z.array(z.string().min(1)).min(1).max(3),
+  detailed_evaluation: z.string().optional(),
 });
 
 export const outcomeAdviceSchema = z.object({
@@ -52,6 +53,10 @@ export const outcomeAdviceSchema = z.object({
 
 export const openingMessageSchema = z.object({
   opening_message: z.string().min(1),
+});
+
+export const simulationBriefSchema = z.object({
+  simulation_brief: z.string().min(1),
 });
 
 export const baseSystemPrompt = [

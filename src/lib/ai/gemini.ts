@@ -6,6 +6,7 @@ import type {
   OutcomeInput,
   TurnAiResponse,
 } from "@/lib/types";
+
 import {
   AiServiceError,
   baseSystemPrompt,
@@ -13,6 +14,7 @@ import {
   finalReportSchema,
   outcomeAdviceSchema,
   openingMessageSchema,
+  simulationBriefSchema,
   parseJson,
   retry,
   turnSchema,
@@ -248,8 +250,13 @@ export async function getGeminiFinalReport(
   turns: Array<{ turnNumber: number; userMessage: string; aiMessage: string }>,
 ) {
   const userPrompt = JSON.stringify({
-    task: "Simülasyon final raporunu kısa üret.",
-    rules: ["summary kısa olsun.", "Listeler en fazla 3 madde olsun.", "Cümleler uygulanabilir olsun."],
+    task: "Simülasyon final raporunu üret. Bu raporda kullanıcının performansını detaylıca değerlendir.",
+    rules: [
+      "summary kısa olsun.",
+      "Listeler en fazla 3 madde olsun.",
+      "Cümleler uygulanabilir olsun.",
+      "detailed_evaluation alanında kullanıcının yaptığı konuşma hatalarını, hangi cümlelerin yerine neleri kullanabileceğini ve karşıdaki kişinin canlandırılan karakter ve kişilik yapısına (otherPersonPersonality) göre nasıl bir iletişim yaklaşımı sergilemesi gerektiğini detaylandıran 2-3 paragraflık samimi ve yapıcı Türkçe bir değerlendirme yazısı oluştur."
+    ],
     json: {
       total_score: 78,
       summary: "...",
@@ -259,6 +266,7 @@ export async function getGeminiFinalReport(
       better_alternatives: ["...", "...", "..."],
       real_life_tips: ["...", "...", "..."],
       risks: ["...", "..."],
+      detailed_evaluation: "..."
     },
     context: compactContext(category, context),
     turns,
@@ -325,5 +333,31 @@ export async function getGeminiOpeningMessage(
     1000,
     "gemini",
     "opening",
+  );
+}
+
+export async function getGeminiSimulationBrief(
+  category: string,
+  context: MessageContext,
+) {
+  const userPrompt = JSON.stringify({
+    task: "Sana verilen durum açıklaması ve konuşma detaylarına göre karşıdaki kişiyi, onun canlandırılacak kişiliğini ve konuşulacak durumu özetleyen, simülasyona başlamadan önce kullanıcıyı havaya sokacak ve provayı başlatacak 2-3 cümlelik heyecan verici, hazırlayıcı bir tanıtım yazısı (simulation_brief) yaz.",
+    rules: [
+      "Durumu ve karşı tarafın kim olduğunu, onun canlandırılacak tavrını ve kişiliğini kısa ve etkileyici bir dille anlat.",
+      "Yazı doğrudan kullanıcıya hitap etmeli (Örn: 'Müdürün Hakan Bey ile karşı karşıyasın. Kendisi otoriter tavrıyla bilinir...')",
+      "Kısa ve net ol, 2-3 cümleyi aşma.",
+    ],
+    json: {
+      simulation_brief: "...",
+    },
+    context: compactContext(category, context),
+  });
+
+  return retry(
+    () => requestGeminiJson<{ simulation_brief: string }>("turn", userPrompt, simulationBriefSchema, 10000),
+    2,
+    1000,
+    "gemini",
+    "brief",
   );
 }

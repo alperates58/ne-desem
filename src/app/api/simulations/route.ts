@@ -4,7 +4,8 @@ import { compactScenario, createSimulationTitle } from "@/lib/categories";
 import { jsonError, parseError } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { createSimulationSchema } from "@/lib/validators";
-import { getAiOpeningMessage } from "@/lib/ai";
+import { getAiOpeningMessage, getAiSimulationBrief } from "@/lib/ai";
+import { getUserRemainingLimits } from "@/lib/limits";
 
 export const runtime = "nodejs";
 
@@ -48,14 +49,23 @@ export async function POST(request: Request) {
       return jsonError("Giriş yapman gerekiyor.", 401);
     }
 
+    const limitStatus = await getUserRemainingLimits(user.id);
+    if (limitStatus.remaining <= 0) {
+      return jsonError("Aylık simülasyon limitinize ulaştınız. Prova yapabilmek için planınızı yükseltebilirsiniz.", 403);
+    }
+
     const input = createSimulationSchema.parse(await request.json());
     
-    // Generate AI opening message based on context
-    const aiOpeningMessage = await getAiOpeningMessage(input.category, input.context);
+    // Generate AI opening message and starting brief in parallel based on context
+    const [aiOpeningMessage, simulationBrief] = await Promise.all([
+      getAiOpeningMessage(input.category, input.context),
+      getAiSimulationBrief(input.category, input.context),
+    ]);
     
     const enrichedContext = {
       ...input.context,
       aiOpeningMessage,
+      simulationBrief,
     };
 
     const simulation = await prisma.simulation.create({

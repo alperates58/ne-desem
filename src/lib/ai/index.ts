@@ -4,24 +4,28 @@ import {
   getDeepSeekOutcomeAdvice,
   getDeepSeekTurnResponse,
   getDeepSeekOpeningMessage,
+  getDeepSeekSimulationBrief,
 } from "@/lib/ai/deepseek";
 import {
   getGeminiFinalReport,
   getGeminiOutcomeAdvice,
   getGeminiTurnResponse,
   getGeminiOpeningMessage,
+  getGeminiSimulationBrief,
 } from "@/lib/ai/gemini";
 import {
   getOpenAiFinalReport,
   getOpenAiOutcomeAdvice,
   getOpenAiTurnResponse,
   getOpenAiOpeningMessage,
+  getOpenAiSimulationBrief,
 } from "@/lib/ai/openai";
 import {
   createOpeningMessage,
   generateFinalReport,
   generateOutcomeAdvice,
   generateTurnResponse,
+  generateSimulationBrief,
 } from "@/lib/ai/mock";
 
 export function getAiMode(): "gemini" | "openai" | "deepseek" | "mock" {
@@ -83,6 +87,32 @@ export async function getAiOpeningMessage(category: string, context: MessageCont
   }
 
   return context.incomingMessage;
+}
+
+export async function getAiSimulationBrief(category: string, context: MessageContext): Promise<string> {
+  const mode = getAiMode();
+
+  try {
+    if (mode === "gemini") {
+      const res = await getGeminiSimulationBrief(category, context);
+      return res.simulation_brief;
+    }
+    if (mode === "openai") {
+      const res = await getOpenAiSimulationBrief(category, context);
+      return res.simulation_brief;
+    }
+    if (mode === "deepseek") {
+      const res = await getDeepSeekSimulationBrief(category, context);
+      return res.simulation_brief;
+    }
+  } catch (error) {
+    console.error(
+      `[AI Fallback] Primary AI (${mode}) failed for getAiSimulationBrief. Falling back to Mock. Error:`,
+      error,
+    );
+  }
+
+  return generateSimulationBrief(category, context);
 }
 
 type ConversationMessage = {

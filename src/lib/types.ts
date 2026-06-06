@@ -24,6 +24,7 @@ export type MessageContext = {
   minAcceptableLevel?: string;
   leverageOrAlternative?: string;
   noAgreementAction?: string;
+  simulationBrief?: string;
 };
 
 export type Scores = {
@@ -59,6 +60,7 @@ export type FinalReport = {
   better_alternatives: string[];
   real_life_tips: string[];
   risks: string[];
+  detailed_evaluation?: string;
 };
 
 export type OutcomeInput = {

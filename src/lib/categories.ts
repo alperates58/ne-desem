@@ -81,3 +81,8 @@ export function compactScenario(context: MessageContext) {
   const text = context.incomingMessage.trim().replace(/\s+/g, " ");
   return text.length > 90 ? `${text.slice(0, 87)}...` : text;
 }
+
+export function getCategoryLabel(categoryId: string): string {
+  const found = categories.find((c) => c.id === categoryId);
+  return found ? found.title : categoryId;
+}

@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/app-shell";
 import { ContextWizard } from "@/components/context-wizard";
 import { requireUser } from "@/lib/auth";
+import { getUserRemainingLimits } from "@/lib/limits";
 
 export default async function NewSimulationPage({
   searchParams,
@@ -9,10 +10,15 @@ export default async function NewSimulationPage({
 }) {
   const user = await requireUser();
   const params = await searchParams;
+  const limits = await getUserRemainingLimits(user.id);
 
   return (
     <AppShell user={user}>
-      <ContextWizard templateId={params.template} initialPersonality={params.personality} />
+      <ContextWizard
+        templateId={params.template}
+        initialPersonality={params.personality}
+        remainingLimits={limits.remaining}
+      />
     </AppShell>
   );
 }

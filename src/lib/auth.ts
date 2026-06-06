@@ -44,7 +44,18 @@ export async function getCurrentUser() {
 
   return prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, name: true, email: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      customSimulationCredits: true,
+      bio: true,
+      isPublic: true,
+      socialLinksJson: true,
+      membershipTierId: true,
+      membershipTier: true,
+    },
   });
 }
 
@@ -53,6 +64,16 @@ export async function requireUser() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  return user;
+}
+
+export async function requireAdmin() {
+  const user = await getCurrentUser();
+
+  if (!user || user.role !== "admin") {
+    redirect("/dashboard");
   }
 
   return user;

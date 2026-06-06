@@ -168,6 +168,9 @@ export function generateFinalReport(
       "Cok uzun aciklama karsi tarafin ana mesaji kacirmasina yol acabilir.",
       "Pasif-agresif bir ton konusmayi gereksiz buyutebilir.",
     ],
+    detailed_evaluation: `Simülasyon sürecinde ${other} ile girdiğin diyalogda genel olarak sakinliğini korumayı başardın. Ancak "${weakest?.userMessage || 'bazı cümleleriniz'}" yerine daha net ve duruşu güçlü bir dil seçebilirdin. Karşı tarafın "${context.otherPersonPersonality || 'belirttiğin'}" karakter yapısında olduğunu göz önünde bulundurursak, onun manipülatif veya baskıcı hamlelerine karşı daha doğrudan sınırlar çizmek yararına olacaktır.
+
+İkinci olarak, konuşma esnasında kendi çekincelerini öne çıkarmak yerine, olayı tamamen profesyonel veya kişisel sınırların çerçevesine oturtman gerekirdi. "${best?.userMessage || 'en iyi cümlen'}" gibi anlarda gösterdiğin kararlılığı tüm konuşma geneline yayabilirsen, gerçek hayattaki konuşmada çok daha başarılı bir sonuç elde edebilirsin.`
   };
 }
 
@@ -204,4 +207,11 @@ export function generateOutcomeAdvice(
     next_conversation_opener:
       "Gecen konusmadan sonra biraz dusundum. Bunu tartisma gibi degil, netlesme gibi konusmak istiyorum.",
   };
+}
+
+export function generateSimulationBrief(category: string, context: MessageContext): string {
+  const other = context.otherPerson || "Karşı taraf";
+  const personality = context.otherPersonPersonality || "kendine has";
+  const goal = context.goal || "durumu konuşmak";
+  return `${other} ile karşı karşıyasın. Kendisi bu konuşmada "${personality}" bir kişilik sergileyecek. Amacın "${goal}" hedefine ulaşmak; sakin kalıp sınırlarını koruyarak diyalogu sürdürmelisin.`;
 }

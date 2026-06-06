@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Sparkles } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -41,6 +42,20 @@ export default async function ReportPage({ params }: ReportPageProps) {
             </div>
           </div>
         </div>
+
+        {report.detailed_evaluation && (
+          <div className="mt-6 rounded-[2rem] border border-violet-400/20 bg-gradient-to-r from-violet-500/10 via-violet-950/25 to-slate-900/50 p-6 shadow-xl leading-relaxed">
+            <h2 className="flex items-center gap-2 text-lg font-bold text-violet-200">
+              <Sparkles className="text-violet-300 animate-pulse" size={20} />
+              Detaylı Değerlendirme & Gelişim Raporu
+            </h2>
+            <div className="mt-4 space-y-4 text-sm leading-6 text-slate-300">
+              {report.detailed_evaluation.split("\n\n").map((para, index) => (
+                <p key={index}>{para}</p>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <ReportBlock title="En iyi cümle" value={report.best_sentence} />

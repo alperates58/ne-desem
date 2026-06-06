@@ -4,7 +4,7 @@ import { LogoutButton } from "@/components/logout-button";
 
 type AppShellProps = {
   children: ReactNode;
-  user?: { name: string; email: string } | null;
+  user?: { name: string; email: string; role?: string } | null;
 };
 
 export function AppShell({ children, user }: AppShellProps) {
@@ -21,8 +21,16 @@ export function AppShell({ children, user }: AppShellProps) {
           <nav className="flex items-center gap-2 text-sm text-slate-300">
             {user ? (
               <>
+                {user.role === "admin" && (
+                  <Link className="rounded-full px-3 py-2 text-violet-300 font-semibold hover:bg-white/10" href="/admin">
+                    Yönetim
+                  </Link>
+                )}
                 <Link className="rounded-full px-3 py-2 hover:bg-white/10" href="/dashboard">
                   Dashboard
+                </Link>
+                <Link className="rounded-full px-3 py-2 hover:bg-white/10" href="/profile">
+                  Profilim
                 </Link>
                 <span className="hidden text-slate-500 sm:inline">{user.name}</span>
                 <LogoutButton />
