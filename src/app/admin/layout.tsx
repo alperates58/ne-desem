@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { requireAdmin } from "@/lib/auth";
-import { Users, CreditCard, BarChart3 } from "lucide-react";
+import { Users, CreditCard, BarChart3, MessageSquare, Settings } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -36,10 +36,22 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <Users size={18} className="text-violet-300" /> Kullanıcılar
             </Link>
             <Link
+              href="/admin/simulations"
+              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white transition"
+            >
+              <MessageSquare size={18} className="text-violet-300" /> Simülasyonlar
+            </Link>
+            <Link
               href="/admin/tiers"
               className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white transition"
             >
               <CreditCard size={18} className="text-violet-300" /> Üyelik Planları
+            </Link>
+            <Link
+              href="/admin/settings"
+              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white transition"
+            >
+              <Settings size={18} className="text-violet-300" /> Sistem Ayarları
             </Link>
           </nav>
         </aside>
