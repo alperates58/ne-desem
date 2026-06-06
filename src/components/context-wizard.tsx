@@ -140,7 +140,7 @@ const STEP_SUGGESTIONS: Record<string, Record<string, string[]>> = {
   }
 };
 
-function getStepsForCategory(category: string): WizardStep[] {
+function getRawStepsForCategory(category: string): WizardStep[] {
   switch (category) {
     case "is_kariyer":
       return [
@@ -631,14 +631,55 @@ function getStepsForCategory(category: string): WizardStep[] {
   }
 }
 
+function getStepsForCategory(category: string, initiatedBy?: string): WizardStep[] {
+  const isUserStarted = initiatedBy === "Ben" || initiatedBy === "Ben (Konuşmayı ilk ben başlatacağım)" || initiatedBy === "Ben başlatacağım" || initiatedBy === "user";
+
+  const initiationStep: WizardStep = {
+    key: "initiatedBy",
+    label: "Bu konuşmayı kim başlatıyor?",
+    helper: "Simülasyonun başlangıç durumunu belirler. Karşı taraf başlattıysa ilk mesajı o yazar; siz başlatacaksanız ilk mesajı siz yazarsınız.",
+    type: "select",
+    options: [
+      "Karşı Taraf (Gelen bir mesaja veya söze cevap vereceğim)",
+      "Ben (Konuşmayı ilk ben başlatacağım)"
+    ]
+  };
+
+  const rawSteps = getRawStepsForCategory(category);
+
+  // Map the incomingMessage step dynamically
+  const mappedSteps = rawSteps.map(step => {
+    if (step.key === "incomingMessage") {
+      return {
+        ...step,
+        label: isUserStarted
+          ? (category === "flort_iliski" ? "Konuşmak istediğiniz konu veya durum nedir?" : 
+             category === "para_pazarlik" ? "Pazarlık veya para ile ilgili durum nedir?" :
+             category === "zor_mesajlar" ? "Harekete geçeceğiniz durum veya konuşmak istediğiniz konu nedir?" :
+             "Harekete geçeceğiniz durum veya konuşmak istediğiniz konu nedir?")
+          : step.label,
+        helper: isUserStarted
+          ? "Konuşmayı başlatma sebebinizi veya arka plan durumunu yazarak zemin belirleyin."
+          : step.helper,
+        placeholder: isUserStarted
+          ? "Konuşmayı başlatacağınız konuyu ve arka planı detaylandırın..."
+          : step.placeholder
+      };
+    }
+    return step;
+  });
+
+  return [initiationStep, ...mappedSteps];
+}
+
 function getInitialContextForCategory(category: string): MessageContext {
   const steps = getStepsForCategory(category);
   const context: Partial<MessageContext> = {};
   for (const step of steps) {
     if (step.type === "select" && step.options) {
-      context[step.key] = step.options[0];
+      (context as any)[step.key] = step.options[0];
     } else {
-      context[step.key] = "";
+      (context as any)[step.key] = "";
     }
   }
   return context as MessageContext;
@@ -675,9 +716,16 @@ export function ContextWizard({
     );
 
     if (activeTemplate) {
+      const templateInitiatedBy = activeTemplate.context.initiatedBy === "user"
+        ? "Ben (Konuşmayı ilk ben başlatacağım)"
+        : activeTemplate.context.initiatedBy === "other"
+        ? "Karşı Taraf (Gelen bir mesaja veya söze cevap vereceğim)"
+        : activeTemplate.context.initiatedBy;
+
       return {
         ...defaultContext,
         ...activeTemplate.context,
+        ...(templateInitiatedBy ? { initiatedBy: templateInitiatedBy } : {}),
         ...(initialPersonality ? { otherPersonPersonality: initialPersonality } : {}),
       };
     }
@@ -688,11 +736,11 @@ export function ContextWizard({
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
-  const steps = getStepsForCategory(selectedCategory || "zor_mesajlar");
+  const steps = getStepsForCategory(selectedCategory || "zor_mesajlar", context.initiatedBy);
   const current = steps[step];
   const isLast = step === steps.length - 1;
 
-  function update(key: keyof MessageContext, value: string) {
+  function update(key: keyof MessageContext, value: any) {
     setContext((previous) => ({ ...previous, [key]: value }));
   }
 
@@ -700,11 +748,26 @@ export function ContextWizard({
     setPending(true);
     setError("");
 
+    let finalInitiatedBy: "user" | "other" = "other";
+    if (
+      customContext.initiatedBy === "Ben" ||
+      customContext.initiatedBy === "Ben (Konuşmayı ilk ben başlatacağım)" ||
+      customContext.initiatedBy === "Ben başlatacağım" ||
+      customContext.initiatedBy === "user"
+    ) {
+      finalInitiatedBy = "user";
+    }
+
+    const mappedContext = {
+      ...customContext,
+      initiatedBy: finalInitiatedBy,
+    };
+
     try {
       const response = await fetch("/api/simulations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category: selectedCategory, context: customContext }),
+        body: JSON.stringify({ category: selectedCategory, context: mappedContext }),
       });
       const data = await response.json();
       setPending(false);

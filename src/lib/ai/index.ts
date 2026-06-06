@@ -48,6 +48,9 @@ export function getOpeningMessage(context: MessageContext) {
 }
 
 export async function getAiOpeningMessage(category: string, context: MessageContext): Promise<string> {
+  if (context.initiatedBy === "user") {
+    return "";
+  }
   const mode = getAiMode();
 
   try {

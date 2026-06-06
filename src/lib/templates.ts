@@ -4,7 +4,7 @@ export type SimulationTemplate = {
   id: string;
   title: string;
   description: string;
-  category: "is_kariyer" | "flort_iliski" | "aile_arkadas" | "para_pazarlik" | "zor_mesajlar" | "egitim_okul" | "gunluk_yasam";
+  category: "is_kariyer" | "flort_iliski" | "aile_arkadas" | "para_pazarlik" | "zor_mesajlar" | "egitim_okul" | "gunluk_yasam" | "sosyal_medya_dijital";
   difficulty: "Kolay" | "Orta" | "Zor";
   context: MessageContext;
 };
@@ -29,6 +29,7 @@ export const templates: SimulationTemplate[] = [
       otherPersonAttitude: "Savunmacı",
       previouslyDiscussed: "Hayır, ilk kez açılacak",
       redLine: "Sektör ortalamasının altında bir artışı kabul etmem",
+      initiatedBy: "user",
     },
   },
   {

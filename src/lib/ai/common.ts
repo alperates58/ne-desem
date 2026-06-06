@@ -112,6 +112,7 @@ export function compactContext(category: string, context: MessageContext) {
     kabul_edilebilir_minimum: context.minAcceptableLevel,
     koz_alternatif: context.leverageOrAlternative,
     anlasma_olmazsa: context.noAgreementAction,
+    baslatan: context.initiatedBy === "user" ? "Kullanıcı (Ben)" : "Karşı Taraf",
   };
 }
 

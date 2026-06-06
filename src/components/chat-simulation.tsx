@@ -151,9 +151,13 @@ export function ChatSimulation({
   const openingMessage = context.aiOpeningMessage || context.incomingMessage;
 
   const messages = useMemo(() => {
-    const list: Array<{ role: "ai" | "user"; content: string }> = [
-      { role: "ai", content: openingMessage },
-    ];
+    const list: Array<{ role: "ai" | "user"; content: string }> = [];
+
+    // Only prepend the AI opening message if the other person initiates
+    const otherPersonInitiated = context.initiatedBy !== "user";
+    if (otherPersonInitiated && openingMessage) {
+      list.push({ role: "ai", content: openingMessage });
+    }
 
     for (const turn of answeredTurns) {
       list.push({ role: "user", content: turn.userMessage });
@@ -165,7 +169,7 @@ export function ChatSimulation({
     }
 
     return list;
-  }, [answeredTurns, openingMessage, optimisticUserMessage]);
+  }, [answeredTurns, openingMessage, optimisticUserMessage, context.initiatedBy]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -325,7 +329,7 @@ export function ChatSimulation({
 
         <div className="mt-6 rounded-3xl bg-slate-950/60 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Durum / Gelen Mesaj
+            {context.initiatedBy === "user" ? "Durum / Konu" : "Durum / Gelen Mesaj"}
           </p>
           <p className="mt-3 text-sm leading-6 text-slate-200">{context.incomingMessage}</p>
         </div>
@@ -386,7 +390,7 @@ export function ChatSimulation({
         </div>
 
         <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-5">
-          {answeredTurns.length === 0 && (
+          {context.initiatedBy === "user" && answeredTurns.length === 0 && (
             <div className="mb-4 rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4 text-sm leading-6 text-violet-100 shadow-lg shadow-violet-950/20">
               <span className="font-bold flex items-center gap-2 mb-1">
                 <Sparkles size={16} className="text-violet-300 animate-pulse" /> 

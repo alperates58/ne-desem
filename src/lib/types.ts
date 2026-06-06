@@ -25,6 +25,7 @@ export type MessageContext = {
   leverageOrAlternative?: string;
   noAgreementAction?: string;
   simulationBrief?: string;
+  initiatedBy?: "user" | "other" | string;
 };
 
 export type Scores = {

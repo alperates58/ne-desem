@@ -35,6 +35,7 @@ export const messageContextSchema = z.object({
   minAcceptableLevel: z.string().trim().optional(),
   leverageOrAlternative: z.string().trim().optional(),
   noAgreementAction: z.string().trim().optional(),
+  initiatedBy: z.enum(["user", "other"]).optional(),
 });
 
 export const createSimulationSchema = z.object({

@@ -90,6 +90,7 @@ export const contextFieldLabels: Record<keyof Omit<MessageContext, "aiOpeningMes
   minAcceptableLevel: "Kabul edilebilir minimum",
   leverageOrAlternative: "Koz / Alternatif",
   noAgreementAction: "Anlaşma olmazsa",
+  initiatedBy: "Başlatan",
 };
 
 export function createSimulationTitle(context: MessageContext) {
