@@ -15,6 +15,7 @@ import {
   UserCheck,
   GraduationCap,
   Home,
+  Share2,
 } from "lucide-react";
 import { templates, type SimulationTemplate } from "@/lib/templates";
 
@@ -61,9 +62,16 @@ const PERSONALITY_OPTIONS: Record<string, Array<{ value: string; label: string; 
   ],
   gunluk_yasam: [
     { value: "Gürültücü / İnatçı", label: "Gürültücü / İnatçı", desc: "Rahatsızlık verdiğini kesinlikle kabul etmez, hemen savunmaya geçer.", emoji: "🔊" },
-    { value: "Yoğun / İşi Geciktiren", label: "Yoğun / İşi Geciktiren", desc: "Sürekli işi erteler, bahaneler üretir ve telefonları açmaz.", emoji: "🔧" },
+    { value: "Yoğun / İşi Geciktiren", label: "Yoğun / İşi Geciktiren", desc: "Sürekli işi erteler, bahaneler üretir ogün telefonları açmaz.", emoji: "🔧" },
     { value: "Anlayışlı / Uzlaşmacı", label: "Anlayışlı / Uzlaşmacı", desc: "Komşuluk ilişkilerine değer verir, sorunu uzlaşarak çözmek ister.", emoji: "🤝" },
     { value: "Pasif-Agresif Komşu", label: "Pasif-Agresif Komşu", desc: "Sorunları doğrudan konuşmaz, kapıya imalı notlar bırakır.", emoji: "📝" },
+  ],
+  sosyal_medya_dijital: [
+    { value: "Geleneksel / Israrcı", label: "Geleneksel / Israrcı", desc: "Akraba veya eski arkadaş rolleri için ısrarcı ve duyarlı.", emoji: "👴" },
+    { value: "Satış Odaklı / Israrcı", label: "Satış Odaklı / Israrcı", desc: "LinkedIn veya mail üzerinden randevu koparmak için baskı kurar.", emoji: "👔" },
+    { value: "Alıngan ve Hassas", label: "Alıngan ve Hassas", desc: "Paylaşımları, fotoğrafları veya yorumları çok önemser, çabuk kırılır.", emoji: "🥺" },
+    { value: "Soğuk ve Mesafeli", label: "Soğuk ve Mesafeli", desc: "Geç yazar, görüldü atar veya mesafeli durur.", emoji: "❄️" },
+    { value: "Profesyonel ve Net", label: "Profesyonel ve Net", desc: "Mesai dışı yazışmalarda sınırlarını hatırlatır veya resmidir.", emoji: "💼" },
   ],
 };
 
@@ -138,6 +146,8 @@ export function QuickStartGrid() {
         return <GraduationCap size={16} className="text-cyan-400" />;
       case "gunluk_yasam":
         return <Home size={16} className="text-amber-400" />;
+      case "sosyal_medya_dijital":
+        return <Share2 size={16} className="text-violet-400" />;
       default:
         return <MessageSquare size={16} className="text-indigo-400" />;
     }
@@ -157,6 +167,8 @@ export function QuickStartGrid() {
         return "Eğitim / Okul";
       case "gunluk_yasam":
         return "Günlük Yaşam / Komşuluk";
+      case "sosyal_medya_dijital":
+        return "Dijital / Sosyal Medya";
       default:
         return "Zor Mesajlar";
     }
@@ -181,6 +193,7 @@ export function QuickStartGrid() {
     { id: "para_pazarlik", label: "Para / Pazarlık" },
     { id: "egitim_okul", label: "Eğitim / Okul" },
     { id: "gunluk_yasam", label: "Günlük Yaşam" },
+    { id: "sosyal_medya_dijital", label: "Dijital" },
     { id: "zor_mesajlar", label: "Zor Mesajlar" },
   ];
 

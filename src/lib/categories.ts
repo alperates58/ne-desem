@@ -58,6 +58,13 @@ export const categories: Category[] = [
     examples: ["Kibarca reddetme", "Konuyu kapatma", "Pasif-agresif mesaja cevap"],
     active: true,
   },
+  {
+    id: "sosyal_medya_dijital",
+    title: "Dijital / Sosyal Medya",
+    description: "WhatsApp grupları, LinkedIn ağları ve sosyal medyadaki dijital sınır krizleri.",
+    examples: ["WhatsApp grubundan çıkma", "LinkedIn spam mesajı reddetme", "Sosyal medya sınırları"],
+    active: true,
+  },
 ];
 
 export const contextFieldLabels: Record<keyof Omit<MessageContext, "aiOpeningMessage" | "simulationBrief">, string> = {

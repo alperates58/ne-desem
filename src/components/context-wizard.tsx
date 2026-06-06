@@ -123,6 +123,20 @@ const STEP_SUGGESTIONS: Record<string, Record<string, string[]>> = {
       "Tartışmanın büyümesi",
       "Kaba görünmek"
     ]
+  },
+  sosyal_medya_dijital: {
+    incomingMessage: [
+      "Akrabaların veya eski sınıf arkadaşlarının sürekli asılsız haberler paylaştığı gruptan sessizce ayrılmak.",
+      "LinkedIn'den bağlantı kurup aniden demo/satış randevusu isteyen birine cevap yazmak.",
+      "Arkadaşının kendi profilinde paylaştığı ama senin kötü çıktığın bir fotoğrafı kaldırtmak istemek.",
+      "WhatsApp durumuna sürekli flörtöz yorumlar atan birini kırmadan mesafeli tutmak."
+    ],
+    fear: [
+      "Akrabaların gruptan çıktığım için bana gücenmesi",
+      "Kaba veya iletişime kapalı biri olarak mimlenmek",
+      "Fotoğrafı kaldırtmak istediğim için arkadaşımın alınganlık yapması",
+      "Gereksiz polemiklere veya takiplere maruz kalmak"
+    ]
   }
 };
 

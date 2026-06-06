@@ -82,7 +82,10 @@ export function getCategoryName(category: string) {
     flort_iliski: "Flört / İlişki",
     aile_arkadas: "Aile / Arkadaş",
     para_pazarlik: "Para / Pazarlık",
-    zor_mesajlar: "Zor Mesajlar"
+    zor_mesajlar: "Zor Mesajlar",
+    egitim_okul: "Eğitim / Okul",
+    gunluk_yasam: "Günlük Yaşam",
+    sosyal_medya_dijital: "Dijital / Sosyal Medya",
   };
   return map[category] || category;
 }

@@ -106,6 +106,7 @@ export function AdminSimulationsList({ initialSimulations }: AdminSimulationsLis
       zor_mesajlar: "Zor Mesajlar",
       egitim_okul: "Eğitim / Okul",
       gunluk_yasam: "Günlük Yaşam / Komşuluk",
+      sosyal_medya_dijital: "Dijital / Sosyal Medya",
     };
     return mapping[catId] || catId;
   }
@@ -163,10 +164,13 @@ export function AdminSimulationsList({ initialSimulations }: AdminSimulationsLis
           >
             <option value="">Tüm Kategoriler</option>
             <option value="is_kariyer">İş & Kariyer</option>
-            <option value="aile_akraba">Aile & Akraba</option>
-            <option value="ozel_iliskiler">Özel İlişkiler</option>
+            <option value="flort_iliski">Flört & İlişki</option>
+            <option value="aile_arkadas">Aile & Arkadaş</option>
             <option value="para_pazarlik">Para & Pazarlık</option>
+            <option value="egitim_okul">Eğitim & Okul</option>
+            <option value="gunluk_yasam">Günlük Yaşam</option>
             <option value="zor_mesajlar">Zor Mesajlar</option>
+            <option value="sosyal_medya_dijital">Dijital & Sosyal Medya</option>
           </select>
 
           {/* Status Filter */}

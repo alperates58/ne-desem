@@ -39,6 +39,7 @@ export function SimulationCard({ simulation }: SimulationCardProps) {
     egitim_okul: "Eğitim / Okul",
     gunluk_yasam: "Günlük Yaşam / Komşuluk",
     zor_mesajlar: "Zor Mesajlar",
+    sosyal_medya_dijital: "Dijital / Sosyal Medya",
   };
   const categoryLabel = categoryLabels[simulation.category] || simulation.category;
 

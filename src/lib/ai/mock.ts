@@ -78,6 +78,27 @@ function mockTurnReply(
     return `Pekala, bu kosullar altinda anlasmayi onayliyorum. Sozlesme veya detaylari hazirlayalim.`;
   }
   
+  if (category === "egitim_okul") {
+    if (turnNumber === 1) return `Akademik kurallar veya ders programi son derece net. Bu konuda ekstra bir ayrıcalık saglamam adil olmaz.`;
+    if (turnNumber === 2) return `Sorumluluklarını zamanında yerine getirmeyen diger arkadaslarina neden ses cikarmiyorsun da bana geliyorsun?`;
+    if (turnNumber === 3) return `Anlıyorum, zor bir donemden geciyor olabilirsin. Ancak bu durum degerlendirme kriterlerini degistirmez.`;
+    return `Pekala, bu durum için resmi bir basvuru yap veya grup arkadaslarınla ortak bir cozum uretin.`;
+  }
+
+  if (category === "gunluk_yasam") {
+    if (turnNumber === 1) return `Apartmanda/mahallede herkes bir sekilde yasıyor, bu kadar sese/duruma takılacaksan mustakil eve gecseydin.`;
+    if (turnNumber === 2) return `Sanki tek sorun bendeymis gibi davranmandan rahatsız oluyorum. Komsu olarak biraz daha hosgoru beklerdim.`;
+    if (turnNumber === 3) return `Tamam, komsuluk iliskilerimizin bozulmasını istemem. Ben de dikkat etmeye calısırım bundan sonra.`;
+    return `Tamamdır, konuyu anladım. Bundan sonra apartman kurallarına veya komsuluk hukukuna daha dikkatli yaklasırım.`;
+  }
+
+  if (category === "sosyal_medya_dijital") {
+    if (turnNumber === 1) return `Neden bu kadar tepki gosterdin anlamadim. Alt tarafı bir mesaj/paylasim, buyutulecek bir durum yok bence.`;
+    if (turnNumber === 2) return `Yani bu konuda bu kadar hassassan engelle/sil o zaman, neden bana sınır cizmeye calisiyorsun?`;
+    if (turnNumber === 3) return `Peki, durumun seni bu kadar rahatsız ettiginin farkında degildim. Dikkat etmeye calisirim.`;
+    return `Tamamdir, paylasimlarima veya mesajlarima daha mesafeli yaklasacagim.`;
+  }
+  
   // Default: zor_mesajlar
   if (turnNumber === 1) return `Gonderdigin mesaji okudum. Aslinda amacinin ${goal} oldugunu hissediyorum ama yine de sasirdim.`;
   if (turnNumber === 2) return `Bunu bu sekilde soylemen aramizda bir gerilim yaratti. Konuyu daha sakin konusamaz miydik?`;
