@@ -6,6 +6,7 @@ import { FormEvent, useState } from "react";
 import { categories } from "@/lib/categories";
 import type { MessageContext } from "@/lib/types";
 import { templates } from "@/lib/templates";
+import { templateSuggestions } from "@/lib/template-suggestions";
 
 type WizardStep = {
   key: keyof MessageContext;
@@ -806,10 +807,19 @@ export function ContextWizard({
     setStep((value) => value + 1);
   }
 
-  // Get current active step suggestions — only show when starting from scratch (no template active)
-  const currentStepSuggestions = selectedCategory && !activeTemplate
-    ? (STEP_SUGGESTIONS[selectedCategory]?.[current?.key] || [])
-    : [];
+  // Get current step suggestions:
+  // - incomingMessage: use template-specific suggestions when a template is active
+  // - other steps (fear, redLine, etc.): always use category-level suggestions
+  const currentStepSuggestions = (() => {
+    if (!selectedCategory || !current) return [];
+    if (current.key === "incomingMessage") {
+      if (activeTemplate) {
+        return templateSuggestions[activeTemplate.id] ?? [];
+      }
+      return STEP_SUGGESTIONS[selectedCategory]?.incomingMessage ?? [];
+    }
+    return STEP_SUGGESTIONS[selectedCategory]?.[current.key] ?? [];
+  })();
 
   // -------------------------------------------------------------
   // MODE 0: Category Selection Screen First (Sequential layout)
