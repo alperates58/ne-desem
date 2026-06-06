@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Lock, MessageSquareText } from "lucide-react";
+import { ArrowRight, Lock, MessageSquareText, Zap, Sparkles, Play, ShieldAlert, Award, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { categories } from "@/lib/categories";
@@ -16,14 +16,98 @@ type WizardStep = {
   placeholder?: string;
 };
 
+// Suggestion options for steps
+const STEP_SUGGESTIONS: Record<string, Record<string, string[]>> = {
+  is_kariyer: {
+    incomingMessage: [
+      "Maaşıma son enflasyon oranında zam yapılmasını talep etmek istiyorum.",
+      "Mesai saati bittikten sonra gelen acil raporlama talebini reddetmek.",
+      "Başka bir şirketten gelen teklif üzerine istifamı yöneticime sunmak.",
+      "Kendi teslim tarihlerimi aksatan iş arkadaşımın benden iş istemesi."
+    ],
+    redLine: [
+      "Hafta sonu mesaisi yapmayı kesinlikle kabul edemem.",
+      "Maaş artışı olmadan yeni sorumlulukları kalıcı üstlenmem.",
+      "İhbar süresinden daha fazla kalmayı kabul edemem."
+    ],
+    fear: [
+      "Yöneticinin sinirlenmesi veya tepki göstermesi",
+      "İşimi kaybetmek veya dışlanmak",
+      "Ekip içinde uyumsuz biri olarak görünmek"
+    ]
+  },
+  flort_iliski: {
+    incomingMessage: [
+      "Flörtümün 6 saattir mesajıma cevap vermemesine soğuk bir yanıt vermek.",
+      "Belirsiz davranan flörtüme ilişkimizin adını koyma konuşması yapmak.",
+      "Aylar sonra 'nasılsın' yazan eski sevgilime mesafeli bir yanıt vermek.",
+      "İlişkideki ilgisizlikten ve soğukluktan rahatsız olduğumu belirtmek."
+    ],
+    avoidAction: [
+      "Yalvarmak veya muhtaç gibi görünmek",
+      "Öfkeyle sitem etmek veya trip atmak",
+      "Hemen yumuşayıp buluşmayı kabul etmek"
+    ],
+    fear: [
+      "İlişkinin tamamen kopması",
+      "Gurursuz görünmek",
+      "Karşı tarafın kaçması veya hazır değilim demesi"
+    ]
+  },
+  aile_arkadas: {
+    incomingMessage: [
+      "Yakın bir arkadaşıma geçen ay verdiğim borcu kırmadan hatırlatmak.",
+      "Akrabamın sürekli benden borç istemesini kırmadan geri çevirmek.",
+      "Ailemin iş ve kariyer seçimlerime sürekli müdahale etmesini durdurmak.",
+      "Hafta sonu arkadaşımın davetine gitmek istemediğimi kibarca iletmek."
+    ],
+    fear: [
+      "Ailemin veya arkadaşımın küsmesi",
+      "Bencil veya vefasız görünmek",
+      "Kavga çıkması veya gerilimin artması"
+    ]
+  },
+  para_pazarlik: {
+    incomingMessage: [
+      "Ev sahibinin yasal sınırın üstündeki %100 kira artış talebine itiraz etmek.",
+      "Freelance işimde müşterinin ısrarlı %30 indirim talebini reddetmek.",
+      "Hizmet bedelimi piyasa değerine göre artıracağımı bildirmek.",
+      "Satıcıdan makul bir oranda indirim talep etmek."
+    ],
+    minAcceptableLevel: [
+      "Yasal sınır olan %65 artışın üstüne çıkamam.",
+      "Bu hafta sonuna kadar en az yarısının ödenmesi.",
+      "Ekstra kapsam azaltımı olmadan indirim yapamam."
+    ],
+    fear: [
+      "Evden çıkarılmak veya mahkemelik olmak",
+      "Müşteriyi rakibe kaptırmak",
+      "Paragöz veya cimri gibi görünmek"
+    ]
+  },
+  zor_mesajlar: {
+    incomingMessage: [
+      "Görüldü atan flörte konuyu kapatmak için kısa bir mesaj yazmak.",
+      "Bana pasif-agresif mesaj atan iş arkadaşıma profesyonel sınır çizmek.",
+      "Birinin ısrarlı kahve davetini kibarca ama net bir şekilde reddetmek.",
+      "Yanlış anlaşıldığım bir konuyu büyütmeden açıklığa kavuşturmak."
+    ],
+    fear: [
+      "Yanlış anlaşılmak veya suçlanmak",
+      "Tartışmanın büyümesi",
+      "Kaba görünmek"
+    ]
+  }
+};
+
 function getStepsForCategory(category: string): WizardStep[] {
   switch (category) {
     case "is_kariyer":
       return [
         {
           key: "incomingMessage",
-          label: "İş ortamındaki durum veya sana söylenen son söz ne?",
-          helper: "Örn: Yöneticinin 'Hafta sonu işe gelebilir misin?' demesi veya zam talebi öncesi mevcut durum.",
+          label: "Durum veya sana söylenen son söz ne?",
+          helper: "Durumu veya konuşulan son cümleyi yazarak provanın zeminini belirleyin.",
           type: "textarea",
           placeholder: "Durumu veya konuşulan son cümleyi yaz..."
         },
@@ -39,14 +123,14 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Karşı tarafın kişiliği nasıl?",
           helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
           type: "select",
-          options: ["Otoriter ve Sert", "Anlayışlı ve Mantıklı", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz"]
+          options: ["Anlayışlı ve Mantıklı", "Otoriter ve Sert", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz"]
         },
         {
           key: "otherPersonAttitude",
           label: "Karşı tarafın muhtemel tavrı nasıl olur?",
           helper: "Görüşme sırasındaki tutumu ne olacak?",
           type: "select",
-          options: ["Anlayışlı", "Savunmacı", "Kaçamak", "Sert", "Umursamaz", "Pazarlıkçı"]
+          options: ["Savunmacı", "Anlayışlı", "Kaçamak", "Sert", "Umursamaz", "Pazarlıkçı"]
         },
         {
           key: "previouslyDiscussed",
@@ -81,7 +165,7 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Ton nasıl olsun?",
           helper: "Yapay zeka önerileri bu tona göre ayarlanır.",
           type: "select",
-          options: ["Profesyonel ve kibar", "Net ve kararlı", "Yumuşak ama ciddi", "Kısa ve direkt"]
+          options: ["Yumuşak ama ciddi", "Profesyonel ve kibar", "Net ve kararlı", "Kısa ve direkt"]
         },
         {
           key: "redLine",
@@ -95,7 +179,7 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Cevap uzunluğu nasıl olsun?",
           helper: "Profesyonel yazışmalarda net olmak avantajdır.",
           type: "select",
-          options: ["Tek cümle", "Kısa mesaj", "Detaylı mesaj", "3 alternatif ver"]
+          options: ["Kısa mesaj", "Tek cümle", "Detaylı mesaj", "3 alternatif ver"]
         },
         {
           key: "preserveRelationship",
@@ -126,14 +210,14 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Karşı taraf kim?",
           helper: "Aranızdaki bağ simülasyonu şekillendirir.",
           type: "select",
-          options: ["Yeni tanışılan biri", "Flört", "Sevgili", "Eski sevgili", "Platonik aşk"]
+          options: ["Flört", "Yeni tanışılan biri", "Sevgili", "Eski sevgili", "Platonik aşk"]
         },
         {
           key: "relationshipDuration",
           label: "Ne kadar süredir iletişimdesiniz?",
           helper: "Bu süre samimiyet derecesini belirler.",
           type: "select",
-          options: ["Birkaç gün", "Birkaç hafta", "Birkaç ay", "Çok uzun süre"]
+          options: ["Birkaç ay", "Birkaç gün", "Birkaç hafta", "Çok uzun süre"]
         },
         {
           key: "otherPersonPersonality",
@@ -147,7 +231,7 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Karşı tarafın son tavrı nasıldı?",
           helper: "Sana nasıl yaklaşıyor?",
           type: "select",
-          options: ["Sıcak", "Soğuk", "Kararsız", "Geç cevap veriyor", "İlgili ama belirsiz", "Savunmacı", "Suçlayıcı"]
+          options: ["İlgili ama belirsiz", "Sıcak", "Soğuk", "Kararsız", "Geç cevap veriyor", "Savunmacı", "Suçlayıcı"]
         },
         {
           key: "difficultyReason",
@@ -189,7 +273,7 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Cevap uzunluğu nasıl olsun?",
           helper: "Kısa kalmak genelde flörtte daha etkilidir.",
           type: "select",
-          options: ["Tek cümle", "Kısa mesaj", "Detaylı mesaj", "3 alternatif ver"]
+          options: ["Kısa mesaj", "Tek cümle", "Detaylı mesaj", "3 alternatif ver"]
         },
         {
           key: "preserveRelationship",
@@ -227,7 +311,7 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Karşı taraf kim?",
           helper: "Yakınlık derecesini seç.",
           type: "select",
-          options: ["Anne", "Baba", "Kardeş", "Yakın arkadaş", "Akraba / Kuzen"]
+          options: ["Yakın arkadaş", "Anne", "Baba", "Kardeş", "Akraba / Kuzen"]
         },
         {
           key: "closenessLevel",
@@ -282,19 +366,19 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Ton nasıl olsun?",
           helper: "İletişim dilini belirler.",
           type: "select",
-          options: ["Çok yumuşak", "Sakin ama net", "Kırmadan sınır koyan", "Direkt ve açık"]
+          options: ["Sakin ama net", "Çok yumuşak", "Kırmadan sınır koyan", "Direkt ve açık"]
         },
         {
           key: "replyLength",
           label: "Cevap uzunluğu nasıl olsun?",
           helper: "Çok açıklama yapmak bazen sınırları zayıflatır.",
           type: "select",
-          options: ["Tek cümle", "Kısa mesaj", "Detaylı mesaj", "3 alternatif ver"]
+          options: ["Kısa mesaj", "Tek cümle", "Detaylı mesaj", "3 alternatif ver"]
         },
         {
           key: "preserveRelationship",
           label: "İlişkiyi korumak istiyor musun?",
-          helper: "Kişisel sınır dengesini etkiler.",
+          helper: "Kişişel sınır dengesini etkiler.",
           type: "select",
           options: ["Evet", "Hayır", "Emin değilim", "Sadece saygılı kapatmak istiyorum"]
         },
@@ -341,7 +425,7 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Karşı tarafın şu anki pozisyonu/tavrı ne?",
           helper: "Sana karşı aldığı finansal duruş.",
           type: "select",
-          options: ["Henüz konuşulmadı", "Pahalı buluyor", "Ödemeyi geciktiriyor", "İndirim istiyor", "Artışı kabul etmiyor", "Daha düşük teklif verdi"]
+          options: ["Pahalı buluyor", "Henüz konuşulmadı", "Ödemeyi geciktiriyor", "İndirim istiyor", "Artışı kabul etmiyor", "Daha düşük teklif verdi"]
         },
         {
           key: "currentAmount",
@@ -382,7 +466,7 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Pazarlık tonun nasıl olsun?",
           helper: "Pazarlık gücünü etkiler.",
           type: "select",
-          options: ["Uzlaşmacı", "Net ve kararlı", "Sert ama saygılı", "Profesyonel"]
+          options: ["Sert ama saygılı", "Uzlaşmacı", "Net ve kararlı", "Profesyonel"]
         },
         {
           key: "leverageOrAlternative",
@@ -396,7 +480,7 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Cevap uzunluğu nasıl olsun?",
           helper: "Pazarlıkta az ve öz konuşmak koz kazandırır.",
           type: "select",
-          options: ["Tek cümle", "Kısa mesaj", "Detaylı mesaj", "3 alternatif ver"]
+          options: ["Kısa mesaj", "Tek cümle", "Detaylı mesaj", "3 alternatif ver"]
         },
         {
           key: "preserveRelationship",
@@ -442,7 +526,7 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Karşı tarafın kişiliği nasıl?",
           helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
           type: "select",
-          options: ["Otoriter ve Sert", "Anlayışlı ve Mantıklı", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz", "Soğuk ve Mesafeli", "Duygusal ve Hassas"]
+          options: ["Soğuk ve Mesafeli", "Otoriter ve Sert", "Anlayışlı ve Mantıklı", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz", "Duygusal ve Hassas"]
         },
         {
           key: "difficultyReason",
@@ -465,11 +549,11 @@ function getStepsForCategory(category: string): WizardStep[] {
           helper: "Provanın kazanma koşulu gibi düşün.",
           type: "select",
           options: [
+            "Reddetmek",
             "Konuşmayı sürdürmek",
             "Mesafe koymak",
             "Özür dilemek",
             "Sınır koymak",
-            "Reddetmek",
             "Netlik istemek",
             "Tartışmayı kapatmak",
             "Karşı tarafı sakinleştirmek"
@@ -480,7 +564,7 @@ function getStepsForCategory(category: string): WizardStep[] {
           label: "Ton nasıl olsun?",
           helper: "AI önerileri bu tona göre ayarlanır.",
           type: "select",
-          options: ["Kısa", "Sakin", "Net", "Esprili", "Mesafeli", "Samimi", "Profesyonel", "Kırmadan ama kararlı"]
+          options: ["Kırmadan ama kararlı", "Kısa", "Sakin", "Net", "Esprili", "Mesafeli", "Samimi", "Profesyonel"]
         },
         {
           key: "replyLength",
@@ -530,31 +614,26 @@ export function ContextWizard({
   remainingLimits?: number;
 }) {
   const router = useRouter();
-  
+
+  // Find template if provided
+  const activeTemplate = templateId ? templates.find((t) => t.id === templateId) : null;
+
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
-    if (templateId) {
-      const found = templates.find((t) => t.id === templateId);
-      if (found) return found.category;
-    }
+    if (activeTemplate) return activeTemplate.category;
     return "zor_mesajlar";
   });
 
   const [context, setContext] = useState<MessageContext>(() => {
     const defaultContext = getInitialContextForCategory(
-      templateId
-        ? templates.find((t) => t.id === templateId)?.category || "zor_mesajlar"
-        : "zor_mesajlar"
+      activeTemplate ? activeTemplate.category : "zor_mesajlar"
     );
 
-    if (templateId) {
-      const found = templates.find((t) => t.id === templateId);
-      if (found) {
-        return {
-          ...defaultContext,
-          ...found.context,
-          ...(initialPersonality ? { otherPersonPersonality: initialPersonality } : {}),
-        };
-      }
+    if (activeTemplate) {
+      return {
+        ...defaultContext,
+        ...activeTemplate.context,
+        ...(initialPersonality ? { otherPersonPersonality: initialPersonality } : {}),
+      };
     }
     return defaultContext;
   });
@@ -562,6 +641,9 @@ export function ContextWizard({
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+
+  // Use a mode toggle to let template users customize single-page or launch instantly
+  const [isCustomizingTemplate, setIsCustomizingTemplate] = useState(false);
 
   const steps = getStepsForCategory(selectedCategory);
   const current = steps[step];
@@ -571,28 +653,56 @@ export function ContextWizard({
     setContext((previous) => ({ ...previous, [key]: value }));
   }
 
-  async function submit() {
+  async function submit(customContext = context) {
     setPending(true);
     setError("");
 
-    const response = await fetch("/api/simulations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ category: selectedCategory, context }),
-    });
-    const data = await response.json();
-    setPending(false);
+    try {
+      const response = await fetch("/api/simulations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category: selectedCategory, context: customContext }),
+      });
+      const data = await response.json();
+      setPending(false);
 
-    if (!response.ok) {
-      setError(data.message || "Simülasyon oluşturulamadı.");
-      return;
+      if (!response.ok) {
+        setError(data.message || "Simülasyon oluşturulamadı.");
+        return;
+      }
+
+      router.push(`/simulations/${data.simulation.id}/play`);
+      router.refresh();
+    } catch {
+      setPending(false);
+      setError("Bağlantı hatası oluştu.");
     }
-
-    router.push(`/simulations/${data.simulation.id}/play`);
-    router.refresh();
   }
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleInstantLaunch() {
+    if (remainingLimits <= 0) {
+      setError("Aylık simülasyon limitinize ulaştınız.");
+      return;
+    }
+    if (activeTemplate) {
+      const finalCtx = {
+        ...activeTemplate.context,
+        ...(initialPersonality ? { otherPersonPersonality: initialPersonality } : {}),
+      };
+      void submit(finalCtx);
+    }
+  }
+
+  function handleQuickFormSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (remainingLimits <= 0) {
+      setError("Aylık simülasyon limitinize ulaştınız.");
+      return;
+    }
+    void submit();
+  }
+
+  function onStepSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!context[current.key]?.trim()) {
@@ -602,7 +712,7 @@ export function ContextWizard({
 
     if (isLast) {
       if (remainingLimits <= 0) {
-        setError("Aylık simülasyon limitinize ulaştınız. Yeni simülasyon başlatamazsınız.");
+        setError("Aylık simülasyon limitinize ulaştınız.");
         return;
       }
       void submit();
@@ -613,88 +723,352 @@ export function ContextWizard({
     setStep((value) => value + 1);
   }
 
-  return (
-    <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-      <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5">
-        <p className="text-sm font-semibold text-violet-200">Kategori seçimi</p>
-        <div className="mt-4 grid gap-3">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => {
-                if (category.active && !pending) {
-                  setSelectedCategory(category.id);
-                  setContext(getInitialContextForCategory(category.id));
-                  setStep(0);
-                  setError("");
-                }
-              }}
-              type="button"
-              className={`w-full text-left rounded-3xl border p-4 transition-all duration-300 ${
-                category.active
-                  ? category.id === selectedCategory
-                    ? "border-violet-300 bg-violet-400/20 ring-2 ring-violet-400/40 shadow-lg shadow-violet-950/20"
-                    : "border-white/10 bg-slate-950/40 hover:bg-violet-400/5 cursor-pointer"
-                  : "border-white/10 bg-slate-950/20 opacity-40 cursor-not-allowed"
-              }`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-semibold">{category.title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-300">{category.description}</p>
+  // Get current active step suggestions
+  const currentStepSuggestions = STEP_SUGGESTIONS[selectedCategory]?.[current?.key] || [];
+
+  // -------------------------------------------------------------
+  // MODE A: Using a Predefined Template (Quick Review & Launch)
+  // -------------------------------------------------------------
+  if (activeTemplate && !isCustomizingTemplate) {
+    return (
+      <div className="grid gap-6 lg:grid-cols-[1fr_1fr] items-start animate-in fade-in duration-300">
+        {/* Left Side: Template details & Instant Launch */}
+        <section className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 flex flex-col justify-between min-h-[420px] shadow-2xl">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-violet-300 bg-violet-500/10 px-3 py-1 rounded-full border border-violet-500/20">
+                Hazır Senaryo Şablonu
+              </span>
+              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                activeTemplate.difficulty === "Kolay" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                activeTemplate.difficulty === "Orta" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                "bg-rose-500/10 text-rose-400 border-rose-500/20"
+              }`}>
+                {activeTemplate.difficulty}
+              </span>
+            </div>
+            
+            <h1 className="text-3xl font-black text-white leading-tight">{activeTemplate.title}</h1>
+            <p className="mt-3 text-slate-300 leading-relaxed text-sm">{activeTemplate.description}</p>
+
+            <div className="mt-6 space-y-2 border-t border-white/5 pt-4 text-xs text-slate-400">
+              <div className="flex justify-between">
+                <span>Muhatap:</span>
+                <span className="text-white font-bold">{context.otherPerson}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Karakter Tipi:</span>
+                <span className="text-white font-bold">{context.otherPersonPersonality}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Konuşma Tonu:</span>
+                <span className="text-white font-bold">{context.tone}</span>
+              </div>
+              {context.redLine && (
+                <div className="flex flex-col gap-1 mt-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+                  <span className="text-[10px] uppercase font-bold text-violet-200">Kırmızı Çizgin:</span>
+                  <span className="text-white italic">"{context.redLine}"</span>
                 </div>
-                {category.active ? (
-                  <MessageSquareText className="text-violet-200" size={20} />
-                ) : (
-                  <span className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs text-slate-300">
-                    <Lock size={12} /> Yakında
-                  </span>
-                )}
+              )}
+            </div>
+          </div>
+
+          <div className="mt-8 space-y-3">
+            {remainingLimits <= 0 && (
+              <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-200 flex items-center gap-2">
+                <Lock size={14} className="shrink-0" />
+                <span>Mevcut limitiniz dolduğu için yeni simülasyon başlatamazsınız.</span>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {category.examples.map((example) => (
-                  <span key={example} className="rounded-full bg-white/10 px-3 py-1 text-xs text-slate-300">
-                    {example}
-                  </span>
-                ))}
-              </div>
+            )}
+
+            <button
+              onClick={handleInstantLaunch}
+              disabled={pending || remainingLimits <= 0}
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-violet-300 hover:bg-violet-200 p-4 font-black text-slate-950 transition duration-200 shadow-lg shadow-violet-950/20 disabled:opacity-40"
+            >
+              {pending ? (
+                <span>Kuruluyor...</span>
+              ) : (
+                <>
+                  <Play size={16} fill="currentColor" />
+                  <span>Hemen Başlat (Hızlı Kurulum)</span>
+                </>
+              )}
             </button>
-          ))}
+
+            <button
+              onClick={() => setIsCustomizingTemplate(true)}
+              disabled={pending}
+              className="w-full text-center text-xs font-semibold text-violet-300 hover:text-white transition py-2"
+            >
+              Şablon Ayarlarını Özelleştirmek İstiyorum
+            </button>
+          </div>
+        </section>
+
+        {/* Right Side: Visual guidance/instructions */}
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 flex flex-col justify-between min-h-[420px]">
+          <div>
+            <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+              <Sparkles size={18} className="text-violet-300" /> Yapay Zeka Koçu Önerisi
+            </h2>
+            <p className="text-xs text-slate-400 leading-relaxed mb-4">
+              Bu senaryo, ilgili durum için optimize edilmiş kurallarla tasarlanmıştır. AI antrenörünüz zorlu anlarda size alternatif cümleler sunarak yönlendirme yapacaktır.
+            </p>
+
+            <div className="space-y-3 mt-4">
+              <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-white/5 text-xs text-slate-300">
+                <span className="font-bold text-white block mb-1">💡 Karşı Karşıya Kalacağın İtirazlar</span>
+                Yapay zeka karşı tarafı canlandırırken hedefinizi zorlaştıracak gerçekçi itirazlar üretecek ve kırmızı çizginizi test edecektir.
+              </div>
+              <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-white/5 text-xs text-slate-300">
+                <span className="font-bold text-white block mb-1">🎯 Prova Kazanım Hedefi</span>
+                Görüşme sonundaki karnede Netlik, Empati, Özgüven ve Sınır Koyma becerileriniz üzerinden 100 üzerinden skor alacaksınız.
+              </div>
+            </div>
+          </div>
+
+          <div className="text-[11px] text-slate-500 text-center italic mt-6 border-t border-white/5 pt-4">
+            * "Hemen Başlat" tuşu ile doğrudan AI ile chat sayfasına yönlendirilirsiniz.
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  // MODE B: Customize Predefined Template (Single-Page Form)
+  // -------------------------------------------------------------
+  if (activeTemplate && isCustomizingTemplate) {
+    return (
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] items-start animate-in fade-in duration-300">
+        {/* Left Side: Template Info */}
+        <section className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl">
+          <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+            <Zap size={18} className="text-violet-300" /> Şablon Özelleştirme
+          </h2>
+          <p className="text-xs text-slate-400 leading-relaxed mb-4">
+            Şablondaki başlangıç mesajını, karşı taraf kişiliğini ve sınırlarınızı kendinize göre güncelleyin.
+          </p>
+          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3 text-xs text-slate-300">
+            <div>
+              <span className="font-bold text-white block">Başlık:</span>
+              {activeTemplate.title}
+            </div>
+            <div>
+              <span className="font-bold text-white block">Senaryo Detayı:</span>
+              {activeTemplate.description}
+            </div>
+          </div>
+
+          <button
+            onClick={() => setIsCustomizingTemplate(false)}
+            className="w-full text-center text-xs font-semibold text-slate-400 hover:text-white transition mt-6 py-2"
+          >
+            ← Şablon Detayına Geri Dön
+          </button>
+        </section>
+
+        {/* Right Side: Single-Page Review Form */}
+        <form
+          onSubmit={handleQuickFormSubmit}
+          className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl space-y-4"
+        >
+          {remainingLimits <= 0 && (
+            <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-200 flex items-center gap-2">
+              <Lock size={14} className="shrink-0" />
+              <span>Limit aşımı nedeniyle başlatamazsınız.</span>
+            </div>
+          )}
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-violet-200">Gelen Mesaj / Durum Açıklaması</label>
+            <textarea
+              className="w-full min-h-24 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-relaxed outline-none focus:border-violet-300"
+              value={context.incomingMessage}
+              onChange={(e) => update("incomingMessage", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-violet-200">Karşı Taraf (Kim?)</label>
+              <select
+                className="w-full rounded-2xl border border-white/10 bg-slate-900 p-3 text-xs outline-none focus:border-violet-300"
+                value={context.otherPerson}
+                onChange={(e) => update("otherPerson", e.target.value)}
+              >
+                {getStepsForCategory(selectedCategory).find(s => s.key === "otherPerson")?.options?.map(o => (
+                  <option key={o} value={o}>{o}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-violet-200">Kişilik Tarzı</label>
+              <select
+                className="w-full rounded-2xl border border-white/10 bg-slate-900 p-3 text-xs outline-none focus:border-violet-300"
+                value={context.otherPersonPersonality}
+                onChange={(e) => update("otherPersonPersonality", e.target.value)}
+              >
+                {getStepsForCategory(selectedCategory).find(s => s.key === "otherPersonPersonality")?.options?.map(o => (
+                  <option key={o} value={o}>{o}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-violet-200">İletişim Tonunuz</label>
+              <select
+                className="w-full rounded-2xl border border-white/10 bg-slate-900 p-3 text-xs outline-none focus:border-violet-300"
+                value={context.tone}
+                onChange={(e) => update("tone", e.target.value)}
+              >
+                {getStepsForCategory(selectedCategory).find(s => s.key === "tone")?.options?.map(o => (
+                  <option key={o} value={o}>{o}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-violet-200">Kırmızı Çizginiz</label>
+              <input
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs outline-none focus:border-violet-300"
+                value={context.redLine}
+                onChange={(e) => update("redLine", e.target.value)}
+                placeholder="Taviz vermek istemediğiniz nokta..."
+              />
+            </div>
+          </div>
+
+          {error && <p className="text-xs text-rose-300">{error}</p>}
+
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={pending || remainingLimits <= 0}
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-violet-300 hover:bg-violet-200 p-4 font-black text-slate-950 transition duration-200 shadow-lg shadow-violet-950/20 disabled:opacity-40"
+            >
+              {pending ? "Hazırlanıyor..." : "Özelleştirilmiş Simülasyonu Başlat"}
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  // MODE C: Custom Simulation Setup (Step-by-step with recommendations)
+  // -------------------------------------------------------------
+  return (
+    <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] items-start animate-in fade-in duration-300">
+      {/* Left Side: Category Picker + Step suggestions */}
+      <section className="space-y-6">
+        {/* Category List */}
+        <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5">
+          <p className="text-sm font-semibold text-violet-200">Kategori seçimi</p>
+          <div className="mt-4 grid gap-2">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => {
+                  if (category.active && !pending) {
+                    setSelectedCategory(category.id);
+                    setContext(getInitialContextForCategory(category.id));
+                    setStep(0);
+                    setError("");
+                  }
+                }}
+                type="button"
+                className={`w-full text-left rounded-2xl border p-3.5 transition-all duration-300 ${
+                  category.active
+                    ? category.id === selectedCategory
+                      ? "border-violet-300 bg-violet-400/20 ring-1 ring-violet-400/30 shadow-md shadow-violet-950/20"
+                      : "border-white/5 bg-slate-950/40 hover:bg-violet-400/5 cursor-pointer"
+                    : "border-white/5 bg-slate-950/20 opacity-40 cursor-not-allowed"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3 text-xs">
+                  <div>
+                    <h3 className="font-bold text-white">{category.title}</h3>
+                  </div>
+                  {category.active ? (
+                    <MessageSquareText className="text-violet-200" size={14} />
+                  ) : (
+                    <span className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[9px] text-slate-300">
+                      <Lock size={8} /> Yakında
+                    </span>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Dynamic Context Suggestions Card */}
+        {currentStepSuggestions.length > 0 && (
+          <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-5 shadow-xl animate-in slide-in-from-bottom duration-300">
+            <h3 className="text-xs font-bold text-violet-300 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+              <Sparkles size={14} /> Hızlı Öneri / Örnekler
+            </h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed mb-3">
+              Aşağıdaki hazır şablonlardan birine tıklayarak bu adımın girdisini hızlıca doldurabilirsiniz:
+            </p>
+            <div className="space-y-2">
+              {currentStepSuggestions.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => update(current.key, suggestion)}
+                  className="w-full text-left p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-violet-400/30 hover:bg-violet-500/5 transition text-xs text-slate-300 leading-relaxed"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
+      {/* Right Side: Step-by-Step Custom Setup Form */}
       <form
-        onSubmit={onSubmit}
+        onSubmit={onStepSubmit}
         className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-violet-950/30"
       >
         {remainingLimits <= 0 && (
-          <div className="mb-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm leading-6 text-rose-200">
+          <div className="mb-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs leading-6 text-rose-200">
             <span className="font-bold flex items-center gap-2 mb-1">
-              <Lock size={16} className="text-rose-300" /> Aylık Simülasyon Limitiniz Doldu!
+              <Lock size={14} className="text-rose-300" /> Aylık Simülasyon Limitiniz Doldu!
             </span>
-            Bu ay için tanımlanmış limitinize ulaştınız. Yeni bir simülasyon başlatmak için lütfen profil sayfanızdan planınızı yükseltin.
+            Profilinizden planınızı yükseltmeden yeni bir simülasyon başlatamazsınız.
           </div>
         )}
+
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-violet-200">
+            <p className="text-xs font-semibold text-violet-200">
               Adım {step + 1} / {steps.length}
             </p>
-            <h1 className="mt-2 text-2xl font-bold">{current.label}</h1>
-            <p className="mt-2 text-sm text-slate-400">{current.helper}</p>
+            <h1 className="mt-2 text-xl font-bold text-white">{current.label}</h1>
+            <p className="mt-2 text-xs text-slate-400 leading-relaxed">{current.helper}</p>
           </div>
         </div>
 
         {current.type === "textarea" ? (
           <textarea
-            className="min-h-44 w-full rounded-3xl border border-white/10 bg-white/[0.06] px-4 py-4 leading-7 outline-none ring-violet-400 focus:ring-2"
+            className="min-h-36 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-xs leading-relaxed outline-none focus:border-violet-300"
             value={context[current.key] || ""}
             onChange={(event) => update(current.key, event.target.value)}
-            placeholder={current.placeholder || "Mesajı buraya yaz..."}
+            placeholder={current.placeholder || "Detayları yazın..."}
+            required
           />
         ) : current.type === "select" ? (
           <select
-            className="w-full rounded-3xl border border-white/10 bg-slate-900 px-4 py-4 outline-none ring-violet-400 focus:ring-2"
+            className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3.5 text-xs outline-none focus:border-violet-300"
             value={context[current.key] || ""}
             onChange={(event) => update(current.key, event.target.value)}
           >
@@ -704,19 +1078,20 @@ export function ContextWizard({
           </select>
         ) : (
           <input
-            className="w-full rounded-3xl border border-white/10 bg-white/[0.06] px-4 py-4 outline-none ring-violet-400 focus:ring-2"
+            className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-xs outline-none focus:border-violet-300"
             value={context[current.key] || ""}
             onChange={(event) => update(current.key, event.target.value)}
-            placeholder={current.placeholder || "Kısaca yaz..."}
+            placeholder={current.placeholder || "Kısaca belirtin..."}
+            required
           />
         )}
 
-        {error && <p className="mt-4 text-sm text-rose-200">{error}</p>}
+        {error && <p className="mt-4 text-xs text-rose-300">{error}</p>}
 
         <div className="mt-6 flex items-center justify-between gap-3">
           <button
             type="button"
-            className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-slate-200 disabled:opacity-40"
+            className="rounded-xl border border-white/10 px-5 py-2.5 text-xs font-semibold text-slate-300 disabled:opacity-40"
             disabled={step === 0 || pending}
             onClick={() => setStep((value) => Math.max(0, value - 1))}
           >
@@ -724,20 +1099,20 @@ export function ContextWizard({
           </button>
           {isLast && remainingLimits <= 0 ? (
             <button
-              className="inline-flex items-center gap-2 rounded-2xl bg-rose-500/20 border border-rose-500/30 px-5 py-3 font-semibold text-rose-300 cursor-not-allowed"
+              className="inline-flex items-center gap-2 rounded-xl bg-rose-500/20 border border-rose-500/30 px-5 py-2.5 text-xs font-semibold text-rose-300 cursor-not-allowed"
               disabled
               type="button"
             >
-              Limit Aşıldı <Lock size={18} />
+              Limit Aşıldı <Lock size={14} />
             </button>
           ) : (
             <button
-              className="inline-flex items-center gap-2 rounded-2xl bg-violet-300 px-5 py-3 font-semibold text-slate-950 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl bg-violet-300 px-5 py-2.5 text-xs font-bold text-slate-950 disabled:opacity-60 hover:bg-violet-200 transition"
               disabled={pending}
               type="submit"
             >
               {pending ? "Hazırlanıyor..." : isLast ? "Simülasyonu Başlat" : "Devam"}
-              <ArrowRight size={18} />
+              <ArrowRight size={14} />
             </button>
           )}
         </div>
