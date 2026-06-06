@@ -31,6 +31,17 @@ export function SimulationCard({ simulation }: SimulationCardProps) {
       ? `/simulations/${simulation.id}/play`
       : `/simulations/${simulation.id}`;
 
+  const categoryLabels: Record<string, string> = {
+    is_kariyer: "İş / Kariyer",
+    flort_iliski: "Flört / İlişki",
+    aile_arkadas: "Aile / Arkadaş",
+    para_pazarlik: "Para / Pazarlık",
+    egitim_okul: "Eğitim / Okul",
+    gunluk_yasam: "Günlük Yaşam / Komşuluk",
+    zor_mesajlar: "Zor Mesajlar",
+  };
+  const categoryLabel = categoryLabels[simulation.category] || simulation.category;
+
   async function toggleFavorite(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
@@ -81,68 +92,73 @@ export function SimulationCard({ simulation }: SimulationCardProps) {
   }
 
   return (
-    <Link
-      href={href}
-      className="group block rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5 transition hover:-translate-y-0.5 hover:border-violet-300/40 hover:bg-white/[0.09] relative"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-200">
-            {simulation.category === "zor_mesajlar" ? "Zor Mesajlar" : simulation.category}
-          </p>
-          <h3 className="mt-2 text-lg font-semibold text-white">{simulation.title}</h3>
-        </div>
-        <ArrowRight className="mt-1 text-slate-500 transition group-hover:text-violet-200" size={20} />
-      </div>
-      
-      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-300">{simulation.scenario}</p>
-      
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
-        <div className="flex items-center gap-3">
-          <StatusBadge status={simulation.status} />
-          <span className="text-xs text-slate-400">{formatDate(simulation.createdAt)}</span>
-          {simulation.totalScore !== null && (
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">
-              Skor {simulation.totalScore}
-            </span>
-          )}
-        </div>
+    <div className="relative group">
+      {/* Floating e-commerce style heart button */}
+      <button
+        onClick={toggleFavorite}
+        className={`absolute top-5 right-5 z-20 p-2.5 rounded-full border transition-all duration-300 hover:scale-110 shadow-md ${
+          isFavorite
+            ? "bg-rose-500/10 border-rose-500/30 text-rose-400 shadow-rose-950/20"
+            : "bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10"
+        }`}
+        title={isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
+      >
+        <Heart size={15} fill={isFavorite ? "currentColor" : "none"} />
+      </button>
 
-        {/* Favorites & Share Toggles */}
-        <div className="flex items-center gap-2">
-          {/* Favorite heart icon */}
-          <button
-            onClick={toggleFavorite}
-            className={`p-2 rounded-xl border border-white/10 transition hover:bg-white/5 ${
-              isFavorite ? "text-rose-500 border-rose-500/20 bg-rose-500/5" : "text-slate-400 hover:text-white"
-            }`}
-            title={isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
-          >
-            <Heart size={15} fill={isFavorite ? "currentColor" : "none"} />
-          </button>
-
-          {/* Public share icon */}
-          <button
-            onClick={toggleShare}
-            className={`p-2 rounded-xl border border-white/10 transition hover:bg-white/5 flex items-center gap-1 text-[11px] ${
-              isPublic ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/5" : "text-slate-400 hover:text-white"
-            }`}
-            title={isPublic ? "Paylaşımı Kapat" : "Genel Paylaşım Bağlantısı Kopyala"}
-          >
-            {copied ? (
-              <>
-                <Check size={15} className="text-emerald-400" />
-                <span className="text-emerald-400 font-semibold">Kopyalandı!</span>
-              </>
-            ) : (
-              <>
-                <Share2 size={15} />
-                {isPublic && <span className="text-emerald-400 font-semibold">Açık</span>}
-              </>
+      <Link
+        href={href}
+        className="block rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5 pr-16 transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/40 hover:bg-white/[0.09]"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-200">
+              {categoryLabel}
+            </p>
+            <h3 className="mt-2 text-lg font-bold text-white group-hover:text-violet-200 transition-colors duration-300 pr-4">
+              {simulation.title}
+            </h3>
+          </div>
+          <ArrowRight className="mt-1 text-slate-500 transition-all duration-300 group-hover:text-violet-200 group-hover:translate-x-1" size={18} />
+        </div>
+        
+        <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-300">{simulation.scenario}</p>
+        
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
+          <div className="flex items-center gap-3">
+            <StatusBadge status={simulation.status} />
+            <span className="text-xs text-slate-400">{formatDate(simulation.createdAt)}</span>
+            {simulation.totalScore !== null && (
+              <span className="rounded-full bg-violet-500/10 border border-violet-500/20 px-3 py-1 text-xs font-bold text-violet-300">
+                Skor {simulation.totalScore}
+              </span>
             )}
-          </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Public share icon */}
+            <button
+              onClick={toggleShare}
+              className={`p-2 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/5 flex items-center gap-1.5 text-[11px] ${
+                isPublic ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/5" : "text-slate-400 hover:text-white"
+              }`}
+              title={isPublic ? "Paylaşımı Kapat" : "Genel Paylaşım Bağlantısı Kopyala"}
+            >
+              {copied ? (
+                <>
+                  <Check size={14} className="text-emerald-400" />
+                  <span className="text-emerald-400 font-bold">Kopyalandı!</span>
+                </>
+              ) : (
+                <>
+                  <Share2 size={14} />
+                  {isPublic && <span className="text-emerald-400 font-bold">Açık</span>}
+                </>
+              )}
+            </button>
+          </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

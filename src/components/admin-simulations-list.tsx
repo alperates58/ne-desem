@@ -99,11 +99,13 @@ export function AdminSimulationsList({ initialSimulations }: AdminSimulationsLis
   // Helper to format category title
   function getCategoryTitle(catId: string) {
     const mapping: Record<string, string> = {
-      is_kariyer: "İş & Kariyer",
-      aile_akraba: "Aile & Akraba",
-      ozel_iliskiler: "Özel İlişkiler",
-      para_pazarlik: "Para & Pazarlık",
+      is_kariyer: "İş / Kariyer",
+      aile_arkadas: "Aile / Arkadaş",
+      flort_iliski: "Flört / İlişki",
+      para_pazarlik: "Para / Pazarlık",
       zor_mesajlar: "Zor Mesajlar",
+      egitim_okul: "Eğitim / Okul",
+      gunluk_yasam: "Günlük Yaşam / Komşuluk",
     };
     return mapping[catId] || catId;
   }

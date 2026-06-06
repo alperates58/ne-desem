@@ -4,7 +4,7 @@ export type SimulationTemplate = {
   id: string;
   title: string;
   description: string;
-  category: "is_kariyer" | "flort_iliski" | "aile_arkadas" | "para_pazarlik" | "zor_mesajlar";
+  category: "is_kariyer" | "flort_iliski" | "aile_arkadas" | "para_pazarlik" | "zor_mesajlar" | "egitim_okul" | "gunluk_yasam";
   difficulty: "Kolay" | "Orta" | "Zor";
   context: MessageContext;
 };
@@ -706,6 +706,82 @@ export const templates: SimulationTemplate[] = [
       replyLength: "Tek cümle",
       preserveRelationship: "Hayır",
       fear: "Karşı tarafın kırılması veya kaba görünmek",
+    },
+  },
+  // --- EĞİTİM / OKUL ---
+  {
+    id: "grup-arkadasi-kaytarma",
+    title: "Çalışmayan Ödev Arkadaşı",
+    description: "Grup ödevinde hiçbir işe elini sürmeyen ama adı yazılacak olan arkadaşınızı uyarın.",
+    category: "egitim_okul",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Kanka ben bu aralar çok yoğunum, slaytları siz halledersiniz değil mi?",
+      otherPerson: "Grup Arkadaşı",
+      otherPersonPersonality: "Pasif-Agresif / İğneleyici",
+      difficultyReason: "Grupta iş bölümü yaptırmak",
+      goal: "İş paylaşımı yapmak",
+      tone: "Net ve kararlı",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      fear: "Dışlanmak veya kaba görünmek",
+      redLine: "Katkı sağlamayanın adını ödeve yazmamak",
+    },
+  },
+  {
+    id: "hoca-not-itiraz",
+    title: "Hocadan Sınav Notu İtirazı",
+    description: "Sınav kağıdınızda bariz bir puanlama hatası olduğunu düşünüp hocadan incelenmesini talep edin.",
+    category: "egitim_okul",
+    difficulty: "Kolay",
+    context: {
+      incomingMessage: "Sınav kağıtlarını son derece objektif okudum, itirazı olan resmi dilekçe versin.",
+      otherPerson: "Akademisyen / Hoca",
+      otherPersonPersonality: "Otoriter ve Sert",
+      difficultyReason: "Kağıdın incelenmesini kibarca talep etmek",
+      goal: "Kağıdın incelenmesini sağlamak",
+      tone: "Profesyonel ve kibar",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      fear: "Hocanın tepkisini çekmek veya notumu daha da düşürmesi",
+    },
+  },
+  // --- GÜNLÜK YAŞAM / KOMŞULUK ---
+  {
+    id: "gurultucu-ust-komsu",
+    title: "Gürültücü Üst Komşu",
+    description: "Gece saatlerinde aşırı ses yapan üst komşunuzu uykunuz bölündüğü için kibarca ama net uyarın.",
+    category: "gunluk_yasam",
+    difficulty: "Zor",
+    context: {
+      incomingMessage: "Çocuklar koşuyor ne yapalım, apartmanda yaşamanın kuralları bunlar.",
+      otherPerson: "Üst Komşu",
+      otherPersonPersonality: "Savunmacı ve Israrcı",
+      difficultyReason: "Gürültünün kesilmesini istemek",
+      goal: "Gürültünün kesilmesini sağlamak",
+      tone: "Net ve kararlı",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      fear: "Tartışma çıkması veya düşmanlık beslenmesi",
+      redLine: "Saat 23:00'ten sonra gürültünün devam etmesini kabul edemem",
+    },
+  },
+  {
+    id: "tesisatci-usta-gecikme",
+    title: "İşi Geciktiren Tesisatçı Usta",
+    description: "Evdeki sızıntıyı yapmak için gelip yarım bırakan ve günlerdir yalan söyleyen ustaya sınır çizin.",
+    category: "gunluk_yasam",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Usta diğer şantiyede acil işim çıktı, yarın sabah ilk iş oradayım.",
+      otherPerson: "Tesisatçı Usta",
+      otherPersonPersonality: "Yoğun ve Dikkatsiz",
+      difficultyReason: "İşin bitirilmesi için baskı kurmak",
+      goal: "İşin bugün bitirilmesini veya iade almayı sağlamak",
+      tone: "Sert ama saygılı",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Sadece işin düzgün bitmesini istiyorum",
+      fear: "Ustanın tamamen işi bırakıp kaçması veya agresifleşmesi",
     },
   },
 ];

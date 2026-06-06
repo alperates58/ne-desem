@@ -141,7 +141,7 @@ export function AdminUsersList({ initialUsers, tiers }: AdminUsersListProps) {
       {/* Users List Table */}
       <section className="rounded-[2rem] border border-white/10 bg-slate-950/70 overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-300">
+          <table className="w-full min-w-[1000px] text-left text-sm text-slate-300">
             <thead className="bg-white/[0.04] text-xs uppercase tracking-wider text-slate-400 font-semibold border-b border-white/10">
               <tr>
                 <th className="px-6 py-4">Kullanıcı</th>

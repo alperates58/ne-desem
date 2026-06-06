@@ -38,6 +38,20 @@ export const categories: Category[] = [
     active: true,
   },
   {
+    id: "egitim_okul",
+    title: "Eğitim / Okul",
+    description: "Akademisyenler, grup projeleri, öğretmen ve okul yönetimi ile zor konuşmalar.",
+    examples: ["Grup arkadaşını uyarma", "Hocadan not isteme", "Okul idaresine itiraz"],
+    active: true,
+  },
+  {
+    id: "gunluk_yasam",
+    title: "Günlük Yaşam / Komşuluk",
+    description: "Apartman kuralları, gürültücü komşu, esnaf ve usta ilişkileri.",
+    examples: ["Gürültü uyarısı", "Geciken usta pazarlığı", "Aidat artış itirazı"],
+    active: true,
+  },
+  {
     id: "zor_mesajlar",
     title: "Zor Mesajlar",
     description: "Cevap vermekte zorlandığın mesajları güvenli şekilde prova et.",

@@ -367,23 +367,32 @@ export function ProfileView({
             </div>
 
             {/* Progress Bar */}
-            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <span>{limits.count} / {totalLimit} Prova</span>
-                <span className="text-violet-300">{Math.round(usagePercentage)}%</span>
+            {limits.tierName === "Sınırsız" || totalLimit >= 9999 ? (
+              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-center py-5">
+                <span className="text-sm font-bold text-violet-300">Sınırsız Prova Hakkı</span>
+                <p className="text-[11px] text-slate-400 mt-1">Dilediğiniz kadar simülasyon başlatabilirsiniz.</p>
               </div>
-              <div className="mt-3 h-3.5 w-full rounded-full bg-slate-900 border border-white/5 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-500"
-                  style={{ width: `${usagePercentage}%` }}
-                />
+            ) : (
+              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <span>{limits.count} / {totalLimit} Prova</span>
+                  <span className="text-violet-300">{Math.round(usagePercentage)}%</span>
+                </div>
+                <div className="mt-3 h-3.5 w-full rounded-full bg-slate-900 border border-white/5 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-500"
+                    style={{ width: `${usagePercentage}%` }}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="space-y-3 text-xs text-slate-300">
               <div className="flex justify-between border-b border-white/5 pb-2.5">
                 <span className="text-slate-400">Üyelik Limiti:</span>
-                <span className="font-semibold text-white">{limits.limit}</span>
+                <span className="font-semibold text-white">
+                  {limits.tierName === "Sınırsız" || totalLimit >= 9999 ? "Sınırsız" : limits.limit}
+                </span>
               </div>
               <div className="flex justify-between border-b border-white/5 pb-2.5">
                 <span className="text-slate-400">Ekstra Haklar:</span>
@@ -391,7 +400,9 @@ export function ProfileView({
               </div>
               <div className="flex justify-between pb-1">
                 <span className="text-slate-400">Kalan Hakkınız:</span>
-                <span className="font-bold text-violet-300">{limits.remaining}</span>
+                <span className="font-bold text-violet-300">
+                  {limits.tierName === "Sınırsız" || totalLimit >= 9999 ? "Sınırsız" : limits.remaining}
+                </span>
               </div>
             </div>
 

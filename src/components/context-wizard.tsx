@@ -85,6 +85,32 @@ const STEP_SUGGESTIONS: Record<string, Record<string, string[]>> = {
       "Paragöz veya cimri gibi görünmek"
     ]
   },
+  egitim_okul: {
+    incomingMessage: [
+      "Kanka ben bu aralar çok yoğunum, slaytları siz halledersiniz değil mi?",
+      "Sınav kağıtlarını son derece objektif okudum, itirazı olan resmi dilekçe versin.",
+      "Grup ödevinde herkesin ismini yazalım diyen arkadaşı uyarma.",
+      "Hocadan ek teslim süresi talep etmek."
+    ],
+    fear: [
+      "Notumun daha da düşürülmesi veya hocanın takması",
+      "Gruptaki diğer arkadaşlarımla aramın açılması veya yalnız kalmak",
+      "Sınıfta kaba/uyumsuz biri olarak mimlenmek"
+    ]
+  },
+  gunluk_yasam: {
+    incomingMessage: [
+      "Çocuklar koşuyor ne yapalım, apartmanda yaşamanın kuralları bunlar.",
+      "Usta diğer şantiyede acil işim çıktı, yarın sabah ilk iş oradayım.",
+      "Aidat artışını kabul etmeyen veya ödemeyen komşu uyarısı.",
+      "Apartman koridoruna çöplerini veya eşyalarını bırakan komşuyu uyarma."
+    ],
+    fear: [
+      "Komşuyla yüz yüze bakarken düşman olmak",
+      "Ustanın işi yarım bırakıp kaçması veya para iadesi yapmaması",
+      "Apartmanda gerginlik çıkması veya dedikodu yapılması"
+    ]
+  },
   zor_mesajlar: {
     incomingMessage: [
       "Görüldü atan flörte konuyu kapatmak için kısa bir mesaj yazmak.",
@@ -615,12 +641,16 @@ export function ContextWizard({
 }) {
   const router = useRouter();
 
-  // Find template if provided
-  const activeTemplate = templateId ? templates.find((t) => t.id === templateId) : null;
+  const [activeTemplate, setActiveTemplate] = useState<any>(() => {
+    return templateId ? templates.find((t) => t.id === templateId) || null : null;
+  });
 
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
-    if (activeTemplate) return activeTemplate.category;
-    return ""; // Empty by default for custom setup to enforce category screen first
+    if (templateId) {
+      const t = templates.find((tmp) => tmp.id === templateId);
+      return t ? t.category : "";
+    }
+    return "";
   });
 
   const [categorySelected, setCategorySelected] = useState<boolean>(!!templateId);
@@ -731,7 +761,7 @@ export function ContextWizard({
   // -------------------------------------------------------------
   // MODE 0: Category Selection Screen First (Sequential layout)
   // -------------------------------------------------------------
-  if (!categorySelected) {
+  if (!selectedCategory) {
     return (
       <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
         <div className="text-center space-y-2 mb-8">
@@ -750,7 +780,6 @@ export function ContextWizard({
                   setContext(getInitialContextForCategory(category.id));
                   setStep(0);
                   setError("");
-                  setCategorySelected(true);
                 }
               }}
               type="button"
@@ -782,6 +811,103 @@ export function ContextWizard({
                   </span>
                 ))}
               </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  // MODE 0.5: Sub-Simulation List (Predefined Templates) Screen
+  // -------------------------------------------------------------
+  if (selectedCategory && !categorySelected) {
+    const categoryTemplates = templates.filter((t) => t.category === selectedCategory);
+    const categoryTitle = categories.find((c) => c.id === selectedCategory)?.title || selectedCategory;
+
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-300">
+        <div className="flex flex-col items-center text-center space-y-2 mb-8">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedCategory("");
+              setError("");
+            }}
+            className="inline-flex items-center gap-1.5 text-xs text-violet-300 hover:text-white font-semibold transition"
+          >
+            ← Kategorilere Geri Dön
+          </button>
+          <h1 className="text-3xl font-black text-white mt-2">{categoryTitle} Senaryoları</h1>
+          <p className="text-sm text-slate-400">
+            Hazır bir prova senaryosu seçin veya kendi durumunuza göre sıfırdan bir simülasyon başlatın.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Custom Simulation Card */}
+          <button
+            onClick={() => {
+              setActiveTemplate(null);
+              setCategorySelected(true);
+              setStep(0);
+              setError("");
+              setContext(getInitialContextForCategory(selectedCategory));
+            }}
+            type="button"
+            className="text-left rounded-3xl border border-dashed border-violet-400/30 bg-violet-950/10 hover:border-violet-300 hover:bg-violet-950/20 p-5 transition duration-200 flex flex-col justify-between min-h-[180px] shadow-lg cursor-pointer"
+          >
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-violet-300 bg-violet-500/10 px-2 py-0.5 rounded-full">
+                  ÖZEL PROVA
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-white mb-1">Sıfırdan Kendin Yarat</h3>
+              <p className="text-xs leading-relaxed text-slate-400">
+                Gelen mesajı, muhatabınızı, karşı tarafın kişiliğini ve konuşmanın amacını kendiniz belirleyerek özel bir prova başlatın.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1 text-xs text-violet-300 font-bold mt-4">
+              Sıfırdan Başla <ArrowRight size={14} />
+            </span>
+          </button>
+
+          {/* Preset Templates Cards */}
+          {categoryTemplates.map((template) => (
+            <button
+              key={template.id}
+              onClick={() => {
+                setActiveTemplate(template);
+                setContext({
+                  ...getInitialContextForCategory(selectedCategory),
+                  ...template.context,
+                });
+                setCategorySelected(true);
+                setIsCustomizingTemplate(false);
+                setError("");
+              }}
+              type="button"
+              className="text-left rounded-3xl border border-white/10 bg-slate-950/60 hover:border-violet-300 hover:bg-violet-400/[0.03] p-5 transition duration-200 flex flex-col justify-between min-h-[180px] shadow-lg cursor-pointer"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                    template.difficulty === "Kolay" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                    template.difficulty === "Orta" ? "bg-amber-500/10 text-amber-400 border-emerald-500/20" :
+                    "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                  }`}>
+                    {template.difficulty}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-white mb-1">{template.title}</h3>
+                <p className="text-xs leading-relaxed text-slate-400 line-clamp-3">
+                  {template.description}
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1 text-xs text-violet-300 font-bold mt-4">
+                Senaryoyu Gör <ArrowRight size={14} />
+              </span>
             </button>
           ))}
         </div>
@@ -952,6 +1078,32 @@ export function ContextWizard({
               onChange={(e) => update("incomingMessage", e.target.value)}
               required
             />
+            {selectedCategory && STEP_SUGGESTIONS[selectedCategory]?.incomingMessage && (
+              <div className="mt-2 space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 block uppercase">Önerilen Başlangıç Mesajları:</span>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {activeTemplate && activeTemplate.context.incomingMessage !== context.incomingMessage && (
+                    <button
+                      type="button"
+                      onClick={() => update("incomingMessage", activeTemplate.context.incomingMessage)}
+                      className="rounded-xl bg-violet-500/10 border border-violet-500/30 px-2.5 py-1 text-[10px] font-semibold text-violet-300 hover:bg-violet-500/20 transition"
+                    >
+                      Şablon Varsayılanına Dön
+                    </button>
+                  )}
+                  {STEP_SUGGESTIONS[selectedCategory].incomingMessage.map((msg) => (
+                    <button
+                      key={msg}
+                      type="button"
+                      onClick={() => update("incomingMessage", msg)}
+                      className="text-left rounded-xl bg-white/5 border border-white/5 px-2.5 py-1 text-[10px] text-slate-300 hover:bg-white/10 hover:text-white transition"
+                    >
+                      {msg}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -1040,7 +1192,10 @@ export function ContextWizard({
           {!templateId && (
             <button
               type="button"
-              onClick={() => setCategorySelected(false)}
+              onClick={() => {
+                setCategorySelected(false);
+                setSelectedCategory("");
+              }}
               className="mt-3 inline-flex items-center gap-1.5 text-xs text-violet-300 hover:text-white font-semibold transition"
             >
               ← Kategori Değiştir
