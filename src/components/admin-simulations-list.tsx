@@ -293,7 +293,7 @@ export function AdminSimulationsList({ initialSimulations }: AdminSimulationsLis
                   
                   {/* Map setup context fields */}
                   {Object.entries(selectedSim.contextJson || {}).map(([key, value]) => {
-                    const label = contextFieldLabels[key as any];
+                    const label = (contextFieldLabels as Record<string, string>)[key];
                     if (!label || !value || typeof value !== "string") return null;
                     return (
                       <div key={key} className="space-y-1">
@@ -376,11 +376,11 @@ export function AdminSimulationsList({ initialSimulations }: AdminSimulationsLis
                           {/* AI Feedback Box for this Turn */}
                           <div className="ml-6 mr-6 border-l-2 border-violet-500/30 pl-4 py-1 text-xs space-y-2 bg-slate-950/20 p-3 rounded-r-xl">
                             <div className="flex flex-wrap gap-2">
-                              {Object.entries(turn.scoresJson || {}).map(([sKey, sVal]) => (
-                                <span key={sKey} className="text-[10px] font-semibold text-slate-400 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
-                                  {sKey}: <span className="text-violet-300 font-bold">{sVal}</span>
-                                </span>
-                              ))}
+                               {Object.entries(turn.scoresJson || {}).map(([sKey, sVal]) => (
+                                 <span key={sKey} className="text-[10px] font-semibold text-slate-400 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+                                   {sKey}: <span className="text-violet-300 font-bold">{String(sVal)}</span>
+                                 </span>
+                               ))}
                             </div>
                             <p className="text-[11px] text-slate-400 leading-relaxed italic">
                               <strong>Geri Bildirim:</strong> {turn.feedback}
