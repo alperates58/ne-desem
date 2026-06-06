@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Briefcase,
   Heart,
   Users,
   Coins,
   MessageSquare,
-  Loader2,
   Play,
   Search,
   X,
@@ -16,6 +15,8 @@ import {
   GraduationCap,
   Home,
   Share2,
+  Activity,
+  Zap,
 } from "lucide-react";
 import { templates, type SimulationTemplate } from "@/lib/templates";
 
@@ -73,13 +74,28 @@ const PERSONALITY_OPTIONS: Record<string, Array<{ value: string; label: string; 
     { value: "Soğuk ve Mesafeli", label: "Soğuk ve Mesafeli", desc: "Geç yazar, görüldü atar veya mesafeli durur.", emoji: "❄️" },
     { value: "Profesyonel ve Net", label: "Profesyonel ve Net", desc: "Mesai dışı yazışmalarda sınırlarını hatırlatır veya resmidir.", emoji: "💼" },
   ],
+  saglik_psikoloji: [
+    { value: "İnkar Eden / Küçümseyen", label: "İnkar Eden / Küçümseyen", desc: "Psikolojik konuları ciddiye almaz, 'abartıyorsun' der.", emoji: "🚫" },
+    { value: "Geleneksel / Israrcı", label: "Geleneksel / Israrcı", desc: "Terapi veya ilaç kullanımına karşı önyargılıdır.", emoji: "👵" },
+    { value: "Destekleyici ve Sevgi Dolu", label: "Destekleyici ve Sevgi Dolu", desc: "Anlamaya çalışır, yardımcı olmak ister.", emoji: "🌟" },
+    { value: "Kaygılı ve Aşırı Koruyucu", label: "Kaygılı ve Aşırı Koruyucu", desc: "Endişeyle yaklaşır, fazla sorular sorar.", emoji: "😰" },
+  ],
+  sosyal_anlar: [
+    { value: "Savunmacı ve Israrcı", label: "Savunmacı ve Israrcı", desc: "Haksız olduğunu kabul etmez, anında savunmaya geçer.", emoji: "🛡️" },
+    { value: "Umursamaz / Rahat", label: "Umursamaz / Rahat", desc: "Durumu küçümser, 'ne olmuş ki' der.", emoji: "🤷" },
+    { value: "Anlayışlı / Özür Dileyen", label: "Anlayışlı / Özür Dileyen", desc: "Hatayı kabul eder, nazik bir diyaloğa açıktır.", emoji: "😊" },
+    { value: "Gergin ve Sinirli", label: "Gergin ve Sinirli", desc: "Söylenilince ani ve sert tepki verir.", emoji: "😤" },
+  ],
 };
 
 export function QuickStartGrid({ recommendedIds = [] }: { recommendedIds?: string[] }) {
   const router = useRouter();
-  
-  // Navigation & Search State
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const searchParams = useSearchParams();
+
+  // Navigation & Search State — initialise from ?cat= URL param if present
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    () => searchParams.get("cat") ?? "all"
+  );
   const [searchQuery, setSearchQuery] = useState<string>("");
   
   // Infinite Scroll State
@@ -134,43 +150,31 @@ export function QuickStartGrid({ recommendedIds = [] }: { recommendedIds?: strin
 
   function getCategoryIcon(category: string) {
     switch (category) {
-      case "is_kariyer":
-        return <Briefcase size={16} className="text-blue-400" />;
-      case "flort_iliski":
-        return <Heart size={16} className="text-pink-400" />;
-      case "aile_arkadas":
-        return <Users size={16} className="text-purple-400" />;
-      case "para_pazarlik":
-        return <Coins size={16} className="text-emerald-400" />;
-      case "egitim_okul":
-        return <GraduationCap size={16} className="text-cyan-400" />;
-      case "gunluk_yasam":
-        return <Home size={16} className="text-amber-400" />;
-      case "sosyal_medya_dijital":
-        return <Share2 size={16} className="text-violet-400" />;
-      default:
-        return <MessageSquare size={16} className="text-indigo-400" />;
+      case "is_kariyer":            return <Briefcase size={16} className="text-blue-400" />;
+      case "flort_iliski":          return <Heart size={16} className="text-pink-400" />;
+      case "aile_arkadas":          return <Users size={16} className="text-purple-400" />;
+      case "para_pazarlik":         return <Coins size={16} className="text-emerald-400" />;
+      case "egitim_okul":           return <GraduationCap size={16} className="text-cyan-400" />;
+      case "gunluk_yasam":          return <Home size={16} className="text-amber-400" />;
+      case "sosyal_medya_dijital":  return <Share2 size={16} className="text-violet-400" />;
+      case "saglik_psikoloji":      return <Activity size={16} className="text-rose-400" />;
+      case "sosyal_anlar":          return <Zap size={16} className="text-yellow-400" />;
+      default:                      return <MessageSquare size={16} className="text-indigo-400" />;
     }
   }
 
   function getCategoryLabel(category: string) {
     switch (category) {
-      case "is_kariyer":
-        return "İş / Kariyer";
-      case "flort_iliski":
-        return "Flört / İlişki";
-      case "aile_arkadas":
-        return "Aile / Arkadaş";
-      case "para_pazarlik":
-        return "Para / Pazarlık";
-      case "egitim_okul":
-        return "Eğitim / Okul";
-      case "gunluk_yasam":
-        return "Günlük Yaşam / Komşuluk";
-      case "sosyal_medya_dijital":
-        return "Dijital / Sosyal Medya";
-      default:
-        return "Zor Mesajlar";
+      case "is_kariyer":            return "İş / Kariyer";
+      case "flort_iliski":          return "Flört / İlişki";
+      case "aile_arkadas":          return "Aile / Arkadaş";
+      case "para_pazarlik":         return "Para / Pazarlık";
+      case "egitim_okul":           return "Eğitim / Okul";
+      case "gunluk_yasam":          return "Günlük Yaşam";
+      case "sosyal_medya_dijital":  return "Dijital / Sosyal";
+      case "saglik_psikoloji":      return "Sağlık & Psikoloji";
+      case "sosyal_anlar":          return "Sosyal Anlar";
+      default:                      return "Zor Mesajlar";
     }
   }
 
@@ -186,15 +190,17 @@ export function QuickStartGrid({ recommendedIds = [] }: { recommendedIds?: strin
   }
 
   const categoryTabs = [
-    { id: "all", label: "Tümü" },
-    { id: "is_kariyer", label: "İş / Kariyer" },
-    { id: "flort_iliski", label: "Flört" },
-    { id: "aile_arkadas", label: "Aile / Arkadaş" },
-    { id: "para_pazarlik", label: "Para / Pazarlık" },
-    { id: "egitim_okul", label: "Eğitim / Okul" },
-    { id: "gunluk_yasam", label: "Günlük Yaşam" },
+    { id: "all",                  label: "Tümü" },
+    { id: "is_kariyer",           label: "İş / Kariyer" },
+    { id: "flort_iliski",         label: "Flört" },
+    { id: "aile_arkadas",         label: "Aile / Arkadaş" },
+    { id: "para_pazarlik",        label: "Para / Pazarlık" },
+    { id: "zor_mesajlar",         label: "Zor Mesajlar" },
+    { id: "egitim_okul",          label: "Eğitim / Okul" },
+    { id: "gunluk_yasam",         label: "Günlük Yaşam" },
     { id: "sosyal_medya_dijital", label: "Dijital" },
-    { id: "zor_mesajlar", label: "Zor Mesajlar" },
+    { id: "saglik_psikoloji",     label: "Sağlık & Psikoloji" },
+    { id: "sosyal_anlar",         label: "Sosyal Anlar" },
   ];
 
   const currentCategoryKey = selectedTemplate?.category || "zor_mesajlar";

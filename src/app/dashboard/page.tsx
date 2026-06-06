@@ -396,9 +396,9 @@ export default async function DashboardPage() {
         <h2 className="mb-5 text-lg font-bold text-white">Kategoriye Göre Keşfet</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {CATEGORY_META.map((cat) => (
-            <a
+            <Link
               key={cat.id}
-              href={`#catalog-${cat.id}`}
+              href={`/dashboard?cat=${cat.id}#catalog`}
               className="group rounded-2xl border border-white/[0.07] bg-white/[0.04] p-4 transition-all duration-200 hover:border-white/15 hover:bg-white/[0.07]"
             >
               <div className="mb-3 flex items-center justify-between">
@@ -415,16 +415,16 @@ export default async function DashboardPage() {
               <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
                 {cat.desc}
               </p>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
 
       {/* ── Scenario Catalog ── */}
-      <div className="mb-2 flex items-center gap-2">
+      <div id="catalog" className="mb-2 flex items-center gap-2">
         <h2 className="text-lg font-bold text-white">Senaryo Kataloğu</h2>
         <span className="rounded-full bg-white/[0.06] px-2.5 py-0.5 text-[11px] font-bold text-slate-400">
-          126 senaryo
+          203 senaryo
         </span>
       </div>
       <p className="mb-6 text-sm text-slate-500">
