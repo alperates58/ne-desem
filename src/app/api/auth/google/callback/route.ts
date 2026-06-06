@@ -5,20 +5,22 @@ import { attachSession } from "@/lib/auth";
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get("code");
 
     if (!code) {
-      return NextResponse.redirect(new URL("/login?error=Google authentication failed.", request.url));
+      return NextResponse.redirect(new URL("/login?error=Google authentication failed.", baseUrl));
     }
 
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/auth/google/callback`;
+    const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
     if (!clientId || !clientSecret) {
-      return NextResponse.redirect(new URL("/login?error=Google credentials not configured.", request.url));
+      return NextResponse.redirect(new URL("/login?error=Google credentials not configured.", baseUrl));
     }
 
     // Exchange authorization code for access token
@@ -37,7 +39,7 @@ export async function GET(request: Request) {
     const tokenData = await tokenResponse.json();
     if (!tokenResponse.ok) {
       console.error("Google Token exchange failed:", tokenData);
-      return NextResponse.redirect(new URL("/login?error=Failed to exchange code.", request.url));
+      return NextResponse.redirect(new URL("/login?error=Failed to exchange code.", baseUrl));
     }
 
     const { access_token } = tokenData;
@@ -50,7 +52,7 @@ export async function GET(request: Request) {
     const userInfo = await userInfoResponse.json();
     if (!userInfoResponse.ok) {
       console.error("Failed to fetch user info from Google:", userInfo);
-      return NextResponse.redirect(new URL("/login?error=Failed to retrieve user info.", request.url));
+      return NextResponse.redirect(new URL("/login?error=Failed to retrieve user info.", baseUrl));
     }
 
     const email = userInfo.email.toLocaleLowerCase("tr-TR");
@@ -94,10 +96,10 @@ export async function GET(request: Request) {
     }
 
     // Attach custom session cookie and redirect to dashboard
-    const response = NextResponse.redirect(new URL("/dashboard", request.url));
+    const response = NextResponse.redirect(new URL("/dashboard", baseUrl));
     return await attachSession(response, user.id);
   } catch (error) {
     console.error("Google Auth Callback Error:", error);
-    return NextResponse.redirect(new URL("/login?error=Internal server error during authentication.", request.url));
+    return NextResponse.redirect(new URL("/login?error=Internal server error during authentication.", baseUrl));
   }
 }
