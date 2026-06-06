@@ -806,8 +806,10 @@ export function ContextWizard({
     setStep((value) => value + 1);
   }
 
-  // Get current active step suggestions
-  const currentStepSuggestions = selectedCategory ? (STEP_SUGGESTIONS[selectedCategory]?.[current?.key] || []) : [];
+  // Get current active step suggestions — only show when starting from scratch (no template active)
+  const currentStepSuggestions = selectedCategory && !activeTemplate
+    ? (STEP_SUGGESTIONS[selectedCategory]?.[current?.key] || [])
+    : [];
 
   // -------------------------------------------------------------
   // MODE 0: Category Selection Screen First (Sequential layout)
