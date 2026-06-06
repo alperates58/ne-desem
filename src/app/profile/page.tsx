@@ -1,15 +1,42 @@
 import { AppShell } from "@/components/app-shell";
-import { ProfileForm } from "@/components/profile-form";
+import { ProfileView } from "@/components/profile-view";
 import { requireUser } from "@/lib/auth";
 import { getUserRemainingLimits } from "@/lib/limits";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProfilePage() {
+type ProfileProps = {
+  searchParams?: Promise<{ tab?: string; filter?: string; search?: string }>;
+};
+
+export default async function ProfilePage({ searchParams }: ProfileProps) {
   const user = await requireUser();
   const limits = await getUserRemainingLimits(user.id);
+  const params = (await searchParams) || {};
+  const activeTab = params.tab || "info";
+  const filter = params.filter || "all";
+  const search = params.search?.trim() || "";
 
-  // Cast user data to a standard format for safety
+  // Query matching simulations for the user
+  const simulations = await prisma.simulation.findMany({
+    where: {
+      userId: user.id,
+      ...(filter === "favorites" ? { isFavorite: true } : {}),
+      ...(filter !== "all" && filter !== "favorites" ? { status: filter as never } : {}),
+      ...(search
+        ? {
+            OR: [
+              { title: { contains: search, mode: "insensitive" } },
+              { scenario: { contains: search, mode: "insensitive" } },
+              { category: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : {}),
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
   const userData = {
     id: user.id,
     name: user.name,
@@ -21,7 +48,14 @@ export default async function ProfilePage() {
 
   return (
     <AppShell user={user}>
-      <ProfileForm user={userData} limits={limits} />
+      <ProfileView
+        user={userData}
+        limits={limits}
+        simulations={simulations}
+        defaultTab={activeTab}
+        initialFilter={filter}
+        initialSearch={search}
+      />
     </AppShell>
   );
 }
