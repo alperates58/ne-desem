@@ -620,8 +620,10 @@ export function ContextWizard({
 
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
     if (activeTemplate) return activeTemplate.category;
-    return "zor_mesajlar";
+    return ""; // Empty by default for custom setup to enforce category screen first
   });
+
+  const [categorySelected, setCategorySelected] = useState<boolean>(!!templateId);
 
   const [context, setContext] = useState<MessageContext>(() => {
     const defaultContext = getInitialContextForCategory(
@@ -645,7 +647,7 @@ export function ContextWizard({
   // Use a mode toggle to let template users customize single-page or launch instantly
   const [isCustomizingTemplate, setIsCustomizingTemplate] = useState(false);
 
-  const steps = getStepsForCategory(selectedCategory);
+  const steps = getStepsForCategory(selectedCategory || "zor_mesajlar");
   const current = steps[step];
   const isLast = step === steps.length - 1;
 
@@ -724,7 +726,68 @@ export function ContextWizard({
   }
 
   // Get current active step suggestions
-  const currentStepSuggestions = STEP_SUGGESTIONS[selectedCategory]?.[current?.key] || [];
+  const currentStepSuggestions = selectedCategory ? (STEP_SUGGESTIONS[selectedCategory]?.[current?.key] || []) : [];
+
+  // -------------------------------------------------------------
+  // MODE 0: Category Selection Screen First (Sequential layout)
+  // -------------------------------------------------------------
+  if (!categorySelected) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
+        <div className="text-center space-y-2 mb-8">
+          <p className="text-sm font-semibold uppercase tracking-wider text-violet-300">Yeni Simülasyon</p>
+          <h1 className="text-3xl font-black text-white">Hangi konuda prova yapmak istersin?</h1>
+          <p className="text-sm text-slate-400">Zor konuşmaları güvenli bir ortamda prova etmek için bir alan seçin.</p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => {
+                if (category.active && !pending) {
+                  setSelectedCategory(category.id);
+                  setContext(getInitialContextForCategory(category.id));
+                  setStep(0);
+                  setError("");
+                  setCategorySelected(true);
+                }
+              }}
+              type="button"
+              className={`text-left rounded-3xl border p-5 transition-all duration-300 ${
+                category.active
+                  ? "border-white/10 bg-slate-950/60 hover:border-violet-300 hover:bg-violet-400/[0.03] hover:-translate-y-0.5 cursor-pointer shadow-lg"
+                  : "border-white/5 bg-slate-950/20 opacity-40 cursor-not-allowed"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-base font-bold text-white mb-1">{category.title}</h3>
+                  <p className="text-xs leading-5 text-slate-400">{category.description}</p>
+                </div>
+                {category.active ? (
+                  <div className="rounded-xl bg-violet-500/10 p-2 text-violet-300 border border-violet-500/20">
+                    <MessageSquareText size={18} />
+                  </div>
+                ) : (
+                  <span className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5 text-[9px] text-slate-300">
+                    <Lock size={10} /> Yakında
+                  </span>
+                )}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {category.examples.map((example) => (
+                  <span key={example} className="rounded-full bg-white/5 border border-white/5 px-2.5 py-1 text-[10px] text-slate-400">
+                    {example}
+                  </span>
+                ))}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // -------------------------------------------------------------
   // MODE A: Using a Predefined Template (Quick Review & Launch)
@@ -962,56 +1025,32 @@ export function ContextWizard({
   }
 
   // -------------------------------------------------------------
-  // MODE C: Custom Simulation Setup (Step-by-step with recommendations)
+  // MODE C: Custom Simulation Setup (Step-by-step questions only)
   // -------------------------------------------------------------
   return (
-    <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] items-start animate-in fade-in duration-300">
-      {/* Left Side: Category Picker + Step suggestions */}
-      <section className="space-y-6">
-        {/* Category List */}
-        <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5">
-          <p className="text-sm font-semibold text-violet-200">Kategori seçimi</p>
-          <div className="mt-4 grid gap-2">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => {
-                  if (category.active && !pending) {
-                    setSelectedCategory(category.id);
-                    setContext(getInitialContextForCategory(category.id));
-                    setStep(0);
-                    setError("");
-                  }
-                }}
-                type="button"
-                className={`w-full text-left rounded-2xl border p-3.5 transition-all duration-300 ${
-                  category.active
-                    ? category.id === selectedCategory
-                      ? "border-violet-300 bg-violet-400/20 ring-1 ring-violet-400/30 shadow-md shadow-violet-950/20"
-                      : "border-white/5 bg-slate-950/40 hover:bg-violet-400/5 cursor-pointer"
-                    : "border-white/5 bg-slate-950/20 opacity-40 cursor-not-allowed"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3 text-xs">
-                  <div>
-                    <h3 className="font-bold text-white">{category.title}</h3>
-                  </div>
-                  {category.active ? (
-                    <MessageSquareText className="text-violet-200" size={14} />
-                  ) : (
-                    <span className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[9px] text-slate-300">
-                      <Lock size={8} /> Yakında
-                    </span>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
+    <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] items-start animate-in fade-in duration-300">
+      {/* Left Side: Dynamic Suggestion Chips / Back to Category selection */}
+      <section className="space-y-4">
+        {/* Active Category Indicator with Back Button */}
+        <div className="rounded-3xl border border-white/10 bg-slate-950/80 p-5 shadow-lg">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Aktif Kategori</p>
+          <h2 className="text-lg font-black text-white mt-1">
+            {categories.find(c => c.id === selectedCategory)?.title || selectedCategory}
+          </h2>
+          {!templateId && (
+            <button
+              type="button"
+              onClick={() => setCategorySelected(false)}
+              className="mt-3 inline-flex items-center gap-1.5 text-xs text-violet-300 hover:text-white font-semibold transition"
+            >
+              ← Kategori Değiştir
+            </button>
+          )}
         </div>
 
         {/* Dynamic Context Suggestions Card */}
         {currentStepSuggestions.length > 0 && (
-          <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-5 shadow-xl animate-in slide-in-from-bottom duration-300">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-5 shadow-xl animate-in slide-in-from-bottom duration-300">
             <h3 className="text-xs font-bold text-violet-300 uppercase tracking-widest flex items-center gap-1.5 mb-3">
               <Sparkles size={14} /> Hızlı Öneri / Örnekler
             </h3>
@@ -1092,8 +1131,14 @@ export function ContextWizard({
           <button
             type="button"
             className="rounded-xl border border-white/10 px-5 py-2.5 text-xs font-semibold text-slate-300 disabled:opacity-40"
-            disabled={step === 0 || pending}
-            onClick={() => setStep((value) => Math.max(0, value - 1))}
+            disabled={pending}
+            onClick={() => {
+              if (step === 0) {
+                setCategorySelected(false);
+              } else {
+                setStep((value) => Math.max(0, value - 1));
+              }
+            }}
           >
             Geri
           </button>
