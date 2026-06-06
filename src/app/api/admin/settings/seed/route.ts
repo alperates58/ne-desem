@@ -14,6 +14,7 @@ export async function POST() {
       { name: "Silver", price: 99, monthlyLimit: 15 },
       { name: "Gold", price: 199, monthlyLimit: 40 },
       { name: "Premium", price: 399, monthlyLimit: 100 },
+      { name: "Sınırsız", price: 599, monthlyLimit: 99999 },
     ];
 
     const seededTiers = [];
