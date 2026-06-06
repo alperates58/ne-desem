@@ -674,9 +674,6 @@ export function ContextWizard({
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
-  // Use a mode toggle to let template users customize single-page or launch instantly
-  const [isCustomizingTemplate, setIsCustomizingTemplate] = useState(false);
-
   const steps = getStepsForCategory(selectedCategory || "zor_mesajlar");
   const current = steps[step];
   const isLast = step === steps.length - 1;
@@ -709,29 +706,6 @@ export function ContextWizard({
       setPending(false);
       setError("Bağlantı hatası oluştu.");
     }
-  }
-
-  function handleInstantLaunch() {
-    if (remainingLimits <= 0) {
-      setError("Aylık simülasyon limitinize ulaştınız.");
-      return;
-    }
-    if (activeTemplate) {
-      const finalCtx = {
-        ...activeTemplate.context,
-        ...(initialPersonality ? { otherPersonPersonality: initialPersonality } : {}),
-      };
-      void submit(finalCtx);
-    }
-  }
-
-  function handleQuickFormSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (remainingLimits <= 0) {
-      setError("Aylık simülasyon limitinize ulaştınız.");
-      return;
-    }
-    void submit();
   }
 
   function onStepSubmit(event: FormEvent<HTMLFormElement>) {
@@ -884,7 +858,7 @@ export function ContextWizard({
                   ...template.context,
                 });
                 setCategorySelected(true);
-                setIsCustomizingTemplate(false);
+                setStep(0);
                 setError("");
               }}
               type="button"
@@ -916,289 +890,41 @@ export function ContextWizard({
   }
 
   // -------------------------------------------------------------
-  // MODE A: Using a Predefined Template (Quick Review & Launch)
-  // -------------------------------------------------------------
-  if (activeTemplate && !isCustomizingTemplate) {
-    return (
-      <div className="grid gap-6 lg:grid-cols-[1fr_1fr] items-start animate-in fade-in duration-300">
-        {/* Left Side: Template details & Instant Launch */}
-        <section className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 flex flex-col justify-between min-h-[420px] shadow-2xl">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-violet-300 bg-violet-500/10 px-3 py-1 rounded-full border border-violet-500/20">
-                Hazır Senaryo Şablonu
-              </span>
-              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                activeTemplate.difficulty === "Kolay" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                activeTemplate.difficulty === "Orta" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                "bg-rose-500/10 text-rose-400 border-rose-500/20"
-              }`}>
-                {activeTemplate.difficulty}
-              </span>
-            </div>
-            
-            <h1 className="text-3xl font-black text-white leading-tight">{activeTemplate.title}</h1>
-            <p className="mt-3 text-slate-300 leading-relaxed text-sm">{activeTemplate.description}</p>
-
-            <div className="mt-6 space-y-2 border-t border-white/5 pt-4 text-xs text-slate-400">
-              <div className="flex justify-between">
-                <span>Muhatap:</span>
-                <span className="text-white font-bold">{context.otherPerson}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Karakter Tipi:</span>
-                <span className="text-white font-bold">{context.otherPersonPersonality}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Konuşma Tonu:</span>
-                <span className="text-white font-bold">{context.tone}</span>
-              </div>
-              {context.redLine && (
-                <div className="flex flex-col gap-1 mt-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                  <span className="text-[10px] uppercase font-bold text-violet-200">Kırmızı Çizgin:</span>
-                  <span className="text-white italic">"{context.redLine}"</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-8 space-y-3">
-            {remainingLimits <= 0 && (
-              <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-200 flex items-center gap-2">
-                <Lock size={14} className="shrink-0" />
-                <span>Mevcut limitiniz dolduğu için yeni simülasyon başlatamazsınız.</span>
-              </div>
-            )}
-
-            <button
-              onClick={handleInstantLaunch}
-              disabled={pending || remainingLimits <= 0}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-violet-300 hover:bg-violet-200 p-4 font-black text-slate-950 transition duration-200 shadow-lg shadow-violet-950/20 disabled:opacity-40"
-            >
-              {pending ? (
-                <span>Kuruluyor...</span>
-              ) : (
-                <>
-                  <Play size={16} fill="currentColor" />
-                  <span>Hemen Başlat (Hızlı Kurulum)</span>
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={() => setIsCustomizingTemplate(true)}
-              disabled={pending}
-              className="w-full text-center text-xs font-semibold text-violet-300 hover:text-white transition py-2"
-            >
-              Şablon Ayarlarını Özelleştirmek İstiyorum
-            </button>
-          </div>
-        </section>
-
-        {/* Right Side: Visual guidance/instructions */}
-        <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 flex flex-col justify-between min-h-[420px]">
-          <div>
-            <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-              <Sparkles size={18} className="text-violet-300" /> Yapay Zeka Koçu Önerisi
-            </h2>
-            <p className="text-xs text-slate-400 leading-relaxed mb-4">
-              Bu senaryo, ilgili durum için optimize edilmiş kurallarla tasarlanmıştır. AI antrenörünüz zorlu anlarda size alternatif cümleler sunarak yönlendirme yapacaktır.
-            </p>
-
-            <div className="space-y-3 mt-4">
-              <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-white/5 text-xs text-slate-300">
-                <span className="font-bold text-white block mb-1">💡 Karşı Karşıya Kalacağın İtirazlar</span>
-                Yapay zeka karşı tarafı canlandırırken hedefinizi zorlaştıracak gerçekçi itirazlar üretecek ve kırmızı çizginizi test edecektir.
-              </div>
-              <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-white/5 text-xs text-slate-300">
-                <span className="font-bold text-white block mb-1">🎯 Prova Kazanım Hedefi</span>
-                Görüşme sonundaki karnede Netlik, Empati, Özgüven ve Sınır Koyma becerileriniz üzerinden 100 üzerinden skor alacaksınız.
-              </div>
-            </div>
-          </div>
-
-          <div className="text-[11px] text-slate-500 text-center italic mt-6 border-t border-white/5 pt-4">
-            * "Hemen Başlat" tuşu ile doğrudan AI ile chat sayfasına yönlendirilirsiniz.
-          </div>
-        </section>
-      </div>
-    );
-  }
-
-  // -------------------------------------------------------------
-  // MODE B: Customize Predefined Template (Single-Page Form)
-  // -------------------------------------------------------------
-  if (activeTemplate && isCustomizingTemplate) {
-    return (
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] items-start animate-in fade-in duration-300">
-        {/* Left Side: Template Info */}
-        <section className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl">
-          <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-            <Zap size={18} className="text-violet-300" /> Şablon Özelleştirme
-          </h2>
-          <p className="text-xs text-slate-400 leading-relaxed mb-4">
-            Şablondaki başlangıç mesajını, karşı taraf kişiliğini ve sınırlarınızı kendinize göre güncelleyin.
-          </p>
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3 text-xs text-slate-300">
-            <div>
-              <span className="font-bold text-white block">Başlık:</span>
-              {activeTemplate.title}
-            </div>
-            <div>
-              <span className="font-bold text-white block">Senaryo Detayı:</span>
-              {activeTemplate.description}
-            </div>
-          </div>
-
-          <button
-            onClick={() => setIsCustomizingTemplate(false)}
-            className="w-full text-center text-xs font-semibold text-slate-400 hover:text-white transition mt-6 py-2"
-          >
-            ← Şablon Detayına Geri Dön
-          </button>
-        </section>
-
-        {/* Right Side: Single-Page Review Form */}
-        <form
-          onSubmit={handleQuickFormSubmit}
-          className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl space-y-4"
-        >
-          {remainingLimits <= 0 && (
-            <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-200 flex items-center gap-2">
-              <Lock size={14} className="shrink-0" />
-              <span>Limit aşımı nedeniyle başlatamazsınız.</span>
-            </div>
-          )}
-
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-violet-200">Gelen Mesaj / Durum Açıklaması</label>
-            <textarea
-              className="w-full min-h-24 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-relaxed outline-none focus:border-violet-300"
-              value={context.incomingMessage}
-              onChange={(e) => update("incomingMessage", e.target.value)}
-              required
-            />
-            {selectedCategory && STEP_SUGGESTIONS[selectedCategory]?.incomingMessage && (
-              <div className="mt-2 space-y-1">
-                <span className="text-[10px] font-bold text-slate-500 block uppercase">Önerilen Başlangıç Mesajları:</span>
-                <div className="flex flex-wrap gap-1.5 mt-1">
-                  {activeTemplate && activeTemplate.context.incomingMessage !== context.incomingMessage && (
-                    <button
-                      type="button"
-                      onClick={() => update("incomingMessage", activeTemplate.context.incomingMessage)}
-                      className="rounded-xl bg-violet-500/10 border border-violet-500/30 px-2.5 py-1 text-[10px] font-semibold text-violet-300 hover:bg-violet-500/20 transition"
-                    >
-                      Şablon Varsayılanına Dön
-                    </button>
-                  )}
-                  {STEP_SUGGESTIONS[selectedCategory].incomingMessage.map((msg) => (
-                    <button
-                      key={msg}
-                      type="button"
-                      onClick={() => update("incomingMessage", msg)}
-                      className="text-left rounded-xl bg-white/5 border border-white/5 px-2.5 py-1 text-[10px] text-slate-300 hover:bg-white/10 hover:text-white transition"
-                    >
-                      {msg}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-violet-200">Karşı Taraf (Kim?)</label>
-              <select
-                className="w-full rounded-2xl border border-white/10 bg-slate-900 p-3 text-xs outline-none focus:border-violet-300"
-                value={context.otherPerson}
-                onChange={(e) => update("otherPerson", e.target.value)}
-              >
-                {getStepsForCategory(selectedCategory).find(s => s.key === "otherPerson")?.options?.map(o => (
-                  <option key={o} value={o}>{o}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-violet-200">Kişilik Tarzı</label>
-              <select
-                className="w-full rounded-2xl border border-white/10 bg-slate-900 p-3 text-xs outline-none focus:border-violet-300"
-                value={context.otherPersonPersonality}
-                onChange={(e) => update("otherPersonPersonality", e.target.value)}
-              >
-                {getStepsForCategory(selectedCategory).find(s => s.key === "otherPersonPersonality")?.options?.map(o => (
-                  <option key={o} value={o}>{o}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-violet-200">İletişim Tonunuz</label>
-              <select
-                className="w-full rounded-2xl border border-white/10 bg-slate-900 p-3 text-xs outline-none focus:border-violet-300"
-                value={context.tone}
-                onChange={(e) => update("tone", e.target.value)}
-              >
-                {getStepsForCategory(selectedCategory).find(s => s.key === "tone")?.options?.map(o => (
-                  <option key={o} value={o}>{o}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-violet-200">Kırmızı Çizginiz</label>
-              <input
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs outline-none focus:border-violet-300"
-                value={context.redLine}
-                onChange={(e) => update("redLine", e.target.value)}
-                placeholder="Taviz vermek istemediğiniz nokta..."
-              />
-            </div>
-          </div>
-
-          {error && <p className="text-xs text-rose-300">{error}</p>}
-
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={pending || remainingLimits <= 0}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-violet-300 hover:bg-violet-200 p-4 font-black text-slate-950 transition duration-200 shadow-lg shadow-violet-950/20 disabled:opacity-40"
-            >
-              {pending ? "Hazırlanıyor..." : "Özelleştirilmiş Simülasyonu Başlat"}
-              <ArrowRight size={16} />
-            </button>
-          </div>
-        </form>
-      </div>
-    );
-  }
-
-  // -------------------------------------------------------------
-  // MODE C: Custom Simulation Setup (Step-by-step questions only)
+  // Custom Simulation Setup (Step-by-step questions only)
   // -------------------------------------------------------------
   return (
     <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] items-start animate-in fade-in duration-300">
       {/* Left Side: Dynamic Suggestion Chips / Back to Category selection */}
       <section className="space-y-4">
-        {/* Active Category Indicator with Back Button */}
+        {/* Active Category / Template Indicator with Back Button */}
         <div className="rounded-3xl border border-white/10 bg-slate-950/80 p-5 shadow-lg">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Aktif Kategori</p>
-          <h2 className="text-lg font-black text-white mt-1">
-            {categories.find(c => c.id === selectedCategory)?.title || selectedCategory}
-          </h2>
+          {activeTemplate ? (
+            <>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Aktif Senaryo Şablonu</p>
+              <h2 className="text-lg font-black text-white mt-1">
+                {activeTemplate.title}
+              </h2>
+              <p className="text-[11px] text-slate-400 mt-1">{activeTemplate.description}</p>
+            </>
+          ) : (
+            <>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Aktif Kategori</p>
+              <h2 className="text-lg font-black text-white mt-1">
+                {categories.find(c => c.id === selectedCategory)?.title || selectedCategory}
+              </h2>
+            </>
+          )}
           {!templateId && (
             <button
               type="button"
               onClick={() => {
                 setCategorySelected(false);
                 setSelectedCategory("");
+                setActiveTemplate(null);
               }}
               className="mt-3 inline-flex items-center gap-1.5 text-xs text-violet-300 hover:text-white font-semibold transition"
             >
-              ← Kategori Değiştir
+              {activeTemplate ? "← Şablonu Değiştir" : "← Kategori Değiştir"}
             </button>
           )}
         </div>
