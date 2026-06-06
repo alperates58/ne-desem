@@ -16,6 +16,7 @@ import {
   Home,
   Share2,
   Activity,
+  Zap,
 } from "lucide-react";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -148,6 +149,17 @@ const CATEGORY_META = [
     color: "text-violet-400",
     bg: "bg-violet-500/10",
     border: "border-violet-500/15",
+  },
+  {
+    id: "sosyal_anlar",
+    label: "Sosyal Anlar",
+    emoji: "⚡",
+    desc: "Berber, taksi, kuyruk, toplantı",
+    count: 15,
+    Icon: Zap,
+    color: "text-yellow-400",
+    bg: "bg-yellow-500/10",
+    border: "border-yellow-500/15",
   },
 ];
 

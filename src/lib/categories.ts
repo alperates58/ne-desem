@@ -72,6 +72,13 @@ export const categories: Category[] = [
     examples: ["Terapiye başladığını söyleme", "Burnout izni isteme", "Bağımlılığı konuşma"],
     active: true,
   },
+  {
+    id: "sosyal_anlar",
+    title: "Sosyal Anlar",
+    description: "Berberde, takside, kuyrukta, toplantıda — donup kaldığın o küçük ama sinir bozucu anlara hazırlan.",
+    examples: ["Berbere beğenmedim demek", "Sıra atlayana söylemek", "Tavsiye yağmurunu durdurmak"],
+    active: true,
+  },
 ];
 
 export const contextFieldLabels: Record<keyof Omit<MessageContext, "aiOpeningMessage" | "simulationBrief">, string> = {
