@@ -52,15 +52,16 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Section */}
-      <div className="mb-10 grid gap-3 sm:grid-cols-3">
+      <div className="mb-10 grid gap-4 sm:grid-cols-3">
         {[
-          ["Toplam Prova", stats.total],
-          ["Tamamlanan", stats.completed],
-          ["Ortalama Skor", stats.average || "-"],
-        ].map(([label, value]) => (
-          <div key={label as string} className="rounded-3xl border border-white/10 bg-white/[0.06] p-5">
-            <p className="text-xs text-slate-400">{label}</p>
-            <p className="mt-2 text-3xl font-black text-white">{value}</p>
+          ["Başlatılan Prova", stats.total, "Toplam denediğiniz senaryo sayısı"],
+          ["Tamamlanan Prova", stats.completed, "Sonuca ulaştırılan simülasyonlar"],
+          ["Ortalama Skor", stats.average || "-", "Değerlendirilen provaların ortalaması"],
+        ].map(([label, value, desc]) => (
+          <div key={label as string} className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-lg">
+            <p className="text-xs font-bold text-violet-300 uppercase tracking-wider">{label}</p>
+            <p className="mt-2 text-4xl font-black text-white">{value}</p>
+            <p className="mt-2 text-[10px] text-slate-400">{desc}</p>
           </div>
         ))}
       </div>

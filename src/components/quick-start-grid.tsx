@@ -13,6 +13,8 @@ import {
   Search,
   X,
   UserCheck,
+  GraduationCap,
+  Home,
 } from "lucide-react";
 import { templates, type SimulationTemplate } from "@/lib/templates";
 
@@ -50,6 +52,18 @@ const PERSONALITY_OPTIONS: Record<string, Array<{ value: string; label: string; 
     { value: "Pasif-Agresif / İğneleyici", label: "Pasif-Agresif / İğneleyici", desc: "İmalarla konuşmayı zorlaştırır.", emoji: "🟡" },
     { value: "Soğuk ve Mesafeli", label: "Soğuk ve Mesafeli", desc: "İletişimi asgari düzeyde tutar.", emoji: "❄️" },
     { value: "Duygusal ve Hassas", label: "Duygusal ve Hassas", desc: "Alınganlık gösterir.", emoji: "❤️" },
+  ],
+  egitim_okul: [
+    { value: "Otoriter / Sert Hoca", label: "Otoriter / Sert Hoca", desc: "Kurallara bağlıdır, mazeret kabul etmez ve oldukça mesafelidir.", emoji: "👨‍🏫" },
+    { value: "Anlayışlı ve Yapıcı", label: "Anlayışlı ve Yapıcı", desc: "Öğrencilere değer verir, mantıklı akademik itirazları dinler.", emoji: "👩‍🎓" },
+    { value: "Gamsız / Sorumsuz Arkadaş", label: "Gamsız / Sorumsuz Arkadaş", desc: "Grup ödevlerinde sorumluluk almaz, mesajları çok geç yanıtlar.", emoji: "😴" },
+    { value: "Rekabetçi ve Hırslı", label: "Rekabetçi ve Hırslı", desc: "Sadece yüksek not odaklıdır, yoğun bir başarı baskısı kurar.", emoji: "📈" },
+  ],
+  gunluk_yasam: [
+    { value: "Gürültücü / İnatçı", label: "Gürültücü / İnatçı", desc: "Rahatsızlık verdiğini kesinlikle kabul etmez, hemen savunmaya geçer.", emoji: "🔊" },
+    { value: "Yoğun / İşi Geciktiren", label: "Yoğun / İşi Geciktiren", desc: "Sürekli işi erteler, bahaneler üretir ve telefonları açmaz.", emoji: "🔧" },
+    { value: "Anlayışlı / Uzlaşmacı", label: "Anlayışlı / Uzlaşmacı", desc: "Komşuluk ilişkilerine değer verir, sorunu uzlaşarak çözmek ister.", emoji: "🤝" },
+    { value: "Pasif-Agresif Komşu", label: "Pasif-Agresif Komşu", desc: "Sorunları doğrudan konuşmaz, kapıya imalı notlar bırakır.", emoji: "📝" },
   ],
 };
 
@@ -120,8 +134,12 @@ export function QuickStartGrid() {
         return <Users size={16} className="text-purple-400" />;
       case "para_pazarlik":
         return <Coins size={16} className="text-emerald-400" />;
+      case "egitim_okul":
+        return <GraduationCap size={16} className="text-cyan-400" />;
+      case "gunluk_yasam":
+        return <Home size={16} className="text-amber-400" />;
       default:
-        return <MessageSquare size={16} className="text-amber-400" />;
+        return <MessageSquare size={16} className="text-indigo-400" />;
     }
   }
 
@@ -135,6 +153,10 @@ export function QuickStartGrid() {
         return "Aile / Arkadaş";
       case "para_pazarlik":
         return "Para / Pazarlık";
+      case "egitim_okul":
+        return "Eğitim / Okul";
+      case "gunluk_yasam":
+        return "Günlük Yaşam / Komşuluk";
       default:
         return "Zor Mesajlar";
     }
@@ -157,6 +179,8 @@ export function QuickStartGrid() {
     { id: "flort_iliski", label: "Flört" },
     { id: "aile_arkadas", label: "Aile / Arkadaş" },
     { id: "para_pazarlik", label: "Para / Pazarlık" },
+    { id: "egitim_okul", label: "Eğitim / Okul" },
+    { id: "gunluk_yasam", label: "Günlük Yaşam" },
     { id: "zor_mesajlar", label: "Zor Mesajlar" },
   ];
 
