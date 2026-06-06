@@ -1,25 +1,45 @@
 import { prisma } from "@/lib/prisma";
-import { Users, Play, CheckCircle2, Shield } from "lucide-react";
+import { Users, Play, CheckCircle2, Shield, Clock, UserPlus, Eye } from "lucide-react";
+import { formatDate } from "@/lib/status";
+import { getCategoryLabel } from "@/lib/categories";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const [totalUsers, totalSimulations, completedSimulations, inProgressSimulations, tiers] =
-    await Promise.all([
-      prisma.user.count(),
-      prisma.simulation.count(),
-      prisma.simulation.count({ where: { status: { in: ["completed", "outcome_added"] } } }),
-      prisma.simulation.count({ where: { status: "in_progress" } }),
-      prisma.membershipTier.findMany({
-        include: { _count: { select: { users: true } } },
-      }),
-    ]);
+  const [
+    totalUsers,
+    totalSimulations,
+    completedSimulations,
+    inProgressSimulations,
+    tiers,
+    recentUsers,
+    recentSimulations,
+  ] = await Promise.all([
+    prisma.user.count(),
+    prisma.simulation.count(),
+    prisma.simulation.count({ where: { status: { in: ["completed", "outcome_added"] } } }),
+    prisma.simulation.count({ where: { status: "in_progress" } }),
+    prisma.membershipTier.findMany({
+      include: { _count: { select: { users: true } } },
+    }),
+    prisma.user.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      include: { membershipTier: true },
+    }),
+    prisma.simulation.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      include: { user: true },
+    }),
+  ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-black text-white">Sistem İstatistikleri</h1>
-        <p className="text-sm text-slate-400">Genel sistem verileri ve üyelik dağılımı</p>
+        <p className="text-sm text-slate-400">Genel sistem verileri ve canlı aktivite akışı</p>
       </div>
 
       {/* Analytics Cards Grid */}
@@ -67,6 +87,87 @@ export default async function AdminDashboardPage() {
             <span className="text-xl font-bold text-white">{inProgressSimulations}</span>
           </div>
         </div>
+      </div>
+
+      {/* Main Activity Feeds Layout */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Recent Registered Users Feed */}
+        <section className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-xl flex flex-col justify-between">
+          <div>
+            <h2 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+              <UserPlus size={18} className="text-violet-400" /> Son Kaydolan Üyeler
+            </h2>
+            <div className="space-y-3">
+              {recentUsers.length === 0 ? (
+                <p className="text-xs text-slate-500 italic">Kayıtlı üye bulunmuyor.</p>
+              ) : (
+                recentUsers.map((u) => (
+                  <div
+                    key={u.id}
+                    className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 text-xs"
+                  >
+                    <div>
+                      <span className="font-bold text-slate-200 block">{u.name}</span>
+                      <span className="text-[10px] text-slate-400 block">{u.email}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-block px-2 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20 text-[9px] font-semibold uppercase">
+                        {u.membershipTier?.name || "Varsayılan Plan"}
+                      </span>
+                      <span className="block text-[10px] text-slate-500 mt-1">{formatDate(u.createdAt)}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-white/5 text-right">
+            <Link
+              href="/admin/users"
+              className="text-xs font-semibold text-violet-300 hover:text-violet-200 inline-flex items-center gap-1"
+            >
+              Tüm Kullanıcıları Yönet <Eye size={12} />
+            </Link>
+          </div>
+        </section>
+
+        {/* Recent Provas Feed */}
+        <section className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-xl flex flex-col justify-between">
+          <div>
+            <h2 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+              <Clock size={18} className="text-fuchsia-400" /> Son Prova Seansları
+            </h2>
+            <div className="space-y-3">
+              {recentSimulations.length === 0 ? (
+                <p className="text-xs text-slate-500 italic">Başlatılmış prova bulunmuyor.</p>
+              ) : (
+                recentSimulations.map((sim) => (
+                  <div
+                    key={sim.id}
+                    className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 text-xs"
+                  >
+                    <div>
+                      <span className="font-bold text-slate-200 block truncate max-w-[200px]">{sim.title}</span>
+                      <span className="text-[10px] text-violet-300 block">{getCategoryLabel(sim.category)}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="block text-[10px] text-slate-400">{sim.user.name}</span>
+                      <span className="text-[9px] text-slate-500 block mt-0.5">{formatDate(sim.createdAt)}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-white/5 text-right">
+            <Link
+              href="/admin/simulations"
+              className="text-xs font-semibold text-fuchsia-300 hover:text-fuchsia-200 inline-flex items-center gap-1"
+            >
+              Tüm Provaları İzle <Eye size={12} />
+            </Link>
+          </div>
+        </section>
       </div>
 
       {/* Subscription Tier Distribution */}

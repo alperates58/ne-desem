@@ -53,6 +53,8 @@ model Simulation {
   status          SimulationStatus    @default(in_progress)
   totalScore      Int?                @map("total_score")
   finalReportJson Json?               @map("final_report_json")
+  isFavorite      Boolean             @default(false) @map("is_favorite")
+  isPublic        Boolean             @default(false) @map("is_public")
   createdAt       DateTime            @default(now()) @map("created_at")
   updatedAt       DateTime            @updatedAt @map("updated_at")
   completedAt     DateTime?           @map("completed_at")

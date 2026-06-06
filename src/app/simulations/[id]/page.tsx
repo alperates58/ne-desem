@@ -7,6 +7,7 @@ import { contextFieldLabels } from "@/lib/categories";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/status";
+import { SimulationDetailActions } from "@/components/simulation-detail-actions";
 import type {
   FinalReport,
   MessageContext,
@@ -54,7 +55,12 @@ export default async function SimulationDetailPage({ params }: DetailPageProps) 
             )}
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
+          <SimulationDetailActions
+            id={simulation.id}
+            initialFavorite={simulation.isFavorite}
+            initialPublic={simulation.isPublic}
+          />
           {simulation.status === "in_progress" && (
             <Link className="rounded-2xl bg-violet-300 px-4 py-3 font-bold text-slate-950" href={`/simulations/${simulation.id}/play`}>
               Devam et

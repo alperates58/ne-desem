@@ -20,7 +20,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   const simulations = await prisma.simulation.findMany({
     where: {
       userId: user.id,
-      ...(filter !== "all" ? { status: filter as never } : {}),
+      ...(filter === "favorites" ? { isFavorite: true } : {}),
+      ...(filter !== "all" && filter !== "favorites" ? { status: filter as never } : {}),
       ...(search
         ? {
             OR: [
@@ -98,6 +99,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             defaultValue={filter}
           >
             <option value="all">Tümü</option>
+            <option value="favorites">Favorilerim</option>
             <option value="completed">Tamamlanan</option>
             <option value="in_progress">Devam eden</option>
             <option value="outcome_added">Sonuç yazılan</option>
