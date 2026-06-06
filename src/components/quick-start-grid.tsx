@@ -75,7 +75,7 @@ const PERSONALITY_OPTIONS: Record<string, Array<{ value: string; label: string; 
   ],
 };
 
-export function QuickStartGrid() {
+export function QuickStartGrid({ recommendedIds = [] }: { recommendedIds?: string[] }) {
   const router = useRouter();
   
   // Navigation & Search State
@@ -234,69 +234,97 @@ export function QuickStartGrid() {
 
       {/* Templates Grid with dynamic scrolling visibility */}
       {filteredTemplates.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] py-12 text-center">
-          <p className="text-slate-400 text-sm">Aradığın kritere uygun senaryo bulunamadı.</p>
+        <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] py-16 text-center">
+          <p className="text-2xl mb-2">🔍</p>
+          <p className="text-sm font-semibold text-slate-300">Sonuç bulunamadı</p>
+          <p className="mt-1 text-xs text-slate-500">Farklı bir kategori veya arama terimi dene.</p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredTemplates.slice(0, visibleCount).map((template) => (
-            <button
-              key={template.id}
-              onClick={() => handleCardClick(template)}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-violet-400/30 hover:bg-white/[0.07] hover:shadow-xl hover:shadow-violet-950/20"
-            >
-              {/* Top row */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 rounded-2xl bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-slate-300">
-                  {getCategoryIcon(template.category)}
-                  <span>{getCategoryLabel(template.category)}</span>
+          {filteredTemplates.slice(0, visibleCount).map((template, idx) => {
+            const isRecommended = recommendedIds.includes(template.id);
+            const isProactive = template.context.initiatedBy === "user";
+            const isNew = idx >= filteredTemplates.length - 12;
+
+            return (
+              <button
+                key={template.id}
+                onClick={() => handleCardClick(template)}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-[1.75rem] border border-white/[0.08] bg-white/[0.04] p-5 text-left transition-all duration-250 hover:-translate-y-0.5 hover:border-violet-400/25 hover:bg-white/[0.07] hover:shadow-xl hover:shadow-violet-950/25"
+              >
+                {/* Top row */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {/* Category chip */}
+                    <div className="flex items-center gap-1.5 rounded-xl bg-white/[0.06] px-2.5 py-1.5 text-[11px] font-semibold text-slate-400">
+                      {getCategoryIcon(template.category)}
+                      <span>{getCategoryLabel(template.category)}</span>
+                    </div>
+                    {/* Badges */}
+                    {isRecommended && (
+                      <span className="rounded-xl border border-violet-500/25 bg-violet-500/10 px-2 py-1 text-[10px] font-bold text-violet-300">
+                        ✨ AI Önerisi
+                      </span>
+                    )}
+                    {isNew && !isRecommended && (
+                      <span className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] font-bold text-emerald-400">
+                        Yeni
+                      </span>
+                    )}
+                    {isProactive && (
+                      <span className="rounded-xl border border-indigo-500/20 bg-indigo-500/10 px-2 py-1 text-[10px] font-bold text-indigo-300">
+                        🚀 Sen Başlat
+                      </span>
+                    )}
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${getDifficultyStyle(
+                      template.difficulty
+                    )}`}
+                  >
+                    {template.difficulty}
+                  </span>
                 </div>
-                <span
-                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${getDifficultyStyle(
-                    template.difficulty
-                  )}`}
-                >
-                  {template.difficulty}
-                </span>
-              </div>
 
-              {/* Content */}
-              <div className="mt-5 flex-1">
-                <h3 className="text-lg font-bold text-white transition group-hover:text-violet-200">
-                  {template.title}
-                </h3>
-                <p className="mt-2 text-xs leading-5 text-slate-400 group-hover:text-slate-300">
-                  {template.description}
-                </p>
-              </div>
-
-              {/* Bottom row */}
-              <div className="mt-6 flex items-center justify-between border-t border-white/5 pt-4 text-xs font-semibold">
-                <span className="text-slate-500 group-hover:text-slate-400">
-                  Muhatap: {template.context.otherPerson}
-                </span>
-                <div className="flex items-center gap-1.5 text-violet-300 transition group-hover:text-violet-100">
-                  <Play size={12} fill="currentColor" />
-                  <span>Hemen Prova Et</span>
+                {/* Content */}
+                <div className="mt-4 flex-1">
+                  <h3 className="text-[15px] font-bold leading-snug text-white transition group-hover:text-violet-100">
+                    {template.title}
+                  </h3>
+                  <p className="mt-2 text-xs leading-[1.65] text-slate-500 transition group-hover:text-slate-400 line-clamp-2">
+                    {template.description}
+                  </p>
                 </div>
-              </div>
 
-              {/* Glow overlay */}
-              <div className="pointer-events-none absolute -right-20 -top-20 h-40 w-40 rounded-full bg-violet-500/10 blur-[50px] transition-all duration-500 group-hover:bg-violet-500/20 group-hover:blur-[60px]" />
-            </button>
-          ))}
+                {/* Bottom row */}
+                <div className="mt-5 flex items-center justify-between border-t border-white/[0.05] pt-4">
+                  <span className="text-[11px] font-medium text-slate-600">
+                    {template.context.otherPerson}
+                  </span>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-violet-400 transition group-hover:gap-2 group-hover:text-violet-300">
+                    <Play size={11} fill="currentColor" />
+                    Prova Et
+                  </div>
+                </div>
+
+                {/* Glow */}
+                <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-violet-500/[0.08] blur-[45px] opacity-0 transition-all duration-500 group-hover:opacity-100" />
+              </button>
+            );
+          })}
         </div>
       )}
 
       {/* Manual / Scroll indicator */}
       {filteredTemplates.length > visibleCount && (
-        <div className="flex justify-center pt-4">
+        <div className="flex flex-col items-center gap-2 pt-6">
           <button
             onClick={() => setVisibleCount((prev) => Math.min(prev + 6, filteredTemplates.length))}
-            className="rounded-full bg-white/5 border border-white/10 px-6 py-2.5 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition duration-200"
+            className="rounded-full border border-white/10 bg-white/[0.04] px-7 py-2.5 text-xs font-bold text-slate-300 transition hover:bg-white/[0.09] hover:text-white hover:-translate-y-px"
           >
-            Aşağı kaydır veya Daha Fazla Yükle
+            Daha Fazla Yükle ({filteredTemplates.length - visibleCount} senaryo)
           </button>
+          <p className="text-[11px] text-slate-600">veya sayfanın altına kaydır</p>
         </div>
       )}
 
