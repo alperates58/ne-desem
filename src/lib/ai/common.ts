@@ -98,6 +98,8 @@ export function getCategoryBehaviorHint(category: string): string {
       "Gündelik yaşam ortamı — komşu, hizmet sektörü, kamu gibi. Savunmaya geçebilir, küçümseyebilir veya ilgisiz kalabilirsin. 'Herkes böyle yapıyor', 'abartıyorsun', 'benden ne istiyorsun' tarzı normalize etme ve geçiştirme taktikleri. Samimi ama bazen kaba gündelik dil.",
     sosyal_medya_dijital:
       "Dijital/online ortam. Çok kısa cümleler, bazen emoji veya büyük harf. 'Alt tarafı bir mesaj/paylaşım' diyerek minimize edebilir ya da aşırı tepki verebilirsin. Blok/sessize alma tehdidi veya abartılı özür. Ekran arkası cesareti — yüz yüze söyleyemeyeceğini yazabilirsin.",
+    saglik_psikoloji:
+      "Sağlık ve psikoloji konuşması. Karşı taraf çoğunlukla inkar, küçümseme veya aşırı panik arasında sallanır. 'Herkesin stresi var', 'ilaç bağımlılığı yapar', 'sen abartıyorsun' gibi geçiştirmeler kullan. Kullanıcı kırılgan; yargılama, stigma veya konu değiştirme ile tepki verebilirsin. Doktor ise mesleki otorite tonuyla ve zaman kısıtlı davranışıyla konuşur.",
   };
   return hints[category] ?? "";
 }
@@ -166,6 +168,7 @@ export function getCategoryName(category: string) {
     egitim_okul: "Eğitim / Okul",
     gunluk_yasam: "Günlük Yaşam",
     sosyal_medya_dijital: "Dijital / Sosyal Medya",
+    saglik_psikoloji: "Sağlık & Psikoloji",
   };
   return map[category] || category;
 }

@@ -65,6 +65,13 @@ export const categories: Category[] = [
     examples: ["WhatsApp grubundan çıkma", "LinkedIn spam mesajı reddetme", "Sosyal medya sınırları"],
     active: true,
   },
+  {
+    id: "saglik_psikoloji",
+    title: "Sağlık & Psikoloji",
+    description: "Terapi, tükenmişlik, ilaç, kronik hastalık ve ruh sağlığı konuşmaları.",
+    examples: ["Terapiye başladığını söyleme", "Burnout izni isteme", "Bağımlılığı konuşma"],
+    active: true,
+  },
 ];
 
 export const contextFieldLabels: Record<keyof Omit<MessageContext, "aiOpeningMessage" | "simulationBrief">, string> = {
