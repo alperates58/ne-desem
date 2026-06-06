@@ -784,4 +784,413 @@ export const templates: SimulationTemplate[] = [
       fear: "Ustanın tamamen işi bırakıp kaçması veya agresifleşmesi",
     },
   },
+  {
+    id: "ik-terfi-beklentisi",
+    title: "İK ile Terfi/Unvan Görüşmesi",
+    description: "Terfi döneminizin gelmesine rağmen sessiz kalan İK departmanı ile profesyonelce masaya oturun.",
+    category: "is_kariyer",
+    difficulty: "Zor",
+    context: {
+      incomingMessage: "Şu anki rolümde 2 yılı geride bıraktım ve üstlendiğim ek sorumluluklarla beraber unvan/kıdem artışı beklentimi paylaşmak istiyorum.",
+      otherPerson: "İK (İnsan Kaynakları)",
+      otherPersonPersonality: "Otoriter ve Sert",
+      difficultyReason: "Terfi ve unvan artışı talep etmek",
+      goal: "Kıdem/Unvan artışı almak",
+      tone: "Net ve kararlı",
+      replyLength: "Detaylı mesaj",
+      preserveRelationship: "Evet",
+      fear: "Şirkete bağlılığımın sorgulanması veya sürecin askıya alınması",
+      otherPersonAttitude: "Pazarlıkçı",
+      previouslyDiscussed: "Hayır, ilk kez açılacak",
+      redLine: "Aynı unvanla 6 ay daha devam etmeyi kabul edemem"
+    }
+  },
+  {
+    id: "burnout-bildirimi",
+    title: "Yöneticiden İş Yükü Düzenlemesi",
+    description: "Son dönemdeki aşırı iş yükü sebebiyle sağlığınızın etkilendiğini yöneticinize kırmadan ama net şekilde iletin.",
+    category: "is_kariyer",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Son 3 aydır akşamları ve hafta sonları da çalışmak durumunda kalıyorum. Bu iş yükü sürdürülebilir değil.",
+      otherPerson: "Yönetici / Müdür",
+      otherPersonPersonality: "Yoğun ve Dikkatsiz",
+      difficultyReason: "Tükenmişlik hissini ve iş yükü sınırını açıklamak",
+      goal: "İş yükünün azaltılması veya yeni bir görev dağılımı yapılması",
+      tone: "Yumuşak ama ciddi",
+      replyLength: "Detaylı mesaj",
+      preserveRelationship: "Evet",
+      fear: "İş stresine dayanıksız veya yetersiz olarak yaftalanmak",
+      otherPersonAttitude: "Savunmacı",
+      previouslyDiscussed: "Hayır, ilk kez açılacak",
+      redLine: "Haftalık 45 saatin üzerindeki fazla mesaileri kabul etmem"
+    }
+  },
+  {
+    id: "freelance-sure-talebi",
+    title: "Müşteriden Ek Süre İsteme",
+    description: "Son dakika çıkan teknik engeller yüzünden geciken teslimatı müşteriyi kaybetmeden erteleme provası yapın.",
+    category: "is_kariyer",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Entegrasyon aşamasında öngöremediğimiz bir API hatası aldık, projenin teslimini 3 gün ertelemek durumundayız.",
+      otherPerson: "Müşteri",
+      otherPersonPersonality: "Israrcı ve Zorlayıcı",
+      difficultyReason: "Gecikme için haklı bir gerekçe sunup ek süre almak",
+      goal: "Müşteri memnuniyetini bozmadan 3 günlük ek süre almak",
+      tone: "Profesyonel ve kibar",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      fear: "Güven kaybı yaşamak veya cezai şart uygulanması",
+      otherPersonAttitude: "Artışı kabul etmiyor",
+      previouslyDiscussed: "Hayır, ilk kez açılacak",
+      redLine: "Ekstra indirim veya ücretsiz ek özellik talebini kabul etmem"
+    }
+  },
+  {
+    id: "bulusma-reddetme",
+    title: "Israrcı Flörtü Kırmadan Reddetme",
+    description: "Birkaç kez buluştuğunuz ama kimyanızın uyuşmadığı kişinin tekrar görüşme teklifini saygılı bir şekilde geri çevirin.",
+    category: "flort_iliski",
+    difficulty: "Kolay",
+    context: {
+      incomingMessage: "Bu cuma akşamı yine o çok sevdiğin restorana gidelim mi? Seni çok özledim.",
+      otherPerson: "Flört",
+      relationshipDuration: "Birkaç hafta",
+      otherPersonPersonality: "Duygusal ve Hassas",
+      otherPersonAttitude: "İlgili ama belirsiz",
+      difficultyReason: "Hislerimin uyuşmadığını kırmadan iletmek",
+      goal: "İlişkiyi kibarca sonlandırmak",
+      tone: "Net ve mesafeli",
+      replyLength: "Tek cümle",
+      preserveRelationship: "Sadece saygılı kapatmak istiyorum",
+      avoidAction: "Umut vermek veya bahaneler üretmek",
+      noReplyAction: "Bir daha yazmayacağım",
+      fear: "Kaba veya kırıcı görünmek"
+    }
+  },
+  {
+    id: "gelecek-beklentisi-iliski",
+    title: "Partnerle Gelecek Planı Konuşması",
+    description: "Ciddi bir ilişki isterken karşı tarafın anı yaşama odaklı gevşek tavırlarına karşı sınırlarınızı çizin.",
+    category: "flort_iliski",
+    difficulty: "Zor",
+    context: {
+      incomingMessage: "İlişkimizin ciddiyeti ve uzun vadeli planlarımız hakkında ne düşündüğünü merak ediyorum.",
+      otherPerson: "Sevgili",
+      relationshipDuration: "Birkaç ay",
+      otherPersonPersonality: "Soğuk ve Mesafeli",
+      otherPersonAttitude: "Kararsız",
+      difficultyReason: "İlişkinin geleceğini sorgulamak",
+      goal: "Karşı tarafın niyetinin ciddi olup olmadığını anlamak",
+      tone: "Samimi ve açık",
+      replyLength: "Detaylı mesaj",
+      preserveRelationship: "Evet",
+      avoidAction: "Karşı tarafa evlilik baskısı yapmak",
+      noReplyAction: "Mesafe koymak istiyorum",
+      fear: "Partnerin bu konuşmadan korkup kaçması"
+    }
+  },
+  {
+    id: "sosyal-medya-sinirlari",
+    title: "Partnerin Sosyal Medya Kullanımı",
+    description: "Partnerinizin sosyal medyadaki bazı etkileşimlerinin sizi rahatsız ettiğini kıskançlık krizine girmeden sakinlikle anlatın.",
+    category: "flort_iliski",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Eski sevgilinin fotoğraflarını beğenmeye devam etmen beni huzursuz ediyor, bunu konuşabilir miyiz?",
+      otherPerson: "Sevgili",
+      relationshipDuration: "Birkaç ay",
+      otherPersonPersonality: "Pasif-Agresif / İğneleyici",
+      otherPersonAttitude: "Savunmacı",
+      difficultyReason: "Kıskançlık / saygı sınırlarını belirlemek",
+      goal: "Karşılıklı sınırları netleştirmek",
+      tone: "Sakin",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      avoidAction: "Öfke patlaması yaşamak veya tehditkar konuşmak",
+      noReplyAction: "Bekleyeceğim",
+      fear: "Aşırı kısıtlayıcı veya özgüvensiz görünmek"
+    }
+  },
+  {
+    id: "ev-arkadasi-temizlik",
+    title: "Ev Arkadaşıyla Temizlik Uyarısı",
+    description: "Evin ortak alanlarını sürekli dağınık ve kirli bırakan ev arkadaşınızı sertleşmeden uyarın.",
+    category: "aile_arkadas",
+    difficulty: "Kolay",
+    context: {
+      incomingMessage: "Ortak alanların temizliği ve bulaşıkların birikmesi konusunda bir düzen oturtmamız gerekiyor.",
+      otherPerson: "Ev Arkadaşı",
+      closenessLevel: "Yakın ama hassas",
+      otherPersonPersonality: "Pasif-Agresif / İğneleyici",
+      otherPersonAttitude: "Konuyu değiştirebilir",
+      pastConversations: "Genelde tartışmaya dönüyor",
+      difficultyReason: "Ortak yaşam kurallarına uymasını istemek",
+      goal: "Temizlik nöbeti / düzeni oluşturmak",
+      tone: "Sakin ama net",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      fear: "Evde huzursuzluk çıkması veya aşırı titiz damgası yemek"
+    }
+  },
+  {
+    id: "koruyucu-ebeveyn-sinir",
+    title: "Ebeveynin Müdahalesini Sınırlama",
+    description: "Her gün saat kaçta nerede olduğunuzu soran ve kararlarınızı eleştiren ebeveyninize sınırlarınızı çizin.",
+    category: "aile_arkadas",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Dün gece nerede kaldın? Kiminleydin? Neden telefonlarıma hemen bakmıyorsun?",
+      otherPerson: "Anne",
+      closenessLevel: "Aile olduğu için kopmak istemiyorum",
+      otherPersonPersonality: "Geleneksel / Israrcı",
+      otherPersonAttitude: "Suçluluk hissettirebilir",
+      pastConversations: "Ben susuyorum",
+      difficultyReason: "Ebeveyne karşı bağımsız bir yetişkin olduğunu kanıtlamak",
+      goal: "Hayatımla ilgili kararlara saygı duyulmasını sağlamak",
+      tone: "Kırmadan sınır koyan",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      fear: "Beni bencil veya vefasız bir evlat olarak görmeleri"
+    }
+  },
+  {
+    id: "dedikoducu-arkadas-uyari",
+    title: "Sırları Paylaşan Arkadaşı Durdurma",
+    description: "Baş başa konuştuğunuz özel bir konuyu başkasından duyduğunuzda, bu güven kırıklığını arkadaşınıza anlatın.",
+    category: "aile_arkadas",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Sana sadece senin bilmen şartıyla anlattığım konuyu dün akşam ortak grubumuzda başkasından duydum. Çok şaşırdım.",
+      otherPerson: "Yakın arkadaş",
+      closenessLevel: "Çok yakın",
+      otherPersonPersonality: "Alıngan ve Hassas",
+      otherPersonAttitude: "Alınabilir",
+      pastConversations: "Genelde iyi",
+      difficultyReason: "Güven kırıklığını ve duyulan rahatsızlığı iletmek",
+      goal: "Güven sınırını tekrar çizmek ve özür almak",
+      tone: "Sakin ama net",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      fear: "Arkadaşımın olayı inkar etmesi veya abarttığımı söylemesi"
+    }
+  },
+  {
+    id: "ikinci-el-pazarlik",
+    title: "İkinci Eşya Pazarlığı",
+    description: "Bir platformda beğendiğiniz ürünü bütçenize uydurmak için satıcıyla saygılı bir şekilde pazarlık edin.",
+    category: "para_pazarlik",
+    difficulty: "Kolay",
+    context: {
+      incomingMessage: "İlanınızdaki çalışma masasını çok beğendim. Bütçem 2.000 TL, ortada buluşabilir miyiz?",
+      otherPerson: "Satıcı",
+      otherPersonPersonality: "Para Göz ve Katı",
+      financialIssue: "İkinci el alışveriş",
+      currentAmount: "3.000 TL",
+      minAcceptableLevel: "En fazla 2.300 TL ödeyebilirim",
+      otherPersonAttitude: "Artışı kabul etmiyor",
+      leverageOrAlternative: "Ürünü elden hemen bugün gelip alabilecek olmam",
+      difficultyReason: "Fiyatı bütçeme göre düşürmeye çalışmak",
+      goal: "Mümkün olan en düşük fiyata anlaşmak",
+      tone: "Uzlaşmacı",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      noAgreementAction: "Alternatif teklif sunarım",
+      fear: "Kaba veya ölücü alıcı muamelesi görmek"
+    }
+  },
+  {
+    id: "hasarli-urun-iade",
+    title: "Satıcıdan Hasarlı Ürün Değişimi",
+    description: "Kargo ile kırık gelen pahalı bir ürün için suçu kargoya atan inatçı satıcıya karşı hakkınızı savunun.",
+    category: "para_pazarlik",
+    difficulty: "Zor",
+    context: {
+      incomingMessage: "Paketi teslim alırken hasar tespit tutanağı tutturmadıysanız sorumluluk bize ait değildir, kargo şirketiyle görüşün.",
+      otherPerson: "E-Ticaret Satıcısı",
+      otherPersonPersonality: "Otoriter ve Sert",
+      financialIssue: "Ürün iadesi / değişim",
+      currentAmount: "8.500 TL",
+      minAcceptableLevel: "Hasarlı parçanın ücretsiz olarak yenisiyle değiştirilmesi",
+      otherPersonAttitude: "Artışı kabul etmiyor",
+      leverageOrAlternative: "Paket açılış videosu ve Tüketici Hakem Heyeti başvuru tehdidi",
+      difficultyReason: "Tüketici hakkını sonuna kadar savunmak",
+      goal: "Ücretsiz değişim veya tam iade almak",
+      tone: "Sert ama saygılı",
+      replyLength: "Detaylı mesaj",
+      preserveRelationship: "Hayır",
+      noAgreementAction: "Masadan kalkarım",
+      fear: "Paranın tamamen yanması ve hukuki süreçlerle uğraşmak"
+    }
+  },
+  {
+    id: "ortak-tatil-gider-paylasimi",
+    title: "Arkadaşla Tatil Gideri Paylaşimi",
+    description: "Ortak çıkılan tatilde tüm hesabı sizin kartınızdan ödeyip günlerdir kendi payını göndermeyen arkadaşınızdan parayı isteyin.",
+    category: "para_pazarlik",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Geçen haftaki tatil otel ve yemek masraflarının dökümünü çıkardım, senin payın 6.200 TL tutuyor.",
+      otherPerson: "Yakın arkadaş",
+      otherPersonPersonality: "Yoğun ve Dikkatsiz",
+      financialIssue: "Tatil masrafı paylaşımı",
+      currentAmount: "6.200 TL",
+      minAcceptableLevel: "Tutarı bu hafta sonuna kadar eksiksiz göndermesi",
+      otherPersonAttitude: "Ödemeyi geciktiriyor",
+      leverageOrAlternative: "Aramızda anlaştığımız splitwise/excel dökümü",
+      difficultyReason: "Yakın arkadaştan para istemenin getirdiği çekince",
+      goal: "Paranın tamamının ödenmesini sağlamak",
+      tone: "Kırmadan sınır koyan",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      noAgreementAction: "Süre isterim",
+      fear: "Arkadaşımın parayı önemsemediğimi veya cimri olduğumu düşünmesi"
+    }
+  },
+  {
+    id: "is-teklifi-kibar-red",
+    title: "Gelen İş Teklifini Kibarca Reddetme",
+    description: "Mülakatlarını geçtiğiniz ama şartları uymadığı için reddetmek zorunda kaldığınız firmaya profesyonel bir dönüş yapın.",
+    category: "zor_mesajlar",
+    difficulty: "Kolay",
+    context: {
+      incomingMessage: "Tüm aşamaları başarıyla tamamladınız. Sizi aramızda görmek istiyoruz, teklifimizi ekte iletiyorum.",
+      otherPerson: "İK (İnsan Kaynakları)",
+      otherPersonPersonality: "Anlayışlı ve Mantıklı",
+      difficultyReason: "Gelen teklifi profesyonelce geri çevirmek",
+      goal: "Gelecekteki fırsatlar için kapıyı açık bırakarak reddetmek",
+      tone: "Profesyonel ve kibar",
+      replyLength: "Detaylı mesaj",
+      preserveRelationship: "Evet",
+      fear: "İK uzmanını kızdırmak veya kara listeye alınmak"
+    }
+  },
+  {
+    id: "yanlis-mesaj-kurtarma",
+    title: "Yanlışlıkla Gönderilen Mesajı Toparlama",
+    description: "Hakkında eleştirel konuştuğunuz arkadaşınıza yanlışlıkla gönderdiğiniz mesajı durumu batırmadan toparlayın.",
+    category: "zor_mesajlar",
+    difficulty: "Zor",
+    context: {
+      incomingMessage: "Bu ne biçim bir mesaj? Benim hakkımda böyle mi düşünüyordun gerçekten?",
+      otherPerson: "Yakın arkadaş",
+      otherPersonPersonality: "Duygusal ve Hassas",
+      difficultyReason: "Hatamı kabul edip dürüstçe durumu kurtarmak",
+      goal: "Arkadaşımı kaybetmeden durumu açıklamak ve özür dilemek",
+      tone: "Samimi ve açık",
+      replyLength: "Detaylı mesaj",
+      preserveRelationship: "Evet",
+      fear: "Arkadaşlığın tamamen bitmesi ve grupta dışlanmak"
+    }
+  },
+  {
+    id: "danisman-tez-inceleme",
+    title: "Tez Danışmanına Hatırlatma Maili",
+    description: "Haftalardır tezinizin taslağını incelemeyen ve mezuniyetinizi tehlikeye atan hocanıza saygılı ama net bir mail yazın.",
+    category: "egitim_okul",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Hocam, teslim ettiğim tez taslağı üzerindeki düzeltmelerinizi alabilirsem son düzenlemeleri yapacağım.",
+      otherPerson: "Akademisyen / Hoca",
+      otherPersonPersonality: "Otoriter ve Sert",
+      difficultyReason: "Hocayı sıkıştırmadan tezi okumasını rica etmek",
+      goal: "Tez geri bildirimini en geç haftaya kadar almak",
+      tone: "Profesyonel ve kibar",
+      replyLength: "Detaylı mesaj",
+      preserveRelationship: "Evet",
+      fear: "Hocanın sinirlenip teslim tarihini daha da ertelemesi"
+    }
+  },
+  {
+    id: "grup-odevi-liderlik",
+    title: "Ekibi Çalışmaya Teşvik Etme",
+    description: "Teslim tarihine 3 gün kalmasına rağmen gruptan kimsenin bir şey yazmadığı ödev grubunu motive edip harekete geçirin.",
+    category: "egitim_okul",
+    difficulty: "Kolay",
+    context: {
+      incomingMessage: "Arkadaşlar merhaba, ödev teslimine 3 gün kaldı. Herkes kendi bölümünü ne zaman tamamlayabilir?",
+      otherPerson: "Sınıf Arkadaşları",
+      otherPersonPersonality: "Yoğun ve Dikkatsiz",
+      difficultyReason: "Gruptaki tembelliği kırıp iş bölümü yaptırmak",
+      goal: "Görev paylaşımı yapıp herkesin işe başlamasını sağlamak",
+      tone: "Net ve kararlı",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      fear: "Grupta uyumsuz veya patronluk taslayan biri gibi görünmek"
+    }
+  },
+  {
+    id: "hoca-referans-mektubu",
+    title: "Hocadan Referans Mektubu İsteme",
+    description: "Yurt dışı yüksek lisans başvurusu için dersinde başarılı olduğunuz hocadan referans rica edin.",
+    category: "egitim_okul",
+    difficulty: "Kolay",
+    context: {
+      incomingMessage: "Sayın Hocam, dersinizden aldığım başarı doğrultusunda yüksek lisans başvurum için referans mektubu rica edebilir miyim?",
+      otherPerson: "Akademisyen / Hoca",
+      otherPersonPersonality: "Anlayışlı ve Mantıklı",
+      difficultyReason: "Hocadan akademik destek talep etmek",
+      goal: "Hocanın referans mektubu yazmayı kabul etmesi",
+      tone: "Profesyonel ve kibar",
+      replyLength: "Detaylı mesaj",
+      preserveRelationship: "Evet",
+      fear: "Hocanın beni yeterince tanımadığını söyleyip reddetmesi"
+    }
+  },
+  {
+    id: "apartman-park-kavgasi",
+    title: "Park Yerinizi İşgal Eden Komşu",
+    description: "Apartman otoparkında size tahsis edilen alana arabasını sürekli çeken komşunuzla tartışmadan sorunu çözün.",
+    category: "gunluk_yasam",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Komşu selam, benim otopark numaram olan 12 numaralı yere aracını çekmişsin sanırım, çıkmam gerekiyor.",
+      otherPerson: "Komşu",
+      otherPersonPersonality: "Savunmacı ve Israrcı",
+      difficultyReason: "Komşuluk ilişkilerini bozmadan hakkımı savunmak",
+      goal: "Aracını hemen çekmesini ve bir daha park etmemesini sağlamak",
+      tone: "Net ve kararlı",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Evet",
+      fear: "Apartman içinde kavga çıkması veya arabama zarar verilmesi",
+      redLine: "Sadece 5 dakikalığına bile olsa yerimin işgal edilmesini kabul edemem"
+    }
+  },
+  {
+    id: "kurye-paket-teslim-sikayet",
+    title: "Kargoyu Kapıya Getirmeyen Kurye",
+    description: "Evde olmanıza rağmen 'adreste bulunamadı' diye not düşüp paketi şubeye bırakan kargo kuryesiyle yüzleşin.",
+    category: "gunluk_yasam",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Geldik ama zilinize bastık açan olmadı, paketinizi en yakın şubemizden alabilirsiniz.",
+      otherPerson: "Kargo Kuryesi",
+      otherPersonPersonality: "Yoğun ve Dikkatsiz",
+      difficultyReason: "Evde olduğumu kanıtlayıp paketi kapıma getirtmek",
+      goal: "Kuryenin paketi bugün tekrar adresime teslim etmesini sağlamak",
+      tone: "Net ve kararlı",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Hayır",
+      fear: "Kuryenin agresif davranması veya şikayetimin sonuçsuz kalması"
+    }
+  },
+  {
+    id: "internet-ariza-destek",
+    title: "Müşteri Temsilcisine Altyapı Şikayeti",
+    description: "Günlerdir interneti kesik olan ve sürekli otomatik yanıtlarla sizi oyalayan müşteri hizmetleriyle görüşün.",
+    category: "gunluk_yasam",
+    difficulty: "Orta",
+    context: {
+      incomingMessage: "Bölgenizde genel bir çalışma bulunmaktadır. Kesintinin ne zaman düzeleceği henüz belli değildir.",
+      otherPerson: "Müşteri Temsilcisi",
+      otherPersonPersonality: "Yoğun ve Dikkatsiz",
+      difficultyReason: "Sorunu üst mercilere taşıyıp somut bir çözüm tarihi almak",
+      goal: "Teknik ekibin yönlendirilmesini sağlamak veya fatura indirimi almak",
+      tone: "Sert ama saygılı",
+      replyLength: "Kısa mesaj",
+      preserveRelationship: "Hayır",
+      fear: "İnternetin günlerce gelmemesi ve işlerimin aksaması"
+    }
+  }
 ];
