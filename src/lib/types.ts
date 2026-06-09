@@ -62,6 +62,8 @@ export type FinalReport = {
   real_life_tips: string[];
   risks: string[];
   detailed_evaluation?: string;
+  simulation_goal_result: "evet" | "kismen" | "hayir";
+  simulation_goal_explanation: string;
 };
 
 export type OutcomeInput = {

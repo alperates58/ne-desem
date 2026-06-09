@@ -284,6 +284,8 @@ export function createFinalReportMessages(
           "summary kısa olsun.",
           "Listeler en fazla 3 madde olsun.",
           "Cümleler uygulanabilir olsun.",
+          "simulation_goal_result: Kullanıcının konuşma hedefine (context.goal) bu simülasyondaki diyalog akışına göre ulaşıp ulaşamadığını değerlendir ve 'evet' | 'kismen' | 'hayir' değerlerinden birini ata.",
+          "simulation_goal_explanation: Kullanıcının neden bu hedefe ulaştığını, kısmen ulaştığını veya neden ulaşamadığını açıklayan 1-2 cümlelik yapıcı bir açıklama yaz.",
           "detailed_evaluation alanında kullanıcının yaptığı konuşma hatalarını, hangi cümlelerin yerine neleri kullanabileceğini ve karşıdaki kişinin canlandırılan karakter ve kişilik yapısına (otherPersonPersonality) göre nasıl bir iletişim yaklaşımı sergilemesi gerektiğini detaylandıran 2-3 paragraflık samimi ve yapıcı Türkçe bir değerlendirme yazısı oluştur."
         ],
         json: {
@@ -295,7 +297,9 @@ export function createFinalReportMessages(
           better_alternatives: ["...", "...", "..."],
           real_life_tips: ["...", "...", "..."],
           risks: ["...", "..."],
-          detailed_evaluation: "..."
+          detailed_evaluation: "...",
+          simulation_goal_result: "evet",
+          simulation_goal_explanation: "..."
         },
         context: compactContext(category, context),
         turns,

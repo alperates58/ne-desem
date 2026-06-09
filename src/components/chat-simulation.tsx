@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScoreBar } from "@/components/score-bar";
 import type { MessageContext, Scores, SuggestedReplies } from "@/lib/types";
+import { getCategoryLabel } from "@/lib/categories";
 
 type Turn = {
   turnNumber: number;
@@ -305,7 +306,7 @@ export function ChatSimulation({
   return (
     <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
       <aside className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5">
-        <p className="text-sm font-semibold text-violet-200">Zor Mesajlar</p>
+        <p className="text-sm font-semibold text-violet-200">{getCategoryLabel(category)}</p>
         <h1 className="mt-2 text-2xl font-bold">Prova turu</h1>
         <div className="mt-5 space-y-4 text-sm leading-6 text-slate-300">
           <p>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Sparkles, MessageSquare } from "lucide-react";
+import { Sparkles, MessageSquare, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -33,6 +33,15 @@ export default async function ReportPage({ params }: ReportPageProps) {
   const report = simulation.finalReportJson as FinalReport;
   const otherPersonName = (simulation.contextJson as any)?.otherPerson || "Karşı Taraf";
 
+  const goalResult = report.simulation_goal_result || (report.total_score >= 70 ? "evet" : report.total_score >= 50 ? "kismen" : "hayir");
+  const goalExplanation = report.simulation_goal_explanation || (
+    goalResult === "evet"
+      ? "Simülasyon konuşmasında çizdiğiniz sınırlar ve yaklaşım hedefinize ulaşmanızı sağladı."
+      : goalResult === "kismen"
+        ? "Konuşmada hedefinize ulaşmak için bazı olumlu adımlar attınız ancak tam olarak netleşmeyen noktalar kaldı."
+        : "Bu konuşmadaki iletişim tarzı hedefinize ulaşmak için yeterli olmadı, sınırlarınızı daha net çizmelisiniz."
+  );
+
   return (
     <AppShell user={user}>
       <div className="mx-auto max-w-4xl space-y-6">
@@ -46,6 +55,37 @@ export default async function ReportPage({ params }: ReportPageProps) {
             <div className="grid h-28 w-28 place-items-center rounded-full border-8 border-violet-300/70 text-3xl font-black">
               {report.total_score}
             </div>
+          </div>
+        </div>
+
+        {/* Goal Achieved Status Block */}
+        <div className={`rounded-[2rem] border p-6 shadow-xl flex items-start gap-4 ${
+          goalResult === "evet"
+            ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-200"
+            : goalResult === "kismen"
+              ? "border-amber-500/20 bg-amber-500/5 text-amber-200"
+              : "border-rose-500/20 bg-rose-500/5 text-rose-200"
+        }`}>
+          <div className="mt-1">
+            {goalResult === "evet" && <CheckCircle2 className="text-emerald-400" size={28} />}
+            {goalResult === "kismen" && <AlertTriangle className="text-amber-400" size={28} />}
+            {goalResult === "hayir" && <XCircle className="text-rose-400" size={28} />}
+          </div>
+          <div>
+            <h3 className={`text-lg font-bold ${
+              goalResult === "evet"
+                ? "text-emerald-400"
+                : goalResult === "kismen"
+                  ? "text-amber-400"
+                  : "text-rose-400"
+            }`}>
+              {goalResult === "evet" && "Hedefe Ulaşıldı!"}
+              {goalResult === "kismen" && "Kısmen Ulaşıldı"}
+              {goalResult === "hayir" && "Hedefe Ulaşılamadı"}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              {goalExplanation}
+            </p>
           </div>
         </div>
 

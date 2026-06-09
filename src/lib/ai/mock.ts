@@ -191,7 +191,13 @@ export function generateFinalReport(
     ],
     detailed_evaluation: `Simülasyon sürecinde ${other} ile girdiğin diyalogda genel olarak sakinliğini korumayı başardın. Ancak "${weakest?.userMessage || 'bazı cümleleriniz'}" yerine daha net ve duruşu güçlü bir dil seçebilirdin. Karşı tarafın "${context.otherPersonPersonality || 'belirttiğin'}" karakter yapısında olduğunu göz önünde bulundurursak, onun manipülatif veya baskıcı hamlelerine karşı daha doğrudan sınırlar çizmek yararına olacaktır.
 
-İkinci olarak, konuşma esnasında kendi çekincelerini öne çıkarmak yerine, olayı tamamen profesyonel veya kişisel sınırların çerçevesine oturtman gerekirdi. "${best?.userMessage || 'en iyi cümlen'}" gibi anlarda gösterdiğin kararlılığı tüm konuşma geneline yayabilirsen, gerçek hayattaki konuşmada çok daha başarılı bir sonuç elde edebilirsin.`
+İkinci olarak, konuşma esnasında kendi çekincelerini öne çıkarmak yerine, olayı tamamen profesyonel veya kişisel sınırların çerçevesine oturtman gerekirdi. "${best?.userMessage || 'en iyi cümlen'}" gibi anlarda gösterdiğin kararlılığı tüm konuşma geneline yayabilirsen, gerçek hayattaki konuşmada çok daha başarılı bir sonuç elde edebilirsin.`,
+    simulation_goal_result: totalScore >= 70 ? "evet" : totalScore >= 50 ? "kismen" : "hayir",
+    simulation_goal_explanation: totalScore >= 70
+      ? "Sınırlarını kararlı bir şekilde koruyarak ve karşı tarafın manipülasyonlarına teslim olmayarak hedefine ulaştın."
+      : totalScore >= 50
+        ? "Bazı noktalarda net duruş sergilesen de, konuşmanın bir kısmında fazla savunmada kaldın veya uzlaşma adına fazla taviz verdin."
+        : "Karşı tarafın baskısına direnemedin ve sınır koymakta zorlandın, bu nedenle hedefine ulaşamadın.",
   };
 }
 

@@ -138,6 +138,32 @@ const STEP_SUGGESTIONS: Record<string, Record<string, string[]>> = {
       "Fotoğrafı kaldırtmak istediğim için arkadaşımın alınganlık yapması",
       "Gereksiz polemiklere veya takiplere maruz kalmak"
     ]
+  },
+  saglik_psikoloji: {
+    incomingMessage: [
+      "Son dönemde yaşadığım tükenmişlik nedeniyle bir süre izin kullanmak istiyorum.",
+      "Terapistimle görüşmelerimin sıklığını veya gidişatını değiştirmek istiyorum.",
+      "Yakınlarıma ruh sağlığımla veya aldığım destekle ilgili durumu açıklamak.",
+      "Doktorumun önerdiği tedavi sürecini veya ilacı sevgilimle/ailemle paylaşmak."
+    ],
+    fear: [
+      "Zayıf veya işe yaramaz olarak damgalanmak",
+      "Hastalığımdan dolayı dışlanmak veya acınmak",
+      "Karşı tarafın beni anlamaması veya ciddiye almaması"
+    ]
+  },
+  sosyal_anlar: {
+    incomingMessage: [
+      "Sıra beklerken aniden önüme kaynak yapan kişiyi uyarmak istiyorum.",
+      "Taksi şoförünün sürekli siyaset konuşmasından veya yolu uzatmasından rahatsız oldum.",
+      "Berberin/kuaförün saç kesimimi tamamen mahvetmesinden sonra beğenmediğimi belirtmek.",
+      "Misafirlikte veya sohbette sürekli istenmeyen tavsiye veren kişiyi durdurmak."
+    ],
+    fear: [
+      "Gereksiz polemik veya kavga çıkması",
+      "Kaba veya uyumsuz biri gibi görünmek",
+      "Ortamda gerilim ve huzursuzluk yaratmak"
+    ]
   }
 };
 
@@ -545,6 +571,481 @@ function getRawStepsForCategory(category: string): WizardStep[] {
           placeholder: "Örn: anlaşmanın bozulması, müşteriyi kaybetmek, cimri görünmek"
         }
       ];
+    case "egitim_okul":
+      return [
+        {
+          key: "incomingMessage",
+          label: "Durum veya sana söylenen son söz ne?",
+          helper: "Durumu veya konuşulan son cümleyi yazarak provanın zeminini belirleyin.",
+          type: "textarea",
+          placeholder: "Durumu veya konuşulan son cümleyi yaz..."
+        },
+        {
+          key: "otherPerson",
+          label: "Karşı taraf kim?",
+          helper: "Karşı tarafın rolü konuşmanın gidişatını belirler.",
+          type: "select",
+          options: ["Akademisyen / Hoca", "Grup Arkadaşı", "Sınıf Arkadaşı", "Öğrenci İşleri Memuru", "Öğrenci Velisi", "Okul İdaresi", "Sınıf Arkadaşları", "Dekanlık / Fakülte İdaresi"]
+        },
+        {
+          key: "otherPersonPersonality",
+          label: "Karşı tarafın kişiliği nasıl?",
+          helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
+          type: "select",
+          options: ["Anlayışlı ve Mantıklı", "Otoriter ve Sert", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz", "Savunmacı ve Israrcı"]
+        },
+        {
+          key: "difficultyReason",
+          label: "Bu konuda konuşmakta neden zorlanıyorsun?",
+          helper: "Temel zorluğu veya çekinceni seç.",
+          type: "select",
+          options: [
+            "Grupta iş bölümü yaptırmak",
+            "Kağıdın incelenmesini kibarca talep etmek",
+            "Hocayı sıkıştırmadan tezi okumasını rica etmek",
+            "Hocadan akademik destek talep etmek",
+            "Memurun bürokratik duvarını aşmak",
+            "Veliyi sakinleştirip durumu açıklamak",
+            "Ek süre talep etmek",
+            "Gruptaki tembelliği kırıp iş bölümü yaptırmak",
+            "Hocayı mazeretimin geçerli olduğuna inandırmak",
+            "Hocanın not verme kriterlerini sorgulamadan hata payı olabileceğini belirtmek",
+            "Tembellik yapan arkadaşa hak etmediği puanı kazandırmamak",
+            "Bürokratik engeli aşarak akademik başarıyı öne çıkarıp bütçe koparmak"
+          ]
+        },
+        {
+          key: "goal",
+          label: "Senin amacın ne?",
+          helper: "Provanın kazanma koşulu gibi düşün.",
+          type: "select",
+          options: [
+            "İş paylaşımı yapmak",
+            "Kağıdın incelenmesini sağlamak",
+            "Tez geri bildirimini almak",
+            "Referans mektubu yazılmasını sağlamak",
+            "Bursun tekrar bağlanmasını sağlamak",
+            "Ek teslim süresi almak",
+            "Ortak çalışma planı yapmak",
+            "Tez geri bildirimini en geç haftaya kadar almak",
+            "Görev paylaşımı yapıp herkesin işe başlamasını sağlamak",
+            "Hocanın referans mektubu yazmayı kabul etmesi",
+            "Bursun tekrar bağlanması için komisyona sevk edilmesini sağlamak",
+            "Not kırılmadan 2 günlük ek teslim süresi almak",
+            "Notu değiştirmeyeceğimi kabul ettirip ortak çalışma planı yapmak",
+            "İsmini eklemeyi reddetmek ve durumu hocaya bildirmek",
+            "Katılım ücreti ve uçak bileti desteği almak"
+          ]
+        },
+        {
+          key: "tone",
+          label: "Ton nasıl olsun?",
+          helper: "AI önerileri bu tona göre ayarlanır.",
+          type: "select",
+          options: ["Profesyonel ve kibar", "Net ve kararlı", "Sakin", "Yumuşak", "Yumuşak ama ciddi"]
+        },
+        {
+          key: "redLine",
+          label: "Kırmızı çizgin ne?",
+          helper: "Asla taviz vermeyeceğin sınır.",
+          type: "input",
+          placeholder: "Örn: Ek teslim süresi alamazsam dilekçe yazacağım"
+        },
+        {
+          key: "replyLength",
+          label: "Cevap uzunluğu nasıl olsun?",
+          helper: "Kısa kalmak çoğu durumda avantajdır.",
+          type: "select",
+          options: ["Kısa mesaj", "Tek cümle", "Detaylı mesaj", "3 alternatif ver"]
+        },
+        {
+          key: "preserveRelationship",
+          label: "Bu kişiyle ilişkiyi korumak istiyor musun?",
+          helper: "Sınır ve nezaket dengesini ayarlar.",
+          type: "select",
+          options: ["Evet", "Hayır", "Emin değilim", "Sadece saygılı kapatmak istiyorum"]
+        },
+        {
+          key: "fear",
+          label: "Karşı tarafın nasıl tepki vermesinden çekiniyorsun?",
+          helper: "Çekindiğin olumsuz senaryoyu belirt.",
+          type: "input",
+          placeholder: "Örn: notumu düşürmesi, gruptan atılmak, hocanın takması"
+        }
+      ];
+    case "gunluk_yasam":
+      return [
+        {
+          key: "incomingMessage",
+          label: "Durum veya sana söylenen son söz ne?",
+          helper: "Durumu veya konuşulan son cümleyi yazarak provanın zeminini belirleyin.",
+          type: "textarea",
+          placeholder: "Durumu veya konuşulan son cümleyi yaz..."
+        },
+        {
+          key: "otherPerson",
+          label: "Karşı taraf kim?",
+          helper: "Karşı tarafın rolü konuşmanın gidişatını belirler.",
+          type: "select",
+          options: ["Komşu", "Üst Komşu", "Tesisatçı / Usta", "Tesisatçı Usta", "Apartman Yöneticisi", "Kargo Kuryesi", "Müşteri Temsilcisi", "Esnaf", "Restoran Şefi / Garson", "Apartman Sakini Komşu", "Esnaf / Manav / Pastane Sahibi"]
+        },
+        {
+          key: "otherPersonPersonality",
+          label: "Karşı tarafın kişiliği nasıl?",
+          helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
+          type: "select",
+          options: ["Anlayışlı ve Mantıklı", "Otoriter ve Sert", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz", "Savunmacı ve Israrcı"]
+        },
+        {
+          key: "difficultyReason",
+          label: "Bu konuda konuşmakta neden zorlanıyorsun?",
+          helper: "Temel zorluğu veya çekinceni seç.",
+          type: "select",
+          options: [
+            "Gürültünün kesilmesini istemek",
+            "İşin bitirilmesi için baskı kurmak",
+            "Komşuluk ilişkilerini bozmadan hakkımı savunmak",
+            "Evde olduğumu kanıtlayıp paketi kapıma getirtmek",
+            "Sorunu üst mercilere taşıyıp somut bir çözüm almak",
+            "Gereksiz masrafları sorgulamak",
+            "Hizmet almadığım şeyin parasını ödemeyi reddetmek",
+            "Komşuluk hukukunu gözeterek kuralları hatırlatmak",
+            "Hayvan haklarını korurken apartman temizliği konusunda orta yol bulmak",
+            "İnkar eden komşuya karşı sınırları hatırlatmak",
+            "Hatalı olduğunu kabul etmeyen esnafa karşı hakkını korumak"
+          ]
+        },
+        {
+          key: "goal",
+          label: "Senin amacın ne?",
+          helper: "Provanın kazanma koşulu gibi düşün.",
+          type: "select",
+          options: [
+            "Gürültünün kesilmesini sağlamak",
+            "İşin bugün bitirilmesini sağlamak",
+            "Aracın çekilmesini ve bir daha park edilmemesini sağlamak",
+            "Paketin kapıya teslim edilmesini sağlamak",
+            "Teknik ekibin yönlendirilmesini sağlamak",
+            "Gider dökümlerini resmi olarak talep etmek",
+            "Hesabın düzeltilmesini sağlamak",
+            "İşin bugün bitirilmesini veya iade almayı sağlamak",
+            "Aracını hemen çekmesini ve bir daha park etmemesini sağlamak",
+            "Kuryenin paketi bugün tekrar adresime teslim etmesini sağlamak",
+            "Teknik ekibin yönlendirilmesini sağlamak veya fatura indirimi almak",
+            "Gider dökümlerini resmi olarak talep edip bütçe revizyonu istemek",
+            "Köpeğini ortak alanlarda tasmalı gezdirmesini sağlamak",
+            "Hesabın düzeltilmesini ve kuver/servis ücretinin düşülmesini sağlamak",
+            "Mamaları kapı önünden kaldırıp bahçede belirlenen bir noktaya taşımak konusunda anlaşmak",
+            "Balkona çöp/kül atmayı kesmesini sağlamak",
+            "Ürünün yenisiyle değiştirilmesini veya para iadesini almak"
+          ]
+        },
+        {
+          key: "tone",
+          label: "Ton nasıl olsun?",
+          helper: "AI önerileri bu tona göre ayarlanır.",
+          type: "select",
+          options: ["Sakin ama net", "Net ve kararlı", "Sert ama saygılı", "Profesyonel", "Uzlaşmacı"]
+        },
+        {
+          key: "redLine",
+          label: "Kırmızı çizgin ne?",
+          helper: "Asla taviz vermeyeceğin sınır.",
+          type: "input",
+          placeholder: "Örn: Gürültü devam ederse polise şikayet edeceğim"
+        },
+        {
+          key: "replyLength",
+          label: "Cevap uzunluğu nasıl olsun?",
+          helper: "Kısa kalmak çoğu durumda avantajdır.",
+          type: "select",
+          options: ["Kısa mesaj", "Tek cümle", "Detaylı mesaj", "3 alternatif ver"]
+        },
+        {
+          key: "preserveRelationship",
+          label: "Bu kişiyle ilişkiyi korumak istiyor musun?",
+          helper: "Sınır ve nezaket dengesini ayarlar.",
+          type: "select",
+          options: ["Evet", "Hayır", "Emin değilim", "Sadece saygılı kapatmak istiyorum"]
+        },
+        {
+          key: "fear",
+          label: "Karşı tarafın nasıl tepki vermesinden çekiniyorsun?",
+          helper: "Çekindiğin olumsuz senaryoyu belirt.",
+          type: "input",
+          placeholder: "Örn: komşuyla düşman olmak, ustanın işi bırakıp kaçması"
+        }
+      ];
+    case "sosyal_medya_dijital":
+      return [
+        {
+          key: "incomingMessage",
+          label: "Durum veya sana söylenen son söz ne?",
+          helper: "Durumu veya konuşulan son cümleyi yazarak provanın zeminini belirleyin.",
+          type: "textarea",
+          placeholder: "Durumu veya konuşulan son cümleyi yaz..."
+        },
+        {
+          key: "otherPerson",
+          label: "Karşı taraf kim?",
+          helper: "Karşı tarafın rolü konuşmanın gidişatını belirler.",
+          type: "select",
+          options: ["Arkadaş", "Yakın arkadaş", "Akraba", "Akraba / Teyze", "Grup Yöneticisi / Akrabalar", "Satış Temsilcisi", "Flört", "İş Arkadaşı", "Bağlantı Talebi Sahibi", "Lise Arkadaşı"]
+        },
+        {
+          key: "otherPersonPersonality",
+          label: "Karşı tarafın kişiliği nasıl?",
+          helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
+          type: "select",
+          options: ["Anlayışlı ve Mantıklı", "Otoriter ve Sert", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz", "Alıngan ve Hassas", "Duygusal ve Hassas", "Geleneksel / Israrcı"]
+        },
+        {
+          key: "difficultyReason",
+          label: "Bu konuda konuşmakta neden zorlanıyorsun?",
+          helper: "Temel zorluğu veya çekinceni seç.",
+          type: "select",
+          options: [
+            "Akraba ilişkilerini zedelemeden gruptan ayrılmak",
+            "Zaman çalmadan net ve kibarca olumsuz yanıt vermek",
+            "Fotoğrafta kötü göründüğüm için silinmesini istemek",
+            "İlgi duymadığımı kırmadan ama net şekilde yansıtmak",
+            "Hafta sonu dinlenme hakkımı koruyup işi pazartesiye ertelemek",
+            "Süreç boyunca spam mesajlara maruz kalmamak için en baştan sınır çizmek",
+            "Çıkar ilişkisine dayalı talebi kırmadan geri çevirmek",
+            "Geç cevap verme nedenimin arkadaşımla değil, kendi dijital alışkanlıklarımla ilgili olduğunu anlatmak",
+            "Akrabamın iyi niyetini kırmadan çocuk güvenliği sınırını korumak",
+            "Tanımadığım birinin iş ahlakına kefil olamayacağımı belirtmek"
+          ]
+        },
+        {
+          key: "goal",
+          label: "Senin amacın ne?",
+          helper: "Provanın kazanma koşulu gibi düşün.",
+          type: "select",
+          options: [
+            "Kibarca veda edip veya doğrudan açıklama yapıp gruptan ayrılmak",
+            "Teklifi kibarca reddedip takibi sonlandırmak",
+            "Fotoğrafın profilden veya gönderiden kaldırılmasını sağlamak",
+            "Flörtöz yorumları kesmesini ve mesafesini korumasını sağlamak",
+            "İşi pazartesi mesai saatinde yapacağımı kibarca ama net iletmek",
+            "Ağa ekleme amacının uygun olmadığını belirtmek",
+            "Referans olamayacağımı veya yardımcı olamayacağımı açıklamak",
+            "Sürekli çevrimiçi olmak istemediğimi anlatıp anlayış göstermesini sağlamak",
+            "Çocuğun fotoğrafını kaldırmasını sağlamak",
+            "Referans olma talebini profesyonelce geri çevirmek"
+          ]
+        },
+        {
+          key: "tone",
+          label: "Ton nasıl olsun?",
+          helper: "AI önerileri bu tona göre ayarlanır.",
+          type: "select",
+          options: ["Profesyonel ve kibar", "Net ve mesafeli", "Kibar ve nötr", "Sakin", "Yumuşak ama ciddi", "Samimi ve açık", "Mesafeli ama kibar"]
+        },
+        {
+          key: "replyLength",
+          label: "Cevap uzunluğu nasıl olsun?",
+          helper: "Kısa kalmak çoğu durumda avantajdır.",
+          type: "select",
+          options: ["Kısa mesaj", "Tek cümle", "Detaylı mesaj", "3 alternatif ver"]
+        },
+        {
+          key: "preserveRelationship",
+          label: "Bu kişiyle ilişkiyi korumak istiyor musun?",
+          helper: "Sınır ve nezaket dengesini ayarlar.",
+          type: "select",
+          options: ["Evet", "Hayır", "Emin değilim", "Sadece saygılı kapatmak istiyorum"]
+        },
+        {
+          key: "fear",
+          label: "Karşı tarafın nasıl tepki vermesinden çekiniyorsun?",
+          helper: "Çekindiğin olumsuz senaryoyu belirt.",
+          type: "input",
+          placeholder: "Örn: dedikodu yapılması, kaba görünmek, gereksiz takip edilmek"
+        }
+      ];
+    case "saglik_psikoloji":
+      return [
+        {
+          key: "incomingMessage",
+          label: "Durum veya sana söylenen son söz ne?",
+          helper: "Durumu veya konuşulan son cümleyi yazarak provanın zeminini belirleyin.",
+          type: "textarea",
+          placeholder: "Durumu veya konuşulan son cümleyi yaz..."
+        },
+        {
+          key: "otherPerson",
+          label: "Karşı taraf kim?",
+          helper: "Karşı tarafın rolü konuşmanın gidişatını belirler.",
+          type: "select",
+          options: ["Yönetici / İK", "İK Müdürü / Yönetici", "Partner / Sevgili", "Yakın Arkadaş", "Anne / Baba / Yakın Aile", "Doktor / Uzman", "Terapist / Psikolog", "Doktor"]
+        },
+        {
+          key: "otherPersonPersonality",
+          label: "Karşı tarafın kişiliği nasıl?",
+          helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
+          type: "select",
+          options: ["Anlayışlı ve Mantıklı", "Otoriter ve Sert", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz", "Soğuk ve Mesafeli", "Savunmacı ve Israrcı", "Geleneksel / Israrcı", "Anlayışlı ve Açık Sözlü"]
+        },
+        {
+          key: "difficultyReason",
+          label: "Bu konuda konuşmakta neden zorlanıyorsun?",
+          helper: "Temel zorluğu veya çekinceni seç.",
+          type: "select",
+          options: [
+            "Sağlık durumumu açarken pozisyonumu tehlikeye atmamak",
+            "Duygusal ihtiyacımı küçümsenmeden ifade edebilmek",
+            "Yargılamadan endişemi iletmek ve arkadaşı uzaklaştırmamak",
+            "Stigma ve yanlış bilgilerle dolu bir ortamda kararımı savunmak",
+            "Doktoru gücendirmeden kendi sağlığım için ısrar edebilmek",
+            "Mental sağlığı fiziksel sağlık kadar meşru gösteremeyen ortamda hakkımı aramak",
+            "Yargılanacağım korkusuyla gerçeği söyleyememek",
+            "Belirtilerimin ciddiye alınmasını sağlamak ve sevke ihtiyacım olduğunu ifade etmek"
+          ]
+        },
+        {
+          key: "goal",
+          label: "Senin amacın ne?",
+          helper: "Provanın kazanma koşulu gibi düşün.",
+          type: "select",
+          options: [
+            "Makul düzenlemelerin (esnek saat, uzaktan çalışma vb.) yapılmasını sağlamak",
+            "Partnerimin aktif olarak yanımda olmasını sağlamak",
+            "Endişemi aktarıp profesyonel destek almayı önermek",
+            "Kararıma saygı duyulmasını ve desteklenmemi sağlamak",
+            "İkinci bir uzmana danışma iznini almak",
+            "En az 1-2 günlük izin alabilmek",
+            "Gerçek sorunumu açık ve dürüst biçimde anlatmak",
+            "Psikologa veya psikiyatriste sevk almak"
+          ]
+        },
+        {
+          key: "tone",
+          label: "Ton nasıl olsun?",
+          helper: "AI önerileri bu tona göre ayarlanır.",
+          type: "select",
+          options: ["Profesyonel ve güvenli", "Savunmasız ama net", "Şefkatli ve dikkatli", "Sakin ve bilgilendirici", "Saygılı ama kararlı", "Net ve kendinden emin", "Savunmasız ve dürüst", "Kararlı ve net"]
+        },
+        {
+          key: "replyLength",
+          label: "Cevap uzunluğu nasıl olsun?",
+          helper: "Kısa kalmak çoğu durumda avantajdır.",
+          type: "select",
+          options: ["Kısa mesaj", "Tek cümle", "Detaylı mesaj", "3 alternatif ver"]
+        },
+        {
+          key: "preserveRelationship",
+          label: "Bu kişiyle ilişkiyi korumak istiyor musun?",
+          helper: "Sınır ve nezaket dengesini ayarlar.",
+          type: "select",
+          options: ["Evet", "Hayır", "Emin değilim", "Sadece saygılı kapatmak istiyorum"]
+        },
+        {
+          key: "fear",
+          label: "Karşı tarafın nasıl tepki vermesinden çekiniyorsun?",
+          helper: "Çekindiğin olumsuz senaryoyu belirt.",
+          type: "input",
+          placeholder: "Örn: yetersiz görünmek, yük olmak, bencil bulunmak"
+        }
+      ];
+    case "sosyal_anlar":
+      return [
+        {
+          key: "incomingMessage",
+          label: "Durum veya sana söylenen son söz ne?",
+          helper: "Durumu veya konuşulan son cümleyi yazarak provanın zeminini belirleyin.",
+          type: "textarea",
+          placeholder: "Durumu veya konuşulan son cümleyi yaz..."
+        },
+        {
+          key: "otherPerson",
+          label: "Karşı taraf kim?",
+          helper: "Karşı tarafın rolü konuşmanın gidişatını belirler.",
+          type: "select",
+          options: ["Berber / Kuaför", "Taksi Şoförü", "Kafe Görevlisi / Barista", "Kuyruktaki Yabancı", "Akraba / Uzak Aile", "İş Arkadaşı", "İş Arkadaşı / Meslektaş", "Yakın Arkadaş", "Akraba / Yakın Tanıdık", "Arkadaş Grubu", "Yabancı Yolcu", "Toplantı Organizatörü / Yönetici", "Yabancı / Tanıdık", "Yakın Arkadaş / Aile Üyesi", "Rekabetçi Arkadaş"]
+        },
+        {
+          key: "otherPersonPersonality",
+          label: "Karşı tarafın kişiliği nasıl?",
+          helper: "AI karşı tarafı bu karaktere göre canlandırır, tepki ve itirazları buna göre şekillenir.",
+          type: "select",
+          options: ["Anlayışlı ve Mantıklı", "Otoriter ve Sert", "Pasif-Agresif / İğneleyici", "Manipülatif ve Egoist", "Yoğun ve Dikkatsiz", "Savunmacı ve Israrcı", "Geleneksel / Israrcı", "İlgisiz / Kararsız", "Israrcı ve Zorlayıcı"]
+        },
+        {
+          key: "difficultyReason",
+          label: "Bu konuda konuşmakta neden zorlanıyorsun?",
+          helper: "Temel zorluğu veya çekinceni seç.",
+          type: "select",
+          options: [
+            "Karşısında oturuyorum, kalkmak garip olur diye söyleyemiyorum",
+            "Araçtan inerken mahsur hissediyorum, tartışmak istemiyorum",
+            "\"Küçük bir şey için uğraştıracağım\" utancını aşmak",
+            "Kavgacı ya da küçük şeylere takılan biri gibi görünmek istemiyorum",
+            "Kaba görünmeden ama konuyu gerçekten kapatmak istiyorum",
+            "Küçük bir şey için yaygaracı gibi görünmek istemiyorum",
+            "Toplantıda herkesin önünde sert görünmek istemiyorum ama yutkunmaktan da bıktım",
+            "İyi niyetle yaptı ama iznim olmadan söz verdi, bunu net anlatmak zor",
+            "\"İyi niyetle söylüyor\" bahanesiyle yutkunmaya devam etmek istemiyorum",
+            "Kırıldığımı belli etmek istemiyorum ama tamam da demek istemiyorum",
+            "Dar bir alanda yabancıyla tartışmak zorunda kalmak",
+            "Nedeni açıklamak zorunda değilim ama \"hayır\" demek garip hissettiriyor",
+            "Hakkım olduğunu biliyorum ama agresif görünmek istemiyorum",
+            "İyi niyetle yapıyor ama bazen sadece dinlenmek istiyorum",
+            "Her şeyi yarışmaya döndüren arkadaşın bu örüntüsünü dile getirmek"
+          ]
+        },
+        {
+          key: "goal",
+          label: "Senin amacın ne?",
+          helper: "Provanın kazanma koşulu gibi düşün.",
+          type: "select",
+          options: [
+            "Yeniden düzeltilmesini ya da indirim yapılmasını sağlamak",
+            "Eksik parayı almak",
+            "Doğru siparişi almak",
+            "Kuyruktaki sırayı korumak",
+            "Bu soruyu bir daha almamak için net bir mesaj vermek",
+            "Bir daha bırakmamasını sağlamak",
+            "Sözümü bitirmek ve bir daha kesilmemek",
+            "Bir dahaki sefere sormadan söz vermemesini sağlamak",
+            "Bu tür yorumların bir daha yapılmamasını sağlamak",
+            "Nasıl hissettirdiğini anlatmak ve bir dahaki seferde dahil edilmek",
+            "Koltuk numarama oturmak",
+            "Kamerayı kapalı tutabilmek",
+            "Uzaklaşmasını ya da başka yönde içmesini sağlamak",
+            "Tavsiye değil, sadece dinlenmek istediğimi anlatmak",
+            "Sürekli üste çıkma alışkanlığını dile getirmek"
+          ]
+        },
+        {
+          key: "tone",
+          label: "Ton nasıl olsun?",
+          helper: "AI önerileri bu tona göre ayarlanır.",
+          type: "select",
+          options: ["Net ama sakin", "Net ve sakin", "Kibar ama net", "Net ama sakin", "Hafif espirili ama net", "Sakin ama kararlı", "Nazik ama net", "Hafif ama net", "Dürüst ama sakin", "Sakin ama net", "Nazik ama net", "Dürüst ve sakin"]
+        },
+        {
+          key: "replyLength",
+          label: "Cevap uzunluğu nasıl olsun?",
+          helper: "Kısa kalmak çoğu durumda avantajdır.",
+          type: "select",
+          options: ["Kısa mesaj", "Tek cümle", "Detaylı mesaj", "3 alternatif ver"]
+        },
+        {
+          key: "preserveRelationship",
+          label: "Bu kişiyle ilişkiyi korumak istiyor musun?",
+          helper: "Sınır ve nezaket dengesini ayarlar.",
+          type: "select",
+          options: ["Evet", "Hayır", "Emin değilim", "Sadece saygılı kapatmak istiyorum"]
+        },
+        {
+          key: "fear",
+          label: "Karşı tarafın nasıl tepki vermesinden çekiniyorsun?",
+          helper: "Çekindiğin olumsuz senaryoyu belirt.",
+          type: "input",
+          placeholder: "Örn: kavgacı görünmek, rezil olmak, dışlanmak"
+        }
+      ];
     case "zor_mesajlar":
     default:
       return [
@@ -656,6 +1157,11 @@ function getStepsForCategory(category: string, initiatedBy?: string): WizardStep
         label: isUserStarted
           ? (category === "flort_iliski" ? "Konuşmak istediğiniz konu veya durum nedir?" : 
              category === "para_pazarlik" ? "Pazarlık veya para ile ilgili durum nedir?" :
+             category === "egitim_okul" ? "Eğitim veya okul ile ilgili durum nedir?" :
+             category === "gunluk_yasam" ? "Günlük yaşam veya komşuluk ile ilgili durum nedir?" :
+             category === "sosyal_medya_dijital" ? "Sosyal medya veya dijital sınır ile ilgili durum nedir?" :
+             category === "saglik_psikoloji" ? "Sağlık veya psikoloji ile ilgili durum nedir?" :
+             category === "sosyal_anlar" ? "Sosyal durum veya anlık kriz nedir?" :
              category === "zor_mesajlar" ? "Harekete geçeceğiniz durum veya konuşmak istediğiniz konu nedir?" :
              "Harekete geçeceğiniz durum veya konuşmak istediğiniz konu nedir?")
           : step.label,
@@ -942,9 +1448,15 @@ export function ContextWizard({
               key={template.id}
               onClick={() => {
                 setActiveTemplate(template);
+                const templateInitiatedBy = template.context.initiatedBy === "user"
+                  ? "Ben (Konuşmayı ilk ben başlatacağım)"
+                  : template.context.initiatedBy === "other"
+                  ? "Karşı Taraf (Gelen bir mesaja veya söze cevap vereceğim)"
+                  : template.context.initiatedBy;
                 setContext({
                   ...getInitialContextForCategory(selectedCategory),
                   ...template.context,
+                  ...(templateInitiatedBy ? { initiatedBy: templateInitiatedBy } : {}),
                 });
                 setCategorySelected(true);
                 setStep(0);
@@ -1081,9 +1593,16 @@ export function ContextWizard({
             value={context[current.key] || ""}
             onChange={(event) => update(current.key, event.target.value)}
           >
-            {current.options?.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
+            {(() => {
+              const currentValue = context[current.key] || "";
+              const options = [...(current.options || [])];
+              if (currentValue && !options.includes(currentValue)) {
+                options.unshift(currentValue);
+              }
+              return options.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ));
+            })()}
           </select>
         ) : (
           <input
